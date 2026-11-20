@@ -111,7 +111,7 @@ GitHub（公開・コードのみ）
 | PWA | vite-plugin-pwa | Service Worker とマニフェストを生成し、オフライン動作を実現する |
 | 端末内保存 | Dexie.js（IndexedDB） | 音声 Blob を保存でき、スキーマ変更（マイグレーション）が容易 |
 | zip 展開 | fflate | 軽量・高速で、スマホ上での展開に向く |
-| 区間再生 | Web Audio API（ブラウザ標準） | 開始秒〜終了秒で正確に停止できる（`<audio>` 要素は iOS で停止位置がずれやすい） |
+| 区間再生 | Web Audio API でデコード・切り出し、`<audio>` 要素で再生（どちらもブラウザ標準） | 区間だけを WAV に切り出して最後まで鳴らすため、停止位置がずれない（`<audio>` 要素で途中から途中まで鳴らすと iOS で停止位置がずれやすい）。Web Audio API で鳴らすと、iOS ではアプリを離れて戻った後に音が出なくなる不具合がある |
 | テスト | Vitest | Vite と設定を共有できる |
 | テスト用の IndexedDB | fake-indexeddb（開発時のみ） | Node 上のテストで IndexedDB を再現し、Dexie を使う処理をテストできる。アプリ本体には含まれない |
 | 整形・静的解析 | Biome | 整形と静的解析を 1 つのツールで行える |
