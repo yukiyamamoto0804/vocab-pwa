@@ -82,7 +82,7 @@ app → pages → components
                        → lib
 ```
 
-- 上から下への一方向だけ import してよい。逆向き・横向き（`pages/` 同士、`features/` 同士の循環）は禁止。
+- 上から下への一方向だけ import してよい。`lib/` は小さな汎用処理なので、どの層から import してもよい。逆向き・横向き（`pages/` 同士、`features/` 同士の循環）は禁止。
 - `features/` の計算処理（形式の検証、ユニットの自動分割、定着度・重みの計算、出題の組み立て）は **React や DOM に依存させない**純粋な関数にし、Vitest でテストする。
   - 乱数や現在時刻を使う処理は、乱数関数・時刻を引数で受け取れるようにし、テストで固定できるようにする。
 - `db/` へのアクセスは `features/` か、`db/` が提供する関数経由で行い、画面から Dexie を直接触らない。
@@ -169,3 +169,4 @@ app → pages → components
 - `features/` と `db/` の処理は Vitest で単体テストを書く。
 - テストデータは自作のダミーだけを使う（`docs/RULES.md` 1 章）。
 - 画面の表示や操作は、当面はブラウザと実機で手動確認する。
+- 実機での確認は HTTPS で開いて行う。Service Worker・`navigator.storage.persist()`・`crypto.randomUUID()` は安全なコンテキスト（HTTPS か localhost）でしか動かないため、LAN の IP アドレスに http で接続すると正しく確認できない。

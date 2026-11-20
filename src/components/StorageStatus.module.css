@@ -1,0 +1,10 @@
+.status {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--color-surface);
+}
+
+.status[data-state="not-persisted"] {
+  background: var(--color-warning-surface);
+}

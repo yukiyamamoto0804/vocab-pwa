@@ -7,3 +7,12 @@ export async function requestPersistentStorage(
   if (await storage.persisted()) return true
   return storage.persist()
 }
+
+let persistentStorage: Promise<boolean> | undefined
+
+// 起動処理と各画面から呼ぶ。要求は 1 回だけ行い、結果を共有する。
+// 要求自体が失敗した場合は、永続化されていないとみなす。
+export function ensurePersistentStorage(): Promise<boolean> {
+  persistentStorage ??= requestPersistentStorage().catch(() => false)
+  return persistentStorage
+}
