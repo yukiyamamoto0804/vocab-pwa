@@ -1,0 +1,18 @@
+// 学習の設定値（docs/specs/study-cards.md 6 章）。
+// 研究上の根拠がない出発点なので、使いながらここで調整する。
+export const studyConfig = {
+  /** 教材でユニットが指定されていないとき、自動で区切る語数 */
+  unitSize: 20,
+  /** ユニット学習に混ぜる単語の数（学習開始時に変更できる） */
+  mixCount: { default: 5, min: 0, max: 20 },
+  /** 混ぜる単語の対象範囲（直前の何ユニットか） */
+  mixUnitRange: 3,
+  /** 重みの底上げ */
+  weightFloor: 0.2,
+  /** 重みの日数の頭打ち（日） */
+  weightMaxDays: 30,
+  /** 重みの日数の割る数（日） */
+  weightDayScale: 14,
+  /** 定着度の指数移動平均で、直近の結果をどれだけ重視するか */
+  masteryLambda: 0.4,
+} as const
