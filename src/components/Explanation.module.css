@@ -1,0 +1,77 @@
+/* 大きさは全て em で指定する。カードに収めるとき、まとめて縮められるようにするため（FitContent） */
+.explanation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em 0.75em;
+}
+
+.word {
+  margin: 0;
+  font-size: 1.75em;
+  line-height: 1.3;
+}
+
+.sense {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+
+.meanings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2em 0.75em;
+  font-size: 1.0625em;
+  font-weight: bold;
+  line-height: 1.45;
+}
+
+/* 「品詞＋訳」のまとまりの途中では折り返さない */
+.meaning {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25em;
+}
+
+.mark {
+  font-weight: normal;
+}
+
+.pos {
+  padding: 0 0.4em;
+  border-radius: 4px;
+  font-size: 0.75em;
+  font-weight: normal;
+  background: var(--color-bg);
+}
+
+.example {
+  line-height: 1.45;
+}
+
+.translation {
+  font-size: 0.875em;
+  line-height: 1.45;
+  opacity: 0.75;
+}
+
+.idioms ul {
+  margin: 0;
+  padding-left: 1.25em;
+  font-size: 0.875em;
+  line-height: 1.45;
+}
+
+.idiomsTitle {
+  margin: 0 0 0.25em;
+  font-size: 0.875em;
+}

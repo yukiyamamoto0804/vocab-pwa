@@ -1,0 +1,278 @@
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
+import { Explanation } from '../../components/Explanation'
+import { PlayButton } from '../../components/PlayButton'
+import { restoreBeforeAnswer, saveAnswer, toggleReport } from '../../db/study'
+import type {
+  Face,
+  ItemRecord,
+  ProgressRecord,
+  Rating,
+  StudySessionRecord,
+} from '../../db/types'
+import { playAudio, stopAudio } from '../../features/audio/player'
+import { applyAnswer } from '../../features/mastery/mastery'
+import {
+  answerCard,
+  createUnitDeck,
+  currentCard,
+  type Deck,
+  isFinished,
+} from '../../features/session/deck'
+import {
+  appendAnswer,
+  createSessionRecord,
+} from '../../features/session/sessionRecord'
+import { isQuotaError } from '../../lib/errors'
+import { FitContent } from './FitContent'
+import { RATING_LABELS } from './ratingLabels'
+import { StudyCard } from './StudyCard'
+import styles from './StudySession.module.css'
+
+type Counts = Record<Rating, number>
+
+/** 1 回の学習の状態。直前の申告を取り消すときは、丸ごと 1 つ前に戻す */
+interface State {
+  deck: Deck
+  session: StudySessionRecord
+  progress: Map<string, ProgressRecord>
+  counts: Counts
+}
+
+interface Props {
+  packId: string
+  face: Face
+  items: ItemRecord[]
+  initialProgress: Map<string, ProgressRecord>
+  initialReported: Set<string>
+  exitPath: string
+}
+
+export function StudySession(props: Props) {
+  const { packId, face, items, exitPath } = props
+  const [state, setState] = useState<State>(() => ({
+    deck: createUnitDeck(items.map((i) => i.id)),
+    session: createSessionRecord({
+      id: crypto.randomUUID(),
+      packId,
+      mode: 'unit',
+      face,
+      startedAt: Date.now(),
+    }),
+    progress: props.initialProgress,
+    counts: { remembered: 0, unsure: 0, forgot: 0 },
+  }))
+  const [previous, setPrevious] = useState<State | null>(null)
+  const [flipped, setFlipped] = useState(false)
+  const [reported, setReported] = useState(props.initialReported)
+  const [busy, setBusy] = useState(false)
+  /** 保存の失敗。容量不足なら 'quota' */
+  const [saveError, setSaveError] = useState<'quota' | 'other' | null>(null)
+
+  // 画面を離れたら、再生中の音声を止める
+  useEffect(() => stopAudio, [])
+
+  const itemId = currentCard(state.deck)
+  const item = items.find((i) => i.id === itemId)
+
+  async function answer(rating: Rating) {
+    if (!flipped || busy || !item) return
+    const at = Date.now()
+    const progress = applyAnswer(state.progress.get(item.id), {
+      packId,
+      itemId: item.id,
+      face,
+      rating,
+      at,
+    })
+    const next: State = {
+      deck: answerCard(state.deck, rating),
+      session: appendAnswer(state.session, item.id, rating, at),
+      progress: new Map(state.progress).set(item.id, progress),
+      counts: { ...state.counts, [rating]: state.counts[rating] + 1 },
+    }
+    setBusy(true)
+    try {
+      await saveAnswer(next.session, progress)
+      stopAudio()
+      setPrevious(state)
+      setState(next)
+      setFlipped(false)
+      setSaveError(null)
+    } catch (e) {
+      console.error(e)
+      setSaveError(isQuotaError(e) ? 'quota' : 'other')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function undo() {
+    const undoneItemId = previous && currentCard(previous.deck)
+    if (!previous || !undoneItemId || busy) return
+    setBusy(true)
+    try {
+      await restoreBeforeAnswer(
+        previous.session,
+        { packId, itemId: undoneItemId },
+        previous.progress.get(undoneItemId),
+      )
+      stopAudio()
+      setState(previous)
+      setPrevious(null)
+      setFlipped(false)
+      setSaveError(null)
+    } catch (e) {
+      console.error(e)
+      setSaveError(isQuotaError(e) ? 'quota' : 'other')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function report() {
+    if (!item) return
+    try {
+      const itemId = item.id
+      const nowReported = await toggleReport(packId, itemId, Date.now())
+      setReported((prev) => {
+        const next = new Set(prev)
+        if (nowReported) next.add(itemId)
+        else next.delete(itemId)
+        return next
+      })
+      setSaveError(null)
+    } catch (e) {
+      console.error(e)
+      setSaveError(isQuotaError(e) ? 'quota' : 'other')
+    }
+  }
+
+  const topBar = (
+    <div className={styles.topBar}>
+      <Link to={exitPath} className={styles.exit} aria-label="学習をやめる">
+        ✕
+      </Link>
+      <span className={styles.position}>
+        {isFinished(state.deck)
+          ? '完了'
+          : `${state.deck.position + 1} / ${state.deck.queue.length}`}
+      </span>
+      <button
+        type="button"
+        className={styles.undo}
+        onClick={undo}
+        disabled={!previous || busy}
+      >
+        1 つ戻す
+      </button>
+    </div>
+  )
+
+  const errorMessage = saveError && (
+    <p className={styles.error} role="alert">
+      {saveError === 'quota'
+        ? '端末の空き容量が足りないため、保存できませんでした。空き容量を増やしてから、もう一度操作してください。'
+        : '保存できませんでした。もう一度操作してください。'}
+    </p>
+  )
+
+  if (!item) {
+    return (
+      <div className={styles.screen}>
+        {topBar}
+        {errorMessage}
+        <Summary counts={state.counts} exitPath={exitPath} />
+      </div>
+    )
+  }
+
+  const { audio } = item
+  const audioButton = audio && (
+    <PlayButton
+      label={`${item.word} の音声`}
+      onPlay={() => playAudio(packId, audio)}
+    />
+  )
+
+  return (
+    <div className={styles.screen}>
+      {topBar}
+      {errorMessage}
+      <StudyCard
+        // カードが変わったら、スワイプの途中の状態を持ち越さない
+        key={`${state.deck.position}`}
+        flipped={flipped}
+        onFlip={() => setFlipped(true)}
+        onRate={answer}
+        front={
+          <div className={styles.front}>
+            <p className={styles.frontWord} lang="en">
+              {item.word}
+            </p>
+            {audioButton && (
+              <div className={styles.audioBand} data-no-flip>
+                {audioButton}
+              </div>
+            )}
+            <p className={styles.hint}>タップして裏返す</p>
+          </div>
+        }
+        back={
+          <FitContent>
+            <Explanation
+              item={item}
+              wordAside={
+                <>
+                  {audioButton}
+                  <button
+                    type="button"
+                    className={styles.report}
+                    data-reported={reported.has(item.id)}
+                    onClick={report}
+                    aria-pressed={reported.has(item.id)}
+                    aria-label="解説の誤りを報告"
+                  >
+                    {reported.has(item.id) ? '⚑ 報告済み' : '⚐ 誤りを報告'}
+                  </button>
+                </>
+              }
+            />
+          </FitContent>
+        }
+      />
+      <div className={styles.ratings}>
+        {(['forgot', 'unsure', 'remembered'] as const).map((rating) => (
+          <button
+            key={rating}
+            type="button"
+            className={styles.rating}
+            data-rating={rating}
+            onClick={() => answer(rating)}
+            disabled={!flipped || busy}
+          >
+            {RATING_LABELS[rating]}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function Summary({ counts, exitPath }: { counts: Counts; exitPath: string }) {
+  return (
+    <div className={styles.summary}>
+      <h1>おつかれさまでした</h1>
+      <ul className={styles.counts}>
+        {(['remembered', 'unsure', 'forgot'] as const).map((rating) => (
+          <li key={rating} data-rating={rating}>
+            {RATING_LABELS[rating]} <strong>{counts[rating]}</strong>
+          </li>
+        ))}
+      </ul>
+      <Link to={exitPath} className={styles.done}>
+        ユニット一覧へ
+      </Link>
+    </div>
+  )
+}

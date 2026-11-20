@@ -2,6 +2,8 @@ import { Link, useParams } from 'react-router'
 import { LinkList } from '../../components/LinkList'
 import { LoadError } from '../../components/LoadError'
 import { getPack, listUnitSummaries } from '../../db/content'
+import { buildStudyQuery } from '../../features/session/studyQuery'
+import { studyConfig } from '../../features/studyConfig'
 import { useAsync } from '../../lib/useAsync'
 
 export function UnitsPage() {
@@ -35,6 +37,17 @@ export function UnitsPage() {
             ? `ユニット ${unit.id}　${unit.title}`
             : `ユニット ${unit.id}`,
           meta: `${itemCount} 語・学習済み ${learnedCount} 語`,
+          action: {
+            to: `/study?${buildStudyQuery({
+              mode: 'unit',
+              packId,
+              unitIds: [unit.id],
+              face: 'en',
+              mixCount: studyConfig.mixCount.default,
+              order: 'weak',
+            })}`,
+            label: '学習',
+          },
         }))}
       />
     </>

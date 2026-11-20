@@ -1,0 +1,87 @@
+/* カードと、画面の上に出すラベルを重ねる土台。ラベルはカードと一緒に動かない */
+.stage {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.frame {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  transition: transform 0.15s ease-out;
+}
+
+.frame[data-dragging="true"] {
+  transition: none;
+}
+
+.card {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  padding: 20px;
+  border: 3px solid transparent;
+  border-radius: 16px;
+  /* 裏面の解説は文字を縮めて必ず収めるので、スクロールしない（docs/specs/study-cards.md 2 章） */
+  overflow: hidden;
+  background: var(--color-surface);
+  /* 指の動きは全てカードの操作として受け取る */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.card[data-flipped="false"] {
+  cursor: pointer;
+}
+
+/* 離すと申告になる状態では、カードの枠もその色にする */
+.card[data-rating="forgot"] {
+  border-color: var(--color-forgot);
+}
+
+.card[data-rating="unsure"] {
+  border-color: var(--color-unsure);
+}
+
+.card[data-rating="remembered"] {
+  border-color: var(--color-remembered);
+}
+
+.zones {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  left: 8px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.zone {
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffffff;
+  visibility: hidden;
+}
+
+.zone[data-active="true"] {
+  visibility: visible;
+}
+
+.zone[data-rating="forgot"] {
+  background: var(--color-forgot);
+}
+
+.zone[data-rating="unsure"] {
+  background: var(--color-unsure);
+}
+
+.zone[data-rating="remembered"] {
+  background: var(--color-remembered);
+}

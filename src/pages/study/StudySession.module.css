@@ -1,0 +1,191 @@
+/*
+ * ヘッダーと余白を除いた画面の高さいっぱいに、カードを広げる。
+ * 140px は app/Layout.module.css のヘッダー（約 60px）と main の上下の余白（16px + 32px）、
+ * ゆとり（約 30px）の合計。Layout を変えたら合わせて直す
+ */
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: calc(
+    100dvh -
+    140px -
+    env(safe-area-inset-top) -
+    env(safe-area-inset-bottom)
+  );
+  min-height: 360px;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.exit {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  font-size: 20px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.position {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.undo {
+  min-height: 44px;
+  touch-action: manipulation;
+  padding: 0 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: inherit;
+  background: var(--color-surface);
+}
+
+.undo:disabled {
+  opacity: 0.4;
+}
+
+.front {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.frontWord {
+  font-size: 36px;
+  font-weight: bold;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* 再生ボタンの周りの、触れても裏返らない帯（横いっぱい） */
+.audioBand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  min-height: 96px;
+  margin: 0 -20px;
+}
+
+.audioBand button {
+  width: 64px;
+  height: 64px;
+  font-size: 22px;
+}
+
+.hint {
+  font-size: 13px;
+  opacity: 0.5;
+}
+
+.report {
+  flex: none;
+  margin-left: auto;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--color-text);
+  border-radius: 16px;
+  font-size: 12px;
+  color: inherit;
+  background: transparent;
+  opacity: 0.6;
+}
+
+.report[data-reported="true"] {
+  border-color: var(--color-forgot);
+  color: var(--color-forgot);
+  opacity: 1;
+}
+
+.error {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--color-warning-surface);
+}
+
+.ratings {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.rating {
+  min-height: 56px;
+  touch-action: manipulation;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.rating:disabled {
+  opacity: 0.35;
+}
+
+.rating[data-rating="forgot"] {
+  background: var(--color-forgot);
+}
+
+.rating[data-rating="unsure"] {
+  background: var(--color-unsure);
+}
+
+.rating[data-rating="remembered"] {
+  background: var(--color-remembered);
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding-top: 32px;
+}
+
+.counts {
+  display: flex;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.counts strong {
+  display: block;
+  font-size: 28px;
+  text-align: center;
+}
+
+.counts [data-rating="remembered"] strong {
+  color: var(--color-remembered);
+}
+
+.counts [data-rating="unsure"] strong {
+  color: var(--color-unsure);
+}
+
+.counts [data-rating="forgot"] strong {
+  color: var(--color-forgot);
+}
+
+.done {
+  padding: 14px 24px;
+  border-radius: 12px;
+  font-weight: bold;
+  color: #ffffff;
+  text-decoration: none;
+  background: var(--color-accent);
+}
