@@ -47,7 +47,7 @@ function content(
 
 describe('replacePack', () => {
   it('取り込み直すと教材は入れ替わり、学習記録は残る', async () => {
-    await replacePack(db, content('pack-a', ['0001', '0002']))
+    await replacePack(content('pack-a', ['0001', '0002']), db)
     await db.progress.put({
       packId: 'pack-a',
       itemId: '0001',
@@ -57,7 +57,7 @@ describe('replacePack', () => {
     })
     await db.reports.put({ id: 'r1', at: 0, packId: 'pack-a', itemId: '0001' })
 
-    const summary = await replacePack(db, content('pack-a', ['0001', '0003']))
+    const summary = await replacePack(content('pack-a', ['0001', '0003']), db)
 
     expect(summary.replaced).toBe(true)
     const ids = (await db.items.toArray()).map((i) => i.id)
@@ -67,9 +67,9 @@ describe('replacePack', () => {
   })
 
   it('ほかのパックの教材には触れない', async () => {
-    await replacePack(db, content('pack-a', ['0001']))
-    await replacePack(db, content('pack-b', ['0001']))
-    await replacePack(db, content('pack-a', ['0002']))
+    await replacePack(content('pack-a', ['0001']), db)
+    await replacePack(content('pack-b', ['0001']), db)
+    await replacePack(content('pack-a', ['0002']), db)
     expect(await db.items.get(['pack-b', '0001'])).toBeDefined()
     expect(await db.audioFiles.count()).toBe(2)
   })
@@ -77,7 +77,7 @@ describe('replacePack', () => {
 
 describe('replacePack の結果', () => {
   it('初めて保存したときは、全ての単語が追加になる', async () => {
-    expect(await replacePack(db, content('pack-a', ['0001', '0002']))).toEqual({
+    expect(await replacePack(content('pack-a', ['0001', '0002']), db)).toEqual({
       replaced: false,
       added: 2,
       removed: 0,
@@ -87,11 +87,11 @@ describe('replacePack の結果', () => {
   })
 
   it('取り込み直すと、追加・削除・内容の変更・変更なしを数える', async () => {
-    await replacePack(db, content('pack-a', ['0001', '0002', '0003']))
+    await replacePack(content('pack-a', ['0001', '0002', '0003']), db)
     const next = content('pack-a', ['0003', '0002', '0004'])
     next.items[1].word = '直した見出し語'
     // 0003 は並び順だけが変わったので「変更なし」
-    expect(await replacePack(db, next)).toEqual({
+    expect(await replacePack(next, db)).toEqual({
       replaced: true,
       added: 1,
       removed: 1,
@@ -103,7 +103,7 @@ describe('replacePack の結果', () => {
 
 describe('replacePack の失敗', () => {
   it('途中で失敗すると何も書き込まれず、元の教材が残る', async () => {
-    await replacePack(db, content('pack-a', ['0001']))
+    await replacePack(content('pack-a', ['0001']), db)
     const broken = content('pack-a', ['0002'])
     // 主キーの一部がない単語を混ぜて、書き込みを失敗させる
     broken.items.push({
@@ -111,7 +111,7 @@ describe('replacePack の失敗', () => {
       packId: undefined as unknown as string,
     })
 
-    await expect(replacePack(db, broken)).rejects.toThrow()
+    await expect(replacePack(broken, db)).rejects.toThrow()
 
     expect((await db.items.toArray()).map((i) => i.id)).toEqual(['0001'])
     expect(await db.units.count()).toBe(1)
@@ -121,8 +121,8 @@ describe('replacePack の失敗', () => {
 
 describe('listPacks', () => {
   it('取り込んだ順に、単語数とユニット数を付けて返す', async () => {
-    await replacePack(db, content('pack-b', ['0001'], 2))
-    await replacePack(db, content('pack-a', ['0001', '0002'], 1))
+    await replacePack(content('pack-b', ['0001'], 2), db)
+    await replacePack(content('pack-a', ['0001', '0002'], 1), db)
     const list = await listPacks(db)
     expect(list.map((s) => [s.pack.id, s.itemCount, s.unitCount])).toEqual([
       ['pack-a', 2, 1],

@@ -75,12 +75,15 @@ export async function importPack(
   }
 
   try {
-    const summary = await replacePack(db, {
-      pack,
-      units: unitRecords,
-      items: itemRecords,
-      audioFiles,
-    })
+    const summary = await replacePack(
+      {
+        pack,
+        units: unitRecords,
+        items: itemRecords,
+        audioFiles,
+      },
+      db,
+    )
     return {
       ok: true,
       packId,

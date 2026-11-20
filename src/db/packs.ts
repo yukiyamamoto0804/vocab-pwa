@@ -28,8 +28,8 @@ export interface ReplaceSummary {
 // 学習記録（progress など）には触れないので、id が同じ単語の記録は引き継がれる。
 // 途中で失敗した場合は何も書き込まれない（1 つのトランザクション）。
 export async function replacePack(
-  db: VocabDatabase,
   content: PackContent,
+  db: VocabDatabase = defaultDb,
 ): Promise<ReplaceSummary> {
   const packId = content.pack.id
   return db.transaction(
