@@ -24,6 +24,7 @@ import {
   createSessionRecord,
 } from '../../features/session/sessionRecord'
 import { isQuotaError } from '../../lib/errors'
+import { randomId } from '../../lib/random'
 import { FitContent } from './FitContent'
 import { RATING_LABELS } from './ratingLabels'
 import { StudyCard } from './StudyCard'
@@ -53,7 +54,7 @@ export function StudySession(props: Props) {
   const [state, setState] = useState<State>(() => ({
     deck: createUnitDeck(items.map((i) => i.id)),
     session: createSessionRecord({
-      id: crypto.randomUUID(),
+      id: randomId(),
       packId,
       mode: 'unit',
       face,

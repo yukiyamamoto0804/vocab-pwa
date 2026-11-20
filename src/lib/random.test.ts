@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { shuffle } from './random'
+import { describe, expect, it, vi } from 'vitest'
+import { randomId, shuffle } from './random'
 
 describe('shuffle', () => {
   it('同じ要素を並べ替えた新しい配列を返し、元の配列は変えない', () => {
@@ -29,5 +29,32 @@ describe('shuffle', () => {
     expect(shuffle([1, 2, 3, 4, 5], make())).toEqual(
       shuffle([1, 2, 3, 4, 5], make()),
     )
+  })
+})
+
+describe('randomId', () => {
+  it('crypto.randomUUID が使えるときはそれを使う', () => {
+    vi.stubGlobal('crypto', { randomUUID: () => 'from-random-uuid' })
+    try {
+      expect(randomId()).toBe('from-random-uuid')
+    } finally {
+      vi.unstubAllGlobals()
+    }
+  })
+
+  const uuidV4 =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+
+  it('crypto.randomUUID が使えないときも UUID v4 の形の ID を返す', () => {
+    vi.stubGlobal('crypto', {
+      getRandomValues: crypto.getRandomValues.bind(crypto),
+    })
+    try {
+      const a = randomId()
+      expect(a).toMatch(uuidV4)
+      expect(randomId()).not.toBe(a)
+    } finally {
+      vi.unstubAllGlobals()
+    }
   })
 })

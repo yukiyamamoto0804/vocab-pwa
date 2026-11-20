@@ -130,7 +130,7 @@ app → pages → components
 - **教材**と**学習記録**は分けて扱う。エクスポートの対象は学習記録だけで、教材は含めない。
 - 教材パックを取り込み直しても、`[packId+itemId]` が同じなら学習記録は引き継がれる。
 - 定着度は回答のたびに、今の値と今回の自己申告から更新して `progress` に保存する。`studySessions` は計算し直し（λ や式を変えたとき）と集計のための記録で、普段の学習では読まない（`study-cards.md` 6 章）。
-- 学習記録の `id` は `crypto.randomUUID()` で作る。学習記録をインポートするとき、同じ `id` の記録を飛ばすことで重複を防ぐ。
+- 学習記録の `id` は `randomId()`（`src/lib/random.ts`。UUID v4 の形）で作る。学習記録をインポートするとき、同じ `id` の記録を飛ばすことで重複を防ぐ。
 - 「学習済みの単語」は、`progress` に記録がある単語とする。
 - テーブル構造を変えるときは Dexie のバージョンを上げ、マイグレーションを書く。
 
@@ -172,4 +172,4 @@ app → pages → components
 - `features/` と `db/` の処理は Vitest で単体テストを書く。
 - テストデータは自作のダミーだけを使う（`docs/RULES.md` 1 章）。
 - 画面の表示や操作は、当面はブラウザと実機で手動確認する。
-- 実機での確認は HTTPS で開いて行う。Service Worker・`navigator.storage.persist()`・`crypto.randomUUID()` は安全なコンテキスト（HTTPS か localhost）でしか動かないため、LAN の IP アドレスに http で接続すると正しく確認できない。
+- 実機での確認は HTTPS で開いて行う。Service Worker・`navigator.storage.persist()` は安全なコンテキスト（HTTPS か localhost）でしか動かないため、LAN の IP アドレスに http で接続すると正しく確認できない。

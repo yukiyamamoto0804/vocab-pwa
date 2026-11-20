@@ -1,3 +1,4 @@
+import { randomId } from '../lib/random'
 import { db as defaultDb, type VocabDatabase } from './database'
 import type { ProgressRecord, StudySessionRecord } from './types'
 
@@ -64,7 +65,7 @@ export async function toggleReport(
       await existing.delete()
       return false
     }
-    await db.reports.add({ id: crypto.randomUUID(), at, packId, itemId })
+    await db.reports.add({ id: randomId(), at, packId, itemId })
     return true
   })
 }

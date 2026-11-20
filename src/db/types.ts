@@ -129,7 +129,7 @@ export interface ProgressRecord {
  * 容量を抑えるため、回答ごとの値は回答した順の配列で持つ。
  */
 export interface StudySessionRecord {
-  /** crypto.randomUUID() */
+  /** randomId()（src/lib/random.ts） */
   id: string
   packId: string
   startedAt: number
@@ -150,7 +150,7 @@ export const RATING_CODES = {
 } as const satisfies Record<Rating, string>
 
 export interface ReportRecord {
-  /** crypto.randomUUID() */
+  /** randomId()（src/lib/random.ts） */
   id: string
   at: number
   packId: string
