@@ -30,7 +30,17 @@
 
 ## 開発コマンド
 
-（技術スタック確定後に記載）
+| コマンド | 内容 |
+|---|---|
+| `npm run dev` | 開発サーバーを起動する |
+| `npm run build` | 型チェックして `dist/` にビルドする |
+| `npm run preview` | ビルド結果を配信して確認する（PWA の動作確認はこちら） |
+| `npm test` | テスト（Vitest）を実行する |
+| `npm run lint` | 整形・静的解析（Biome）のチェックだけを行う |
+| `npm run format` | 整形・静的解析の自動修正を行う |
+
+- コミット前に `npm run lint`、`npm test`、`npm run build` が通ることを確認する。
+- Biome の対象はコードだけ（Markdown と `.claude/` は対象外）。エージェント定義の先頭の設定ブロックが整形で壊れるのを防ぐため。
 
 ## コミュニケーション
 
