@@ -1,5 +1,6 @@
 import { type ChangeEvent, useState } from 'react'
 import { Link } from 'react-router'
+import { clearAudioCache } from '../../features/audio/player'
 import {
   type ImportResult,
   importPack,
@@ -24,7 +25,10 @@ export function ImportPage() {
     setState({ status: 'importing', fileName: file.name })
     try {
       const bytes = new Uint8Array(await file.arrayBuffer())
-      setState({ status: 'done', result: await importPack(bytes) })
+      const result = await importPack(bytes)
+      // 音声が差し替わっていても古いものが鳴らないように、デコード済みの音声を捨てる
+      if (result.ok) clearAudioCache()
+      setState({ status: 'done', result })
     } catch (err) {
       // ファイルを読めないなど、想定外の失敗でも「取り込み中」のまま止まらないようにする
       const message = err instanceof Error ? err.message : String(err)

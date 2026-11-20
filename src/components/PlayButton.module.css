@@ -1,0 +1,33 @@
+.button {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  font-size: 16px;
+  color: #ffffff;
+  background: var(--color-accent);
+  cursor: pointer;
+}
+
+.button[data-state="playing"] {
+  opacity: 0.6;
+}
+
+.button[data-state="error"] {
+  color: var(--color-text);
+  background: var(--color-warning-surface);
+}
+
+.wrap {
+  display: inline-flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.error {
+  font-size: 10px;
+  white-space: nowrap;
+}
