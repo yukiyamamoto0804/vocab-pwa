@@ -18,19 +18,22 @@ export type TestOrder = 'weak' | 'random'
 
 // ---- 教材パックの中身（manifest.json / items.json） ----
 
-export type PartOfSpeech =
-  | '名詞'
-  | '代名詞'
-  | '自動詞'
-  | '他動詞'
-  | '助動詞'
-  | '形容詞'
-  | '副詞'
-  | '前置詞'
-  | '接続詞'
-  | '間投詞'
-  | '句動詞'
-  | 'その他'
+/** 品詞の一覧（docs/CONTENT_FORMAT.md） */
+export const PARTS_OF_SPEECH = [
+  '名詞',
+  '代名詞',
+  '自動詞',
+  '他動詞',
+  '助動詞',
+  '形容詞',
+  '副詞',
+  '前置詞',
+  '接続詞',
+  '間投詞',
+  '句動詞',
+  'その他',
+] as const
+export type PartOfSpeech = (typeof PARTS_OF_SPEECH)[number]
 
 export interface AudioRef {
   file: string
