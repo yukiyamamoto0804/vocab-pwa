@@ -1,0 +1,48 @@
+#!/bin/sh
+# コミット前の著作権チェック
+#   1. ローカルデータ・メディアファイルの混入を拒否
+#   2. 禁止語リスト（.git/info/copyright-denylist、非公開）に一致する変更を拒否
+#   3. copyright-reviewer エージェントの承認がない場合は拒否
+set -eu
+
+git_dir=$(git rev-parse --git-dir)
+
+fail() {
+  printf '\n[著作権チェック] コミットを中止しました: %s\n\n' "$1" >&2
+  exit 1
+}
+
+# 1. ローカルデータ・メディアファイル
+bad_files=$(git diff --cached --name-only --diff-filter=ACMR \
+  | grep -iE '^(data|private)/|^CLAUDE\.local\.md$|\.(mp3|m4a|aac|wav|ogg|flac|zip)$' || true)
+if [ -n "$bad_files" ]; then
+  printf '%s\n' "$bad_files" >&2
+  fail "ローカルデータ・ローカルドキュメント・メディアファイルがステージされています"
+fi
+
+# 2. 禁止語リスト
+denylist="$git_dir/info/copyright-denylist"
+if [ -f "$denylist" ]; then
+  patterns=$(mktemp)
+  trap 'rm -f "$patterns"' EXIT
+  grep -vE '^[[:space:]]*(#|$)' "$denylist" > "$patterns" || true
+  if [ -s "$patterns" ]; then
+    hits=$( {
+      git diff --cached --name-only --diff-filter=ACMR
+      git diff --cached -U0 --no-color --diff-filter=ACMR | grep -E '^\+' | grep -vE '^\+\+\+ '
+    } | grep -inF -f "$patterns" || true)
+    if [ -n "$hits" ]; then
+      printf '%s\n' "$hits" >&2
+      fail "禁止語リストに一致する内容があります"
+    fi
+  fi
+fi
+
+# 3. レビュー承認（現在のステージ内容に対する承認か）
+approved=$(cat "$git_dir/copyright-review-approved" 2>/dev/null || true)
+current=$(git write-tree)
+if [ "$approved" != "$current" ]; then
+  fail "copyright-reviewer エージェントによる承認がありません（またはレビュー後にステージ内容が変わりました）"
+fi
+
+exit 0

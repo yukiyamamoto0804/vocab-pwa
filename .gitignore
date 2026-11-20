@@ -1,0 +1,26 @@
+# ===== ローカルデータ・ローカルドキュメント: コミットしない =====
+data/
+private/
+*.mp3
+*.m4a
+*.wav
+*.zip
+
+# ===== 依存関係・ビルド成果物 =====
+node_modules/
+dist/
+build/
+.vite/
+coverage/
+
+# ===== 環境・OS・エディタ =====
+.env
+.env.*
+.DS_Store
+.vscode/
+.idea/
+*.log
+
+# ===== Claude Code の個人設定 =====
+.claude/settings.local.json
+CLAUDE.local.md

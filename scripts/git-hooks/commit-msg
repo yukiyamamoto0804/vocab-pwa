@@ -1,0 +1,21 @@
+#!/bin/sh
+# コミットメッセージに禁止語リスト（.git/info/copyright-denylist、非公開）の語が含まれていないか確認する
+set -eu
+
+git_dir=$(git rev-parse --git-dir)
+denylist="$git_dir/info/copyright-denylist"
+[ -f "$denylist" ] || exit 0
+
+patterns=$(mktemp)
+trap 'rm -f "$patterns"' EXIT
+grep -vE '^[[:space:]]*(#|$)' "$denylist" > "$patterns" || true
+[ -s "$patterns" ] || exit 0
+
+hits=$(grep -v '^#' "$1" | grep -inF -f "$patterns" || true)
+if [ -n "$hits" ]; then
+  printf '%s\n' "$hits" >&2
+  printf '\n[著作権チェック] コミットを中止しました: コミットメッセージに禁止語リストの語が含まれています\n\n' >&2
+  exit 1
+fi
+
+exit 0

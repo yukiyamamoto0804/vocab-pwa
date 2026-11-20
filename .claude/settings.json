@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(git *--no-verify*)",
+      "Bash(git commit -n*)",
+      "Bash(git commit * -n*)",
+      "Bash(git -c *)",
+      "Bash(git config*core.hooksPath*)",
+      "Edit(.git/copyright-review-approved)",
+      "Edit(.git/info/copyright-denylist)"
+    ]
+  }
+}
