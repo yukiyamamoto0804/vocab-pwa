@@ -24,7 +24,7 @@ export class VocabDatabase extends Dexie {
   reports!: EntityTable<ReportRecord, 'id'>
   settings!: EntityTable<SettingRecord, 'key'>
 
-  constructor(name = 'vocab') {
+  constructor(name = 'vocab-pwa') {
     super(name)
     // packId だけでの検索・削除は、複合インデックスの先頭（Dexie の仮想インデックス）で行う
     this.version(1).stores({
