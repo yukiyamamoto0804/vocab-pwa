@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { VocabDatabase } from '../../db/database'
 import { createDummyPack, zipPack } from './dummyPack'
-import { importPack, isQuotaError } from './importPack'
+import { importPack } from './importPack'
 
 let db: VocabDatabase
 let dbCount = 0
@@ -63,32 +63,5 @@ describe('importPack', () => {
     )
     expect(result).toMatchObject({ ok: true, replaced: true })
     expect(await db.items.count()).toBe(3)
-  })
-})
-
-describe('isQuotaError', () => {
-  const quota = () => {
-    const e = new Error('quota')
-    e.name = 'QuotaExceededError'
-    return e
-  }
-
-  it('容量不足そのものと、Dexie が包んだ容量不足を見分ける', () => {
-    expect(isQuotaError(quota())).toBe(true)
-    expect(
-      isQuotaError(Object.assign(new Error('abort'), { inner: quota() })),
-    ).toBe(true)
-    expect(
-      isQuotaError(
-        Object.assign(new Error('bulk'), {
-          failures: [new Error('x'), quota()],
-        }),
-      ),
-    ).toBe(true)
-  })
-
-  it('ほかの失敗は容量不足とみなさない', () => {
-    expect(isQuotaError(new Error('other'))).toBe(false)
-    expect(isQuotaError('QuotaExceededError')).toBe(false)
   })
 })

@@ -7,6 +7,7 @@ import type {
   PackRecord,
   UnitRecord,
 } from '../../db/types'
+import { isQuotaError } from '../../lib/errors'
 import { studyConfig } from '../studyConfig'
 import type { PackError } from './packError'
 import { readPackZip } from './readZip'
@@ -106,18 +107,6 @@ export async function importPack(
       ],
     }
   }
-}
-
-// 容量不足は、Dexie がトランザクションの中止（AbortError の inner）や
-// まとめて書き込んだときの失敗（BulkError の failures）に包んで届けることがある
-export function isQuotaError(e: unknown): boolean {
-  if (!(e instanceof Error)) return false
-  if (e.name === 'QuotaExceededError') return true
-  const { inner, failures } = e as { inner?: unknown; failures?: unknown }
-  return (
-    isQuotaError(inner) ||
-    (Array.isArray(failures) && failures.some(isQuotaError))
-  )
 }
 
 function referencedAudio(items: ContentItem[]): Set<string> {
