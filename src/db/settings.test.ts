@@ -7,10 +7,10 @@ import {
   getLastTest,
   getLastUnitStudy,
   getStoredUnitStudySettings,
+  lastTestSetting,
+  lastUnitStudySetting,
   saveExampleTextShown,
   saveLastFace,
-  saveLastTest,
-  saveLastUnitStudy,
   saveUnitStudySettings,
 } from './settings'
 
@@ -26,9 +26,11 @@ afterEach(async () => {
   await db.delete()
 })
 
-describe('getLastTest / saveLastTest', () => {
+describe('getLastTest / lastTestSetting', () => {
   it('パックごとに保存して読み出す', async () => {
-    await saveLastTest('pack-a', { at: 1, fromUnit: 2, toUnit: 5 }, db)
+    await db.settings.put(
+      lastTestSetting('pack-a', { at: 1, fromUnit: 2, toUnit: 5 }),
+    )
     expect(await getLastTest('pack-a', db)).toEqual({
       at: 1,
       fromUnit: 2,
@@ -51,9 +53,9 @@ describe('getLastTest / saveLastTest', () => {
   })
 })
 
-describe('getLastUnitStudy / saveLastUnitStudy', () => {
+describe('getLastUnitStudy / lastUnitStudySetting', () => {
   it('パックごとに保存して読み出す', async () => {
-    await saveLastUnitStudy('pack-a', { at: 1, unitId: 3 }, db)
+    await db.settings.put(lastUnitStudySetting('pack-a', { at: 1, unitId: 3 }))
     expect(await getLastUnitStudy('pack-a', db)).toEqual({ at: 1, unitId: 3 })
     expect(await getLastUnitStudy('pack-b', db)).toBeUndefined()
   })

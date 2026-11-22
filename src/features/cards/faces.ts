@@ -1,6 +1,6 @@
 import type { Face, ItemRecord } from '../../db/types'
 import type { Random } from '../../lib/random'
-import { clozeSenseIndexes, pickClozeSense } from './cloze'
+import { clozeSenseIndexes } from './cloze'
 
 // 表面の種類ごとに必要なデータの判定（docs/specs/study-cards.md 3 章）
 
@@ -55,11 +55,19 @@ export function pickFrontSense(
   face: 'ja' | 'example-audio',
   random: Random = Math.random,
 ): number {
-  if (face === 'ja') return pickClozeSense(item, random)
-  const candidates = item.senses.flatMap((s, i) =>
+  const candidates = frontSenseCandidates(item, face)
+  return candidates[Math.floor(random() * candidates.length)] ?? 0
+}
+
+/** 表面に使える用法の位置（日本語 → 解説は例文に該当語が見つかるもの、例文の音声 → 解説は例文の音声があるもの） */
+export function frontSenseCandidates(
+  item: Pick<ItemRecord, 'word' | 'senses'>,
+  face: 'ja' | 'example-audio',
+): number[] {
+  if (face === 'ja') return clozeSenseIndexes(item)
+  return item.senses.flatMap((s, i) =>
     s.exampleAudio !== undefined ? [i] : [],
   )
-  return candidates[Math.floor(random() * candidates.length)] ?? 0
 }
 
 /** 出さない理由 */

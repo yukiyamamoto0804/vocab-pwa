@@ -5,7 +5,6 @@ import {
   clozeSenseIndexes,
   highlightSegments,
   letterCount,
-  pickClozeSense,
 } from './cloze'
 
 const blanks = (segments: { text: string; mark: boolean }[] | undefined) =>
@@ -129,28 +128,5 @@ describe('clozeHint / letterCount', () => {
   it('前後に空白が付いていても、頭文字を出す', () => {
     expect(clozeHint(' run')).toBe('r__')
     expect(letterCount(' run')).toBe(3)
-  })
-})
-
-describe('pickClozeSense', () => {
-  const sense = (example: string) => ({
-    meanings: [],
-    example,
-    exampleTranslation: '',
-  })
-  const item = {
-    word: 'light',
-    senses: [sense('A light bag.'), sense('No match.'), sense('Light it.')],
-  }
-
-  it('使える用法から乱数で選ぶ', () => {
-    expect(pickClozeSense(item, () => 0)).toBe(0)
-    expect(pickClozeSense(item, () => 0.99)).toBe(2)
-  })
-
-  it('使える用法がなければ 0', () => {
-    expect(pickClozeSense({ word: 'x', senses: [sense('No.')] }, () => 0)).toBe(
-      0,
-    )
   })
 })

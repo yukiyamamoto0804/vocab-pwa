@@ -1,5 +1,4 @@
 import type { ItemRecord, Sense } from '../../db/types'
-import type { Random } from '../../lib/random'
 
 // 日本語 → 解説の表面に出す、空欄の英文と太字の訳（docs/specs/study-cards.md 3 章「日本語 → 解説」）
 
@@ -79,18 +78,6 @@ export function clozeSenseIndexes(
   return item.senses.flatMap((sense, i) =>
     clozeSegments(sense, item.word) ? [i] : [],
   )
-}
-
-/**
- * 表面に使う用法を、使える用法からランダムに 1 つ選ぶ。使える用法がなければ 0。
- * 学習を始めるときに単語ごとに 1 回だけ選び、その回の学習の間は同じ用法を出す
- */
-export function pickClozeSense(
-  item: Pick<ItemRecord, 'word' | 'senses'>,
-  random: Random = Math.random,
-): number {
-  const candidates = clozeSenseIndexes(item)
-  return candidates[Math.floor(random() * candidates.length)] ?? 0
 }
 
 /** ヒント: 頭文字と、残りの英字の数だけの下線。英字以外（空白・ハイフンなど）はそのまま出す。例: light → l____ */

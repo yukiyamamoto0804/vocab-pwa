@@ -32,3 +32,19 @@ export function answerCard(deck: Deck, rating: Rating): Deck {
     position: deck.position + 1,
   }
 }
+
+/**
+ * 最初の並び order から、記録した回答を順に当てはめた状態を返す（途中から再開する・1 つ戻すときに使う）。
+ * 回答の単語や申告がその時点の出題と食い違えば undefined
+ */
+export function replayDeck(
+  order: string[],
+  answers: readonly { itemId: string; rating: Rating | undefined }[],
+): Deck | undefined {
+  let deck = createDeck(order)
+  for (const { itemId, rating } of answers) {
+    if (!rating || currentCard(deck) !== itemId) return undefined
+    deck = answerCard(deck, rating)
+  }
+  return deck
+}

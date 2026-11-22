@@ -3,12 +3,19 @@ import { Link } from 'react-router'
 import { Explanation } from '../../components/Explanation'
 import { PlayButton, type PlayButtonSize } from '../../components/PlayButton'
 import { getExampleTextShown } from '../../db/settings'
-import { restoreBeforeAnswer, saveAnswer, toggleReport } from '../../db/study'
+import {
+  type InProgressStudy,
+  restoreBeforeAnswer,
+  type SettingBefore,
+  saveAnswer,
+  toggleReport,
+} from '../../db/study'
 import type {
   Face,
   ItemRecord,
   ProgressRecord,
   Rating,
+  SettingRecord,
   StudyMode,
   StudySessionRecord,
 } from '../../db/types'
@@ -22,10 +29,15 @@ import {
   currentCard,
   type Deck,
   isFinished,
+  replayDeck,
 } from '../../features/session/deck'
+import type { Resumable } from '../../features/session/inProgress'
 import {
+  answersOf,
   appendAnswer,
+  countRatings,
   createSessionRecord,
+  removeLastAnswer,
 } from '../../features/session/sessionRecord'
 import { isQuotaError } from '../../lib/errors'
 import { randomId } from '../../lib/random'
@@ -39,48 +51,65 @@ import styles from './StudySession.module.css'
 
 type Counts = Record<Rating, number>
 
-/** 1 回の学習の状態。直前の申告を取り消すときは、丸ごと 1 つ前に戻す */
+/** 1 回の学習の状態。申告の回数は回答の記録から数える */
 interface State {
   deck: Deck
   session: StudySessionRecord
   progress: Map<string, ProgressRecord>
-  counts: Counts
+  /** 回答ごとの、回答する前の学習状況（初めての回答なら undefined）。「1 つ戻す」で戻すため */
+  priors: (ProgressRecord | undefined)[]
+  /** 最初の回答で書き換えた設定の、書き換える前の値。回答をすべて取り消したら戻す */
+  before: SettingBefore[]
 }
 
 interface Props {
   packId: string
   mode: StudyMode
   face: Face
-  /** 出す順に並べた単語 */
+  /** 出す順に並べた単語（途中から再開するときは、最初の並び） */
   items: ItemRecord[]
   initialProgress: Map<string, ProgressRecord>
   initialReported: Set<string>
   exitPath: string
-  /** 回答を保存するたびに呼ぶ */
-  onAnswered?: () => void
+  /** 同じ学習かを見分けるキー（features/session/inProgress.ts）。途中の学習と一緒に保存する */
+  studyKey: string
+  /** 最初の回答と一緒に書く設定を作る（前回学習したユニット など） */
+  firstAnswerSettings?: (at: number) => SettingRecord[]
+  /** 途中から再開するときの、やめたときの状態 */
+  resume?: Resumable
   /** 最初のカードの上に出すお知らせ（表面に必要なデータがなくて出さない単語があるときなど） */
   notice?: string
 }
 
 export function StudySession(props: Props) {
-  const { packId, mode, face, items, exitPath, onAnswered, notice } = props
-  const [state, setState] = useState<State>(() => ({
-    deck: createDeck(items.map((i) => i.id)),
-    session: createSessionRecord({
-      id: randomId(),
-      packId,
-      mode,
-      face,
-      startedAt: Date.now(),
-    }),
-    progress: props.initialProgress,
-    counts: { remembered: 0, unsure: 0, forgot: 0 },
-  }))
-  const [previous, setPrevious] = useState<State | null>(null)
+  const { packId, mode, face, items, exitPath, studyKey, notice } = props
+  const [order] = useState(() => items.map((i) => i.id))
+  const [state, setState] = useState<State>(() =>
+    props.resume
+      ? {
+          deck: props.resume.deck,
+          session: props.resume.session,
+          progress: props.initialProgress,
+          priors: props.resume.priors,
+          before: props.resume.before,
+        }
+      : {
+          deck: createDeck(order),
+          session: createSessionRecord({
+            id: randomId(),
+            packId,
+            mode,
+            face,
+            startedAt: Date.now(),
+          }),
+          progress: props.initialProgress,
+          priors: [],
+          before: [],
+        },
+  )
   const [flipped, setFlipped] = useState(false)
   const [reported, setReported] = useState(props.initialReported)
   const [busy, setBusy] = useState(false)
-  /** 保存の失敗。容量不足なら 'quota' */
   /**
    * 保存の失敗。容量不足なら 'quota'。それ以外が続いたら 'persistent'（もう一度押しても直らない失敗。
    * iOS で背景から戻ったときに DB との接続が切れた、新しい版が DB を更新した など）
@@ -114,7 +143,10 @@ export function StudySession(props: Props) {
     () =>
       new Map(
         face === 'ja' || face === 'example-audio'
-          ? items.map((i): [string, number] => [i.id, pickFrontSense(i, face)])
+          ? items.map((i): [string, number] => [
+              i.id,
+              props.resume?.frontSenses.get(i.id) ?? pickFrontSense(i, face),
+            ])
           : [],
       ),
   )
@@ -130,6 +162,18 @@ export function StudySession(props: Props) {
   const itemId = currentCard(state.deck)
   const item = items.find((i) => i.id === itemId)
 
+  /** 保存する途中の学習 */
+  function inProgressOf(st: State): InProgressStudy {
+    return {
+      key: studyKey,
+      sessionId: st.session.id,
+      order,
+      frontSenses: Object.fromEntries(frontSenses),
+      priors: st.priors.map((p) => p ?? null),
+      before: st.before,
+    }
+  }
+
   async function answer(rating: Rating) {
     if (!flipped || busy || !item) return
     const at = Date.now()
@@ -144,15 +188,20 @@ export function StudySession(props: Props) {
       deck: answerCard(state.deck, rating),
       session: appendAnswer(state.session, item.id, rating, at),
       progress: new Map(state.progress).set(item.id, progress),
-      counts: { ...state.counts, [rating]: state.counts[rating] + 1 },
+      priors: [...state.priors, state.progress.get(item.id)],
+      before: state.before,
     }
     setBusy(true)
     try {
-      await saveAnswer(next.session, progress)
-      onAnswered?.()
+      const before = await saveAnswer({
+        session: next.session,
+        progress,
+        // 最後まで終えたら、途中の学習を消す
+        inProgress: isFinished(next.deck) ? undefined : inProgressOf(next),
+        firstAnswerSettings: props.firstAnswerSettings?.(at),
+      })
       stopAudio()
-      setPrevious(state)
-      setState(next)
+      setState({ ...next, before })
       setFlipped(false)
       saveSucceeded()
     } catch (e) {
@@ -162,19 +211,39 @@ export function StudySession(props: Props) {
     }
   }
 
+  /** 直前の申告を取り消す。その回の最初の回答まで、続けて取り消せる */
   async function undo() {
-    const undoneItemId = previous && currentCard(previous.deck)
-    if (!previous || !undoneItemId || busy) return
+    const last = state.session.itemIds.length - 1
+    if (last < 0 || busy) return
+    const session = removeLastAnswer(state.session)
+    const deck = replayDeck(order, answersOf(session))
+    // 自分で作った記録を当てはめ直すだけなので、食い違うことはないはず
+    if (!deck) {
+      console.error('取り消した後の出題を作り直せませんでした')
+      return
+    }
+    const itemId = state.session.itemIds[last]
+    const prior = state.priors[last]
+    const progress = new Map(state.progress)
+    if (prior) progress.set(itemId, prior)
+    else progress.delete(itemId)
+    const previous: State = {
+      deck,
+      session,
+      progress,
+      priors: state.priors.slice(0, -1),
+      before: state.before,
+    }
     setBusy(true)
     try {
-      await restoreBeforeAnswer(
-        previous.session,
-        { packId, itemId: undoneItemId },
-        previous.progress.get(undoneItemId),
-      )
+      await restoreBeforeAnswer({
+        session,
+        itemId,
+        progress: prior,
+        inProgress: inProgressOf(previous),
+      })
       stopAudio()
       setState(previous)
-      setPrevious(null)
       setFlipped(false)
       saveSucceeded()
     } catch (e) {
@@ -206,13 +275,9 @@ export function StudySession(props: Props) {
   const topBar = (
     <div className={styles.topBar}>
       {/* 戻る操作で、やめた学習にまた入らないよう、履歴に積まない */}
-      <Link
-        to={exitPath}
-        replace
-        className={styles.exit}
-        aria-label="学習をやめる"
-      >
-        ✕
+      <Link to={exitPath} replace className={styles.exit}>
+        {/* 終えた後は、中断ではなく閉じるだけ */}
+        {isFinished(state.deck) ? '閉じる' : '中断'}
       </Link>
       <span className={styles.position}>
         {isFinished(state.deck)
@@ -223,7 +288,7 @@ export function StudySession(props: Props) {
         type="button"
         className={styles.undo}
         onClick={undo}
-        disabled={!previous || busy}
+        disabled={state.session.itemIds.length === 0 || busy}
       >
         1 つ戻す
       </button>
@@ -249,7 +314,7 @@ export function StudySession(props: Props) {
       <div className={styles.screen}>
         {topBar}
         {errorMessage}
-        <Summary counts={state.counts} exitPath={exitPath} />
+        <Summary counts={countRatings(state.session)} exitPath={exitPath} />
       </div>
     )
   }

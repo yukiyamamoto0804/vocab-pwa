@@ -1,9 +1,8 @@
-import { useRef } from 'react'
+import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { LoadError } from '../../components/LoadError'
 import { Loading } from '../../components/Loading'
 import { getProgressMap, getUnit, listUnitItems } from '../../db/content'
-import { saveLastTest, saveLastUnitStudy } from '../../db/settings'
 import { listReportedItemIds } from '../../db/study'
 import {
   hasFaceData,
@@ -16,8 +15,15 @@ import {
   selectReviewItems,
 } from '../../features/session/forgottenItems'
 import {
+  firstAnswerSettingsOf,
+  loadResumable,
+  type Resumable,
+  studyKeyOf,
+} from '../../features/session/inProgress'
+import {
   parseStudyQuery,
   type ReviewQuery,
+  type StudyQuery,
   type TestQuery,
   type UnitQuery,
 } from '../../features/session/studyQuery'
@@ -28,6 +34,7 @@ import {
 } from '../../features/session/testItems'
 import { shuffle } from '../../lib/random'
 import { useAsync } from '../../lib/useAsync'
+import styles from './StudyPage.module.css'
 import { StudySession } from './StudySession'
 
 export function StudyPage() {
@@ -43,6 +50,70 @@ export function StudyPage() {
       </>
     )
   }
+  // 条件が変わったら、途中の学習を調べ直し、選んだ内容も持ち越さない
+  return <ResumeGate key={studyKeyOf(query)} query={query} />
+}
+
+/** 途中の学習があれば「続きから」と「最初から」を選んでもらい、選んだ方で学習を始める（study-cards.md 5 章） */
+function ResumeGate({ query }: { query: StudyQuery }) {
+  const resumable = useAsync(() => loadResumable(query), [])
+  const [choice, setChoice] = useState<'resume' | 'restart'>()
+
+  if (resumable.status === 'loading') return <Loading />
+  // 途中の学習を調べられなくても、最初から始められるようにする。1 問答えると途中の学習が消えることを伝えてから選んでもらう
+  if (resumable.status === 'error' && choice === undefined) {
+    return (
+      <div className={styles.resume}>
+        <h1>途中の学習を読み込めませんでした</h1>
+        <p>
+          最初から始められます。最初から始めて 1
+          問答えると、途中の学習は消えます。アプリを開き直すと、読み込めることがあります。
+        </p>
+        <button
+          type="button"
+          className={styles.primary}
+          onClick={() => setChoice('restart')}
+        >
+          最初から
+        </button>
+        <Link to={`/packs/${encodeURIComponent(query.packId)}`} replace>
+          ← ユニット一覧
+        </Link>
+      </div>
+    )
+  }
+  const found = resumable.status === 'done' ? resumable.value : undefined
+  if (found && choice === undefined) {
+    const { deck } = found
+    return (
+      <div className={styles.resume}>
+        <h1>途中の学習があります</h1>
+        <p>
+          前回は {deck.position} / {deck.queue.length}{' '}
+          問まで答えたところでやめています。
+        </p>
+        <button
+          type="button"
+          className={styles.primary}
+          onClick={() => setChoice('resume')}
+        >
+          続きから
+        </button>
+        <button
+          type="button"
+          className={styles.secondary}
+          onClick={() => setChoice('restart')}
+        >
+          最初から
+        </button>
+        <Link to={`/packs/${encodeURIComponent(query.packId)}`} replace>
+          ← ユニット一覧
+        </Link>
+      </div>
+    )
+  }
+  if (found && choice === 'resume')
+    return <ResumedStudy query={query} resumable={found} />
   switch (query.mode) {
     case 'unit':
       return <UnitStudy query={query} />
@@ -51,6 +122,32 @@ export function StudyPage() {
     case 'review':
       return <ReviewStudy query={query} />
   }
+}
+
+function ResumedStudy({
+  query,
+  resumable,
+}: {
+  query: StudyQuery
+  resumable: Resumable
+}) {
+  const reported = useAsync(() => listReportedItemIds(query.packId), [])
+  if (reported.status === 'loading') return <Loading />
+  if (reported.status === 'error') return <LoadError />
+  return (
+    <StudySession
+      packId={query.packId}
+      mode={query.mode}
+      face={query.face}
+      items={resumable.items}
+      initialProgress={resumable.progress}
+      initialReported={reported.value}
+      exitPath={`/packs/${encodeURIComponent(query.packId)}`}
+      studyKey={studyKeyOf(query)}
+      firstAnswerSettings={firstAnswerSettingsOf(query)}
+      resume={resumable}
+    />
+  )
 }
 
 function UnitStudy({ query }: { query: UnitQuery }) {
@@ -87,10 +184,6 @@ function UnitStudy({ query }: { query: UnitQuery }) {
       reported,
     }
   }, [packId, unitId, face])
-  // 最初の回答を保存できたら、学習したものとして日時とユニットを残す
-  const handleAnswered = useOnFirstAnswer(() =>
-    saveLastUnitStudy(packId, { at: Date.now(), unitId }),
-  )
 
   const unitsPath = `/packs/${encodeURIComponent(packId)}`
   if (data.status === 'loading') return <Loading />
@@ -123,7 +216,8 @@ function UnitStudy({ query }: { query: UnitQuery }) {
       initialProgress={progress}
       initialReported={reported}
       exitPath={unitsPath}
-      onAnswered={handleAnswered}
+      studyKey={studyKeyOf(query)}
+      firstAnswerSettings={firstAnswerSettingsOf(query)}
       notice={skippedNotice(allUnitItemCount - unitItemCount, face)}
     />
   )
@@ -150,10 +244,6 @@ function TestStudy({ query }: { query: TestQuery }) {
     })
     return { items: selected, progress, reported, skippedCount }
   }, [packId, face, fromUnit, toUnit, count, includeUnlearned, order])
-  // 最初の回答を保存できたら、テストしたものとして日時と範囲を残す
-  const handleAnswered = useOnFirstAnswer(() =>
-    saveLastTest(packId, { at: Date.now(), fromUnit, toUnit }),
-  )
 
   const unitsPath = `/packs/${encodeURIComponent(packId)}`
   if (data.status === 'loading') return <Loading />
@@ -182,7 +272,8 @@ function TestStudy({ query }: { query: TestQuery }) {
       initialProgress={progress}
       initialReported={reported}
       exitPath={unitsPath}
-      onAnswered={handleAnswered}
+      studyKey={studyKeyOf(query)}
+      firstAnswerSettings={firstAnswerSettingsOf(query)}
     />
   )
 }
@@ -230,23 +321,8 @@ function ReviewStudy({ query }: { query: ReviewQuery }) {
       initialProgress={progress}
       initialReported={reported}
       exitPath={unitsPath}
+      studyKey={studyKeyOf(query)}
       notice={skippedNotice(skippedCount, face)}
     />
   )
-}
-
-/**
- * 最初の回答を保存できたときに 1 回だけ save を呼ぶ、回答ごとの処理を返す。
- * 保存するのは次の学習の初期値や表示に使う値なので、失敗しても学習は続け、次の回答でやり直す
- */
-function useOnFirstAnswer(save: () => Promise<void>): () => void {
-  const saved = useRef(false)
-  return () => {
-    if (saved.current) return
-    saved.current = true
-    save().catch((e: unknown) => {
-      console.error(e)
-      saved.current = false
-    })
-  }
 }

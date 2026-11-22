@@ -1,5 +1,5 @@
 import { db as defaultDb, type VocabDatabase } from './database'
-import { FACES, type Face } from './types'
+import { FACES, type Face, type SettingRecord } from './types'
 
 // アプリの状態（settings テーブル）の読み書き
 
@@ -49,12 +49,12 @@ export function getLastTest(
   return getNumberRecord(lastTestKey(packId), ['at', 'fromUnit', 'toUnit'], db)
 }
 
-export async function saveLastTest(
+/** 最後にしたテストの設定の行。学習の最初の回答と一緒に書く（db/study.ts の saveAnswer） */
+export function lastTestSetting(
   packId: string,
   lastTest: LastTest,
-  db: VocabDatabase = defaultDb,
-): Promise<void> {
-  await db.settings.put({ key: lastTestKey(packId), value: lastTest })
+): SettingRecord {
+  return { key: lastTestKey(packId), value: lastTest }
 }
 
 export function getLastUnitStudy(
@@ -64,12 +64,12 @@ export function getLastUnitStudy(
   return getNumberRecord(lastUnitStudyKey(packId), ['at', 'unitId'], db)
 }
 
-export async function saveLastUnitStudy(
+/** 最後にしたユニット学習の設定の行。学習の最初の回答と一緒に書く（db/study.ts の saveAnswer） */
+export function lastUnitStudySetting(
   packId: string,
   lastUnitStudy: LastUnitStudy,
-  db: VocabDatabase = defaultDb,
-): Promise<void> {
-  await db.settings.put({ key: lastUnitStudyKey(packId), value: lastUnitStudy })
+): SettingRecord {
+  return { key: lastUnitStudyKey(packId), value: lastUnitStudy }
 }
 
 /** ユニット学習の共通の設定（docs/specs/study-cards.md 7 章）。アプリ全体で 1 つ */
