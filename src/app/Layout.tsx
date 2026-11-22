@@ -1,15 +1,19 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router'
-import { DB_OUTDATED_EVENT } from '../db/database'
+import { DB_OUTDATED_EVENT, listenRecordsReplaced } from '../db/database'
 import styles from './Layout.module.css'
 
 export function Layout() {
-  /** 新しい版のアプリが DB を更新し、この画面では保存できなくなったか */
+  /** 新しい版のアプリが DB を更新したか、ほかの画面が学習記録を置き換え、この画面では保存できなくなったか */
   const [outdated, setOutdated] = useState(false)
   useEffect(() => {
     const onOutdated = () => setOutdated(true)
     window.addEventListener(DB_OUTDATED_EVENT, onOutdated)
-    return () => window.removeEventListener(DB_OUTDATED_EVENT, onOutdated)
+    const stopListening = listenRecordsReplaced()
+    return () => {
+      window.removeEventListener(DB_OUTDATED_EVENT, onOutdated)
+      stopListening()
+    }
   }, [])
 
   // 画面の上に固定する部品（ユニット一覧の表面の種類など）を、ヘッダーのすぐ下に置けるよう、ヘッダーの高さを CSS 変数で渡す。
@@ -45,7 +49,7 @@ export function Layout() {
       </header>
       {outdated && (
         <p className={styles.outdated} role="alert">
-          アプリが新しい版に更新されました。保存を続けるため、アプリを開き直してください。
+          ほかの画面で、アプリの更新か学習記録のインポートがありました。保存を続けるため、アプリを開き直してください。
         </p>
       )}
       <main className={styles.main}>

@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable, type Table } from 'dexie'
+import { randomId } from '../lib/random'
 import type {
   AudioFileRecord,
   ItemRecord,
@@ -59,3 +60,32 @@ export class VocabDatabase extends Dexie {
 export const DB_OUTDATED_EVENT = 'vocab-db-outdated'
 
 export const db = new VocabDatabase()
+
+// 学習記録をインポートで置き換えたことを、ほかのタブに知らせる（docs/specs/backup.md 6 章）。
+// 中身を置き換えただけでは versionchange は届かないため、BroadcastChannel で別に知らせる。
+// 同じタブの中でも受け取ってしまうので、送ったタブを印で見分ける
+export const RECORDS_REPLACED_CHANNEL = 'vocab-pwa-records-replaced'
+const tabId = randomId()
+
+export function notifyRecordsReplaced(): void {
+  if (typeof BroadcastChannel === 'undefined') return
+  const channel = new BroadcastChannel(RECORDS_REPLACED_CHANNEL)
+  channel.postMessage(tabId)
+  channel.close()
+}
+
+/**
+ * ほかのタブが学習記録を置き換えたら、この画面の接続を閉じて DB_OUTDATED_EVENT を送る
+ * （置き換えた後の記録に、古い回答を書き戻さないように）。戻り値は受け取りをやめる関数
+ */
+export function listenRecordsReplaced(target: VocabDatabase = db): () => void {
+  if (typeof BroadcastChannel === 'undefined') return () => {}
+  const channel = new BroadcastChannel(RECORDS_REPLACED_CHANNEL)
+  channel.onmessage = (e: MessageEvent) => {
+    if (e.data === tabId) return
+    target.close()
+    if (typeof window !== 'undefined')
+      window.dispatchEvent(new Event(DB_OUTDATED_EVENT))
+  }
+  return () => channel.close()
+}

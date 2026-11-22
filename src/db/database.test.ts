@@ -1,7 +1,12 @@
 import 'fake-indexeddb/auto'
 import Dexie from 'dexie'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { VocabDatabase } from './database'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  listenRecordsReplaced,
+  notifyRecordsReplaced,
+  RECORDS_REPLACED_CHANNEL,
+  VocabDatabase,
+} from './database'
 import { listRecentSessions } from './study'
 import type { ItemRecord, StudySessionRecord } from './types'
 
@@ -119,6 +124,25 @@ describe('VocabDatabase のバージョン更新', () => {
       db.close()
     } finally {
       await Dexie.delete(name)
+    }
+  })
+})
+
+describe('listenRecordsReplaced', () => {
+  it('ほかのタブが学習記録を置き換えたら、接続を閉じる。自分のタブの知らせでは閉じない', async () => {
+    await db.open()
+    const stop = listenRecordsReplaced(db)
+    try {
+      notifyRecordsReplaced()
+      // ほかのタブの知らせ（送ったタブの印が違う）
+      const other = new BroadcastChannel(RECORDS_REPLACED_CHANNEL)
+      await new Promise((resolve) => setTimeout(resolve, 50))
+      expect(db.isOpen()).toBe(true)
+      other.postMessage('other-tab')
+      other.close()
+      await vi.waitFor(() => expect(db.isOpen()).toBe(false))
+    } finally {
+      stop()
     }
   })
 })

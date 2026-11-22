@@ -22,15 +22,13 @@ const lastTestKey = (packId: string) => `lastTest:${packId}`
 const lastUnitStudyKey = (packId: string) => `lastUnitStudy:${packId}`
 
 /**
- * 保存した値が、指定したキーをすべて数で持つオブジェクトなら、そのキーだけを取り出して返す。
+ * 値が、指定したキーをすべて数で持つオブジェクトなら、そのキーだけを取り出して返す。
  * 形が違う値（古い版で保存したもの、など）は無いものとして undefined を返す
  */
-async function getNumberRecord<K extends string>(
-  key: string,
+function pickNumberRecord<K extends string>(
+  value: unknown,
   fields: readonly K[],
-  db: VocabDatabase,
-): Promise<Record<K, number> | undefined> {
-  const value = (await db.settings.get(key))?.value
+): Record<K, number> | undefined {
   if (typeof value !== 'object' || value === null) return undefined
   const stored = value as Record<string, unknown>
   const record: Partial<Record<K, number>> = {}
@@ -42,11 +40,16 @@ async function getNumberRecord<K extends string>(
   return record as Record<K, number>
 }
 
-export function getLastTest(
+/** 最後にしたテストの値として使える形なら取り出す。形が違えば undefined */
+export function parseLastTest(value: unknown): LastTest | undefined {
+  return pickNumberRecord(value, ['at', 'fromUnit', 'toUnit'])
+}
+
+export async function getLastTest(
   packId: string,
   db: VocabDatabase = defaultDb,
 ): Promise<LastTest | undefined> {
-  return getNumberRecord(lastTestKey(packId), ['at', 'fromUnit', 'toUnit'], db)
+  return parseLastTest((await db.settings.get(lastTestKey(packId)))?.value)
 }
 
 /** 最後にしたテストの設定の行。学習の最初の回答と一緒に書く（db/study.ts の saveAnswer） */
@@ -57,11 +60,18 @@ export function lastTestSetting(
   return { key: lastTestKey(packId), value: lastTest }
 }
 
-export function getLastUnitStudy(
+/** 最後にしたユニット学習の値として使える形なら取り出す。形が違えば undefined */
+export function parseLastUnitStudy(value: unknown): LastUnitStudy | undefined {
+  return pickNumberRecord(value, ['at', 'unitId'])
+}
+
+export async function getLastUnitStudy(
   packId: string,
   db: VocabDatabase = defaultDb,
 ): Promise<LastUnitStudy | undefined> {
-  return getNumberRecord(lastUnitStudyKey(packId), ['at', 'unitId'], db)
+  return parseLastUnitStudy(
+    (await db.settings.get(lastUnitStudyKey(packId)))?.value,
+  )
 }
 
 /** 最後にしたユニット学習の設定の行。学習の最初の回答と一緒に書く（db/study.ts の saveAnswer） */
@@ -135,18 +145,31 @@ export async function saveExampleTextShown(
   await db.settings.put({ key: EXAMPLE_TEXT_SHOWN_KEY, value: shown })
 }
 
+/** 学習記録のファイルに含める設定の種類 */
+export type BackedUpSettingKind =
+  | 'face'
+  | 'unitStudy'
+  | 'exampleTextShown'
+  | 'lastTest'
+  | 'lastUnitStudy'
+
 /**
- * 学習記録のファイルに含める設定のキーか（docs/specs/backup.md 3 章）。
- * 途中でやめた学習（inProgress:<packId>）と、端末ごとの値（lastExport など）は含めない
+ * 学習記録のファイルに含める設定のキーなら、その種類を返す（docs/specs/backup.md 3 章）。
+ * 途中でやめた学習（inProgress:<packId>）と、端末ごとの値（lastExport など）は含めないので undefined
  */
+export function backedUpSettingKind(
+  key: string,
+): BackedUpSettingKind | undefined {
+  if (key === FACE_KEY) return 'face'
+  if (key === UNIT_STUDY_KEY) return 'unitStudy'
+  if (key === EXAMPLE_TEXT_SHOWN_KEY) return 'exampleTextShown'
+  if (key.startsWith(lastTestKey(''))) return 'lastTest'
+  if (key.startsWith(lastUnitStudyKey(''))) return 'lastUnitStudy'
+  return undefined
+}
+
 export function isBackedUpSettingKey(key: string): boolean {
-  return (
-    key === FACE_KEY ||
-    key === UNIT_STUDY_KEY ||
-    key === EXAMPLE_TEXT_SHOWN_KEY ||
-    key.startsWith(lastTestKey('')) ||
-    key.startsWith(lastUnitStudyKey(''))
-  )
+  return backedUpSettingKind(key) !== undefined
 }
 
 const LAST_EXPORT_KEY = 'lastExport'

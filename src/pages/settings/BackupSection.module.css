@@ -58,3 +58,58 @@
 .secondary:disabled {
   opacity: 0.6;
 }
+
+/* ファイルを選ぶボタン（input は隠し、label を押させる） */
+.picker {
+  display: block;
+  padding: 12px 16px;
+  border: 1px solid var(--color-accent);
+  border-radius: 12px;
+  text-align: center;
+  font-weight: bold;
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.picker[data-disabled="true"] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.picker input {
+  display: none;
+}
+
+.errors {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  overflow-wrap: anywhere;
+}
+
+/* 置き換える前の確認のシート */
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-wrap: anywhere;
+}
+
+.sheet h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.breakdown {
+  margin: 8px 0 0;
+  padding-left: 20px;
+  font-size: 14px;
+}
+
+.packName {
+  font-weight: bold;
+}
+
+.warning {
+  margin: 8px 0;
+  font-weight: bold;
+}

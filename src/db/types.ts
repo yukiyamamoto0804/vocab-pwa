@@ -11,7 +11,8 @@ export type Face = (typeof FACES)[number]
 export type Rating = 'remembered' | 'unsure' | 'forgot'
 
 /** ユニット学習 / テスト / 復習 */
-export type StudyMode = 'unit' | 'test' | 'review'
+export const STUDY_MODES = ['unit', 'test', 'review'] as const
+export type StudyMode = (typeof STUDY_MODES)[number]
 
 /** テストの並び順（苦手優先 / ランダム） */
 export type TestOrder = 'weak' | 'random'
