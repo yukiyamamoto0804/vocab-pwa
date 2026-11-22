@@ -2,10 +2,12 @@ import 'fake-indexeddb/auto'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { VocabDatabase } from './database'
 import {
+  getExampleTextShown,
   getLastFace,
   getLastTest,
   getLastUnitStudy,
   getStoredUnitStudySettings,
+  saveExampleTextShown,
   saveLastFace,
   saveLastTest,
   saveLastUnitStudy,
@@ -83,5 +85,15 @@ describe('getLastFace / saveLastFace', () => {
     expect(await getLastFace(db)).toBe('word-audio')
     await db.settings.put({ key: 'face', value: 'xx' })
     expect(await getLastFace(db)).toBeUndefined()
+  })
+})
+
+describe('getExampleTextShown / saveExampleTextShown', () => {
+  it('保存した値を読み出す。保存していない・形の違う値なら false', async () => {
+    expect(await getExampleTextShown(db)).toBe(false)
+    await saveExampleTextShown(true, db)
+    expect(await getExampleTextShown(db)).toBe(true)
+    await db.settings.put({ key: 'exampleTextShown', value: 'yes' })
+    expect(await getExampleTextShown(db)).toBe(false)
   })
 })

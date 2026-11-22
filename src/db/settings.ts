@@ -115,3 +115,22 @@ export async function saveLastFace(
 ): Promise<void> {
   await db.settings.put({ key: FACE_KEY, value: face })
 }
+
+const EXAMPLE_TEXT_SHOWN_KEY = 'exampleTextShown'
+
+/**
+ * 例文の音声 → 解説で、空欄の英文を最初から表示するか（docs/specs/study-cards.md 3 章）。アプリ全体で 1 つ。
+ * 保存していない・形の違う値なら false（ボタンを押して表示する）
+ */
+export async function getExampleTextShown(
+  db: VocabDatabase = defaultDb,
+): Promise<boolean> {
+  return (await db.settings.get(EXAMPLE_TEXT_SHOWN_KEY))?.value === true
+}
+
+export async function saveExampleTextShown(
+  shown: boolean,
+  db: VocabDatabase = defaultDb,
+): Promise<void> {
+  await db.settings.put({ key: EXAMPLE_TEXT_SHOWN_KEY, value: shown })
+}
