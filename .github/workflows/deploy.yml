@@ -1,5 +1,6 @@
 # main に push されたら、チェックしてからビルドし、GitHub Pages に配信する。
-# 配信されるのは dist/（アプリ本体）だけ。教材はリポジトリに含まれない（docs/RULES.md 3 章）。
+# 配信されるのは dist/（アプリ本体とデモ教材の zip）だけ。デモ教材のほかに教材はリポジトリに含まれない（docs/RULES.md 3 章・11 章）。
+# npm run build の最後に、配信物に入る教材がデモ教材の zip だけであることを確かめる（scripts/build/check-dist.mjs）。
 name: Deploy to GitHub Pages
 
 on:

@@ -1,0 +1,895 @@
+{
+  "tool": "3",
+  "voice": "af_heart",
+  "model": {
+    "file": "kokoro-v1.0.onnx",
+    "sha256": "beb0d1848dee9a49da392cc3df26958d46cfa35d321edf434f52949153f0df3a"
+  },
+  "voices": {
+    "file": "voices-v1.0.bin",
+    "sha256": "bca610b8308e8d99f32e6fe4197e7ec01679264efed0cac9140fe9c29f1fbf7d"
+  },
+  "ffmpeg": "9.0.2",
+  "libavcodec": "63.1.102",
+  "libraries": {
+    "kokoro-onnx": "0.6.1",
+    "onnxruntime": "1.32.0",
+    "phonemizer": "3.6.0",
+    "espeakng-loader": "0.2.4",
+    "numpy": "2.5.5",
+    "soundfile": "0.14.0"
+  },
+  "files": [
+    {
+      "file": "demo-words-1.m4a",
+      "bitrate": "64k",
+      "sha256": "e6a65cae4a3e348907267e6b1e98958bb5751c5753c42e0a0e9c5d97daab2bf8",
+      "duration": 21.86,
+      "entries": [
+        {
+          "id": "ngsl-1001",
+          "sense": null,
+          "text": "difficulty",
+          "start": 0.25,
+          "end": 1.31
+        },
+        {
+          "id": "ngsl-1002",
+          "sense": null,
+          "text": "purchase",
+          "start": 1.5,
+          "end": 2.43
+        },
+        {
+          "id": "ngsl-1003",
+          "sense": null,
+          "text": "shoot",
+          "start": 2.62,
+          "end": 3.42
+        },
+        {
+          "id": "ngsl-1004",
+          "sense": null,
+          "text": "announce",
+          "start": 3.62,
+          "end": 4.46
+        },
+        {
+          "id": "ngsl-1005",
+          "sense": null,
+          "text": "unless",
+          "start": 4.65,
+          "end": 5.5
+        },
+        {
+          "id": "ngsl-1006",
+          "sense": null,
+          "text": "independent",
+          "start": 5.68,
+          "end": 6.71
+        },
+        {
+          "id": "ngsl-1007",
+          "sense": null,
+          "text": "recommend",
+          "start": 6.9,
+          "end": 7.84
+        },
+        {
+          "id": "ngsl-1008",
+          "sense": null,
+          "text": "survey",
+          "start": 8.03,
+          "end": 8.92
+        },
+        {
+          "id": "ngsl-1009",
+          "sense": null,
+          "text": "majority",
+          "start": 9.12,
+          "end": 10.11
+        },
+        {
+          "id": "ngsl-1010",
+          "sense": null,
+          "text": "stick",
+          "start": 10.3,
+          "end": 11.08
+        },
+        {
+          "id": "ngsl-1011",
+          "sense": null,
+          "text": "request",
+          "start": 11.26,
+          "end": 12.18
+        },
+        {
+          "id": "ngsl-1012",
+          "sense": null,
+          "text": "rich",
+          "start": 12.36,
+          "end": 13.14
+        },
+        {
+          "id": "ngsl-1013",
+          "sense": null,
+          "text": "wind",
+          "start": 13.32,
+          "end": 14.13
+        },
+        {
+          "id": "ngsl-1014",
+          "sense": null,
+          "text": "none",
+          "start": 14.33,
+          "end": 15.08
+        },
+        {
+          "id": "ngsl-1015",
+          "sense": null,
+          "text": "exchange",
+          "start": 15.28,
+          "end": 16.26
+        },
+        {
+          "id": "ngsl-1016",
+          "sense": null,
+          "text": "budget",
+          "start": 16.44,
+          "end": 17.31
+        },
+        {
+          "id": "ngsl-1017",
+          "sense": null,
+          "text": "famous",
+          "start": 17.49,
+          "end": 18.34
+        },
+        {
+          "id": "ngsl-1018",
+          "sense": null,
+          "text": "blood",
+          "start": 18.52,
+          "end": 19.37
+        },
+        {
+          "id": "ngsl-1019",
+          "sense": null,
+          "text": "appropriate",
+          "start": 19.57,
+          "end": 20.62
+        },
+        {
+          "id": "ngsl-1020",
+          "sense": null,
+          "text": "block",
+          "start": 20.81,
+          "end": 21.71
+        }
+      ]
+    },
+    {
+      "file": "demo-examples-1-1.m4a",
+      "bitrate": "24k",
+      "sha256": "4bab263263c1423b241b9b22473c839f8fc83718bb14a789047876fb9334d884",
+      "duration": 45.4,
+      "entries": [
+        {
+          "id": "ngsl-1001",
+          "sense": 1,
+          "text": "The difficulty of the last puzzle surprised everyone in our small reading club.",
+          "start": 0.25,
+          "end": 4.78
+        },
+        {
+          "id": "ngsl-1001",
+          "sense": 2,
+          "text": "After the bakery lost its biggest customer, it fell into serious financial difficulties.",
+          "start": 4.95,
+          "end": 10.53
+        },
+        {
+          "id": "ngsl-1002",
+          "sense": 1,
+          "text": "My aunt purchased three old maps at a market near the harbor last spring.",
+          "start": 10.69,
+          "end": 14.69
+        },
+        {
+          "id": "ngsl-1002",
+          "sense": 2,
+          "text": "The climber felt along the smooth rock, looking for any purchase for her fingers.",
+          "start": 14.87,
+          "end": 19.34
+        },
+        {
+          "id": "ngsl-1003",
+          "sense": 1,
+          "text": "At the summer festival, children could shoot arrows at a large straw target.",
+          "start": 19.51,
+          "end": 23.84
+        },
+        {
+          "id": "ngsl-1003",
+          "sense": 2,
+          "text": "The film crew will shoot the final scene on the bridge at sunrise.",
+          "start": 24.02,
+          "end": 27.92
+        },
+        {
+          "id": "ngsl-1003",
+          "sense": 3,
+          "text": "When the door opened, the cat shot past my legs and into the garden.",
+          "start": 28.09,
+          "end": 32.05
+        },
+        {
+          "id": "ngsl-1004",
+          "sense": 1,
+          "text": "The museum announced on Monday that it will stay open later on Fridays.",
+          "start": 32.22,
+          "end": 36.45
+        },
+        {
+          "id": "ngsl-1004",
+          "sense": 2,
+          "text": "Dark clouds over the hills announced the storm long before the first drop fell.",
+          "start": 36.61,
+          "end": 41.04
+        },
+        {
+          "id": "ngsl-1005",
+          "sense": 1,
+          "text": "Our team meets in the park every Saturday unless the weather is terrible.",
+          "start": 41.22,
+          "end": 45.27
+        }
+      ]
+    },
+    {
+      "file": "demo-examples-1-2.m4a",
+      "bitrate": "24k",
+      "sha256": "b297a499a595b767094d4b79d149a7398c16634d20f1b1533688b040b253359b",
+      "duration": 41.46,
+      "entries": [
+        {
+          "id": "ngsl-1006",
+          "sense": 1,
+          "text": "After college, she wanted to be independent of her parents and pay her own rent.",
+          "start": 0.25,
+          "end": 5.03
+        },
+        {
+          "id": "ngsl-1006",
+          "sense": 2,
+          "text": "Two independent groups checked the results and reached the same conclusion.",
+          "start": 5.21,
+          "end": 9.32
+        },
+        {
+          "id": "ngsl-1007",
+          "sense": 1,
+          "text": "Could you recommend a quiet café where I can study for a few hours?",
+          "start": 9.5,
+          "end": 13.54
+        },
+        {
+          "id": "ngsl-1008",
+          "sense": 1,
+          "text": "We ran a short survey to learn how students get to school each morning.",
+          "start": 13.7,
+          "end": 17.83
+        },
+        {
+          "id": "ngsl-1008",
+          "sense": 2,
+          "text": "The new teacher stood at the door and surveyed the noisy classroom.",
+          "start": 18.0,
+          "end": 21.65
+        },
+        {
+          "id": "ngsl-1009",
+          "sense": 1,
+          "text": "The majority of the club members voted to move the meetings to Thursday.",
+          "start": 21.83,
+          "end": 25.78
+        },
+        {
+          "id": "ngsl-1010",
+          "sense": 1,
+          "text": "The boy used a long stick to pull the ball out of the pond.",
+          "start": 25.96,
+          "end": 29.36
+        },
+        {
+          "id": "ngsl-1010",
+          "sense": 2,
+          "text": "She stuck a small flag into the top of the sand castle.",
+          "start": 29.53,
+          "end": 32.69
+        },
+        {
+          "id": "ngsl-1010",
+          "sense": 3,
+          "text": "Wet sand sticks to your feet, so wash them before you come inside.",
+          "start": 32.87,
+          "end": 36.65
+        },
+        {
+          "id": "ngsl-1011",
+          "sense": 1,
+          "text": "The hotel guest requested an extra blanket because the room felt cold.",
+          "start": 36.83,
+          "end": 41.34
+        }
+      ]
+    },
+    {
+      "file": "demo-examples-1-3.m4a",
+      "bitrate": "24k",
+      "sha256": "c1601672c773550e59b176bd70cb85efd2fe9b594f4172f87d45c77e2ffe60ab",
+      "duration": 43.67,
+      "entries": [
+        {
+          "id": "ngsl-1012",
+          "sense": 1,
+          "text": "He grew up poor but became rich after his small app became popular.",
+          "start": 0.25,
+          "end": 4.56
+        },
+        {
+          "id": "ngsl-1012",
+          "sense": 2,
+          "text": "The region is rich in fresh water, so farmers rarely worry about dry summers.",
+          "start": 4.73,
+          "end": 9.61
+        },
+        {
+          "id": "ngsl-1012",
+          "sense": 3,
+          "text": "This soup is too rich for me; I prefer something lighter at lunch.",
+          "start": 9.78,
+          "end": 13.63
+        },
+        {
+          "id": "ngsl-1013",
+          "sense": 1,
+          "text": "A cold wind from the north blew the leaves across the empty playground.",
+          "start": 13.81,
+          "end": 17.82
+        },
+        {
+          "id": "ngsl-1013",
+          "sense": 2,
+          "text": "From the village, a narrow road winds up through the hills to the lake.",
+          "start": 17.99,
+          "end": 21.78
+        },
+        {
+          "id": "ngsl-1013",
+          "sense": 3,
+          "text": "Grandpa still winds his old watch every night before he goes to bed.",
+          "start": 21.96,
+          "end": 25.93
+        },
+        {
+          "id": "ngsl-1014",
+          "sense": 1,
+          "text": "I asked five friends for help with moving, but none of them were free.",
+          "start": 26.1,
+          "end": 29.98
+        },
+        {
+          "id": "ngsl-1015",
+          "sense": 1,
+          "text": "At the end of the trip, we exchanged addresses and promised to write letters.",
+          "start": 30.16,
+          "end": 34.45
+        },
+        {
+          "id": "ngsl-1015",
+          "sense": 2,
+          "text": "You can find a currency exchange counter right next to the arrival gate.",
+          "start": 34.62,
+          "end": 38.84
+        },
+        {
+          "id": "ngsl-1016",
+          "sense": 1,
+          "text": "Our class has a small budget for the school festival, so we must plan carefully.",
+          "start": 39.01,
+          "end": 43.54
+        }
+      ]
+    },
+    {
+      "file": "demo-examples-1-4.m4a",
+      "bitrate": "24k",
+      "sha256": "7d949ffc91f15a69fbfbcf87246832b737d6d53e7b985a35c572d44ab5055d6a",
+      "duration": 31.41,
+      "entries": [
+        {
+          "id": "ngsl-1017",
+          "sense": 1,
+          "text": "This little town is famous for its spring flowers and its old stone bridge.",
+          "start": 0.25,
+          "end": 4.54
+        },
+        {
+          "id": "ngsl-1018",
+          "sense": 1,
+          "text": "The nurse took a small amount of blood from my arm for the test.",
+          "start": 4.7,
+          "end": 8.2
+        },
+        {
+          "id": "ngsl-1018",
+          "sense": 2,
+          "text": "Though she has royal blood, she lives a simple life on a farm.",
+          "start": 8.38,
+          "end": 11.83
+        },
+        {
+          "id": "ngsl-1019",
+          "sense": 1,
+          "text": "Jeans are not appropriate for the wedding, so please wear something more formal.",
+          "start": 12.02,
+          "end": 16.26
+        },
+        {
+          "id": "ngsl-1019",
+          "sense": 2,
+          "text": "The city appropriated extra money to repair the old library roof.",
+          "start": 16.44,
+          "end": 20.58
+        },
+        {
+          "id": "ngsl-1020",
+          "sense": 1,
+          "text": "The post office is two blocks from here, just past the flower shop.",
+          "start": 20.76,
+          "end": 24.57
+        },
+        {
+          "id": "ngsl-1020",
+          "sense": 2,
+          "text": "He carved a small bird from a block of soft wood.",
+          "start": 24.75,
+          "end": 27.6
+        },
+        {
+          "id": "ngsl-1020",
+          "sense": 3,
+          "text": "A fallen tree blocked the road, so the bus had to turn back.",
+          "start": 27.78,
+          "end": 31.29
+        }
+      ]
+    },
+    {
+      "file": "demo-words-2.m4a",
+      "bitrate": "64k",
+      "sha256": "babaf32b9f1cd3328a97164048db04ab053719cade75f7356efab86e37c241cb",
+      "duration": 21.14,
+      "entries": [
+        {
+          "id": "ngsl-1021",
+          "sense": null,
+          "text": "warm",
+          "start": 0.25,
+          "end": 1.06
+        },
+        {
+          "id": "ngsl-1022",
+          "sense": null,
+          "text": "count",
+          "start": 1.25,
+          "end": 2.13
+        },
+        {
+          "id": "ngsl-1023",
+          "sense": null,
+          "text": "scene",
+          "start": 2.33,
+          "end": 3.14
+        },
+        {
+          "id": "ngsl-1024",
+          "sense": null,
+          "text": "writer",
+          "start": 3.34,
+          "end": 4.17
+        },
+        {
+          "id": "ngsl-1025",
+          "sense": null,
+          "text": "content",
+          "start": 4.36,
+          "end": 5.27
+        },
+        {
+          "id": "ngsl-1026",
+          "sense": null,
+          "text": "prevent",
+          "start": 5.46,
+          "end": 6.31
+        },
+        {
+          "id": "ngsl-1027",
+          "sense": null,
+          "text": "safe",
+          "start": 6.51,
+          "end": 7.3
+        },
+        {
+          "id": "ngsl-1028",
+          "sense": null,
+          "text": "invite",
+          "start": 7.48,
+          "end": 8.34
+        },
+        {
+          "id": "ngsl-1029",
+          "sense": null,
+          "text": "mix",
+          "start": 8.52,
+          "end": 9.27
+        },
+        {
+          "id": "ngsl-1030",
+          "sense": null,
+          "text": "element",
+          "start": 9.47,
+          "end": 10.31
+        },
+        {
+          "id": "ngsl-1031",
+          "sense": null,
+          "text": "effective",
+          "start": 10.51,
+          "end": 11.45
+        },
+        {
+          "id": "ngsl-1032",
+          "sense": null,
+          "text": "correct",
+          "start": 11.63,
+          "end": 12.51
+        },
+        {
+          "id": "ngsl-1033",
+          "sense": null,
+          "text": "medical",
+          "start": 12.7,
+          "end": 13.55
+        },
+        {
+          "id": "ngsl-1034",
+          "sense": null,
+          "text": "admit",
+          "start": 13.75,
+          "end": 14.59
+        },
+        {
+          "id": "ngsl-1035",
+          "sense": null,
+          "text": "beat",
+          "start": 14.78,
+          "end": 15.56
+        },
+        {
+          "id": "ngsl-1036",
+          "sense": null,
+          "text": "telephone",
+          "start": 15.75,
+          "end": 16.74
+        },
+        {
+          "id": "ngsl-1037",
+          "sense": null,
+          "text": "copy",
+          "start": 16.94,
+          "end": 17.87
+        },
+        {
+          "id": "ngsl-1038",
+          "sense": null,
+          "text": "committee",
+          "start": 18.07,
+          "end": 18.92
+        },
+        {
+          "id": "ngsl-1039",
+          "sense": null,
+          "text": "aware",
+          "start": 19.12,
+          "end": 19.93
+        },
+        {
+          "id": "ngsl-1040",
+          "sense": null,
+          "text": "advice",
+          "start": 20.12,
+          "end": 21.01
+        }
+      ]
+    },
+    {
+      "file": "demo-examples-2-1.m4a",
+      "bitrate": "24k",
+      "sha256": "9c8fe6c059e7c7b4eb9da49beec66b23d81bff2e2100efcfca0f00b19fb50c43",
+      "duration": 38.44,
+      "entries": [
+        {
+          "id": "ngsl-1021",
+          "sense": 1,
+          "text": "Put on a warm coat, because the wind by the lake gets cold after dark.",
+          "start": 0.25,
+          "end": 4.5
+        },
+        {
+          "id": "ngsl-1021",
+          "sense": 2,
+          "text": "Our new neighbors gave us a warm welcome and a basket of fresh apples.",
+          "start": 4.68,
+          "end": 8.96
+        },
+        {
+          "id": "ngsl-1021",
+          "sense": 3,
+          "text": "She warmed her hands over the small fire while waiting for her brother.",
+          "start": 9.12,
+          "end": 12.86
+        },
+        {
+          "id": "ngsl-1022",
+          "sense": 1,
+          "text": "The teacher counted the students twice before the bus left the zoo.",
+          "start": 13.04,
+          "end": 16.76
+        },
+        {
+          "id": "ngsl-1022",
+          "sense": 2,
+          "text": "What counts most in a job interview is being honest about yourself.",
+          "start": 16.94,
+          "end": 20.92
+        },
+        {
+          "id": "ngsl-1023",
+          "sense": 1,
+          "text": "Police officers arrived at the scene a few minutes after the accident.",
+          "start": 21.1,
+          "end": 25.14
+        },
+        {
+          "id": "ngsl-1023",
+          "sense": 2,
+          "text": "My favorite scene in the movie is when the two sisters finally meet again.",
+          "start": 25.32,
+          "end": 29.51
+        },
+        {
+          "id": "ngsl-1024",
+          "sense": 1,
+          "text": "The writer spent three years living in the mountains to finish her first novel.",
+          "start": 29.69,
+          "end": 33.89
+        },
+        {
+          "id": "ngsl-1025",
+          "sense": 1,
+          "text": "The customs officer asked me to open my bag and show its contents.",
+          "start": 34.07,
+          "end": 38.32
+        }
+      ]
+    },
+    {
+      "file": "demo-examples-2-2.m4a",
+      "bitrate": "24k",
+      "sha256": "430760492f394655e17cc3c3aaa2b638e1349046d61dbfabe3af1a72744a1a9e",
+      "duration": 39.98,
+      "entries": [
+        {
+          "id": "ngsl-1025",
+          "sense": 2,
+          "text": "My grandmother is content with a quiet life and her small vegetable garden.",
+          "start": 0.25,
+          "end": 5.04
+        },
+        {
+          "id": "ngsl-1026",
+          "sense": 1,
+          "text": "A thin layer of oil on the blade will prevent the knife from rusting.",
+          "start": 5.22,
+          "end": 9.07
+        },
+        {
+          "id": "ngsl-1027",
+          "sense": 1,
+          "text": "Is the old wooden bridge safe to cross, or should we take the long way?",
+          "start": 9.25,
+          "end": 13.45
+        },
+        {
+          "id": "ngsl-1027",
+          "sense": 2,
+          "text": "The hotel room has a small safe for passports and other valuable items.",
+          "start": 13.63,
+          "end": 18.14
+        },
+        {
+          "id": "ngsl-1028",
+          "sense": 1,
+          "text": "We invited all our neighbors to a barbecue in the backyard on Sunday.",
+          "start": 18.31,
+          "end": 22.43
+        },
+        {
+          "id": "ngsl-1028",
+          "sense": 2,
+          "text": "The coach's surprising choice of players is sure to invite criticism from fans.",
+          "start": 22.6,
+          "end": 27.66
+        },
+        {
+          "id": "ngsl-1029",
+          "sense": 1,
+          "text": "Mix the blue and yellow paint, and you will get a bright green.",
+          "start": 27.83,
+          "end": 31.28
+        },
+        {
+          "id": "ngsl-1029",
+          "sense": 2,
+          "text": "The music at the party was a mix of old jazz and modern pop.",
+          "start": 31.45,
+          "end": 35.27
+        },
+        {
+          "id": "ngsl-1030",
+          "sense": 1,
+          "text": "Trust is an important element of any friendship that lasts for many years.",
+          "start": 35.45,
+          "end": 39.86
+        }
+      ]
+    },
+    {
+      "file": "demo-examples-2-3.m4a",
+      "bitrate": "24k",
+      "sha256": "d6f6109ce69c0961f74df2f05c9be77305e70dea1c9b0498bcd40fbf9ae739e7",
+      "duration": 38.49,
+      "entries": [
+        {
+          "id": "ngsl-1030",
+          "sense": 2,
+          "text": "Each student chose one element from the periodic table and gave a short talk.",
+          "start": 0.25,
+          "end": 4.96
+        },
+        {
+          "id": "ngsl-1031",
+          "sense": 1,
+          "text": "Short daily practice is more effective than one long lesson each week.",
+          "start": 5.14,
+          "end": 9.52
+        },
+        {
+          "id": "ngsl-1032",
+          "sense": 1,
+          "text": "Please check that the phone number you wrote on the form is correct.",
+          "start": 9.7,
+          "end": 13.28
+        },
+        {
+          "id": "ngsl-1032",
+          "sense": 2,
+          "text": "My friend kindly corrected the spelling mistakes in my English email.",
+          "start": 13.45,
+          "end": 17.68
+        },
+        {
+          "id": "ngsl-1033",
+          "sense": 1,
+          "text": "Thanks to medical progress, many illnesses that were once deadly can now be cured.",
+          "start": 17.87,
+          "end": 22.91
+        },
+        {
+          "id": "ngsl-1034",
+          "sense": 1,
+          "text": "He finally admitted that he had forgotten to lock the back door.",
+          "start": 23.08,
+          "end": 26.75
+        },
+        {
+          "id": "ngsl-1034",
+          "sense": 2,
+          "text": "Children under twelve are admitted free when they come with an adult.",
+          "start": 26.92,
+          "end": 30.77
+        },
+        {
+          "id": "ngsl-1035",
+          "sense": 1,
+          "text": "The little boy happily beat his toy drum while his father sang.",
+          "start": 30.94,
+          "end": 34.48
+        },
+        {
+          "id": "ngsl-1035",
+          "sense": 2,
+          "text": "For a fluffy omelet, beat three eggs with a little cold water.",
+          "start": 34.66,
+          "end": 38.36
+        }
+      ]
+    },
+    {
+      "file": "demo-examples-2-4.m4a",
+      "bitrate": "24k",
+      "sha256": "4a1b959c5539a687219d0847fd13f0949a8cbebcce752bf22338ed4de8faf964",
+      "duration": 33.88,
+      "entries": [
+        {
+          "id": "ngsl-1035",
+          "sense": 3,
+          "text": "My heart was beating fast as I walked onto the stage for the first time.",
+          "start": 0.25,
+          "end": 4.43
+        },
+        {
+          "id": "ngsl-1036",
+          "sense": 1,
+          "text": "There is an old black telephone on the desk in my grandfather's study.",
+          "start": 4.6,
+          "end": 8.62
+        },
+        {
+          "id": "ngsl-1036",
+          "sense": 2,
+          "text": "I telephoned the clinic to ask if they were open on holidays.",
+          "start": 8.79,
+          "end": 12.32
+        },
+        {
+          "id": "ngsl-1037",
+          "sense": 1,
+          "text": "The library has only one copy of the book, so I had to wait.",
+          "start": 12.49,
+          "end": 16.17
+        },
+        {
+          "id": "ngsl-1037",
+          "sense": 2,
+          "text": "Please copy the words on the board into your notebook before class ends.",
+          "start": 16.34,
+          "end": 20.29
+        },
+        {
+          "id": "ngsl-1038",
+          "sense": 1,
+          "text": "The town committee will decide next month where to build the new playground.",
+          "start": 20.46,
+          "end": 24.47
+        },
+        {
+          "id": "ngsl-1039",
+          "sense": 1,
+          "text": "Were you aware that the library closes early on the last Friday of each month?",
+          "start": 24.64,
+          "end": 29.0
+        },
+        {
+          "id": "ngsl-1040",
+          "sense": 1,
+          "text": "My older sister gave me useful advice before my first job interview.",
+          "start": 29.18,
+          "end": 33.76
+        }
+      ]
+    }
+  ]
+}

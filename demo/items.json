@@ -1,0 +1,1827 @@
+[
+  {
+    "id": "ngsl-1001",
+    "word": "difficulty",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "難しさ、困難"
+          }
+        ],
+        "example": "The difficulty of the last puzzle surprised everyone in our small reading club.",
+        "exampleTarget": "difficulty",
+        "exampleTranslation": "最後のパズルの難しさに、私たちの小さな読書会の全員が驚いた。",
+        "exampleTranslationTarget": "難しさ",
+        "exampleAudio": {
+          "file": "demo-examples-1-1.m4a",
+          "start": 0.25,
+          "end": 4.78
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "困難な状況"
+          }
+        ],
+        "example": "After the bakery lost its biggest customer, it fell into serious financial difficulties.",
+        "exampleTarget": "difficulties",
+        "exampleTranslation": "一番大きな取引先を失ったあと、そのパン屋は深刻な財政上の困難な状況に陥った。",
+        "exampleTranslationTarget": "困難な状況",
+        "exampleAudio": {
+          "file": "demo-examples-1-1.m4a",
+          "start": 4.95,
+          "end": 10.53
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 0.25,
+      "end": 1.31
+    }
+  },
+  {
+    "id": "ngsl-1002",
+    "word": "purchase",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "買う、購入する"
+          },
+          {
+            "pos": "名詞",
+            "meaning": "購入、買い入れ"
+          }
+        ],
+        "example": "My aunt purchased three old maps at a market near the harbor last spring.",
+        "exampleTarget": "purchased",
+        "exampleTranslation": "おばは去年の春、港の近くの市場で古い地図を3枚購入した。",
+        "exampleTranslationTarget": "購入した",
+        "exampleAudio": {
+          "file": "demo-examples-1-1.m4a",
+          "start": 10.69,
+          "end": 14.69
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "ひっかかり、手がかり"
+          }
+        ],
+        "example": "The climber felt along the smooth rock, looking for any purchase for her fingers.",
+        "exampleTarget": "purchase",
+        "exampleTranslation": "その登山者は、指をかける手がかりを探して、なめらかな岩を手でたどった。",
+        "exampleTranslationTarget": "手がかり",
+        "exampleAudio": {
+          "file": "demo-examples-1-1.m4a",
+          "start": 14.87,
+          "end": 19.34
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 1.5,
+      "end": 2.43
+    }
+  },
+  {
+    "id": "ngsl-1003",
+    "word": "shoot",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "撃つ、射る、放つ"
+          }
+        ],
+        "example": "At the summer festival, children could shoot arrows at a large straw target.",
+        "exampleTarget": "shoot",
+        "exampleTranslation": "夏祭りでは、子どもたちが大きなわらの的に矢を射ることができた。",
+        "exampleTranslationTarget": "射る",
+        "exampleAudio": {
+          "file": "demo-examples-1-1.m4a",
+          "start": 19.51,
+          "end": 23.84
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "撮る、撮影する"
+          }
+        ],
+        "example": "The film crew will shoot the final scene on the bridge at sunrise.",
+        "exampleTarget": "shoot",
+        "exampleTranslation": "撮影班は、最後の場面を日の出のときに橋の上で撮影する予定だ。",
+        "exampleTranslationTarget": "撮影する",
+        "exampleAudio": {
+          "file": "demo-examples-1-1.m4a",
+          "start": 24.02,
+          "end": 27.92
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "自動詞",
+            "meaning": "矢のように走る"
+          }
+        ],
+        "example": "When the door opened, the cat shot past my legs and into the garden.",
+        "exampleTarget": "shot",
+        "exampleTranslation": "ドアが開くと、猫は私の足の横を矢のように走って庭へ出ていった。",
+        "exampleTranslationTarget": "矢のように走って",
+        "exampleAudio": {
+          "file": "demo-examples-1-1.m4a",
+          "start": 28.09,
+          "end": 32.05
+        }
+      }
+    ],
+    "idioms": [
+      {
+        "phrase": "shoot from the hip",
+        "meaning": "衝動的に行動する、よく考えずに言う"
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 2.62,
+      "end": 3.42
+    }
+  },
+  {
+    "id": "ngsl-1004",
+    "word": "announce",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "発表する、公表する"
+          }
+        ],
+        "example": "The museum announced on Monday that it will stay open later on Fridays.",
+        "exampleTarget": "announced",
+        "exampleTranslation": "博物館は月曜日、金曜日は閉館の時間を遅くすると発表した。",
+        "exampleTranslationTarget": "発表した",
+        "exampleAudio": {
+          "file": "demo-examples-1-1.m4a",
+          "start": 32.22,
+          "end": 36.45
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "示す"
+          }
+        ],
+        "example": "Dark clouds over the hills announced the storm long before the first drop fell.",
+        "exampleTarget": "announced",
+        "exampleTranslation": "丘の上の黒い雲が、雨が降り出すずっと前から嵐の訪れを示していた。",
+        "exampleTranslationTarget": "示していた",
+        "exampleAudio": {
+          "file": "demo-examples-1-1.m4a",
+          "start": 36.61,
+          "end": 41.04
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 3.62,
+      "end": 4.46
+    }
+  },
+  {
+    "id": "ngsl-1005",
+    "word": "unless",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "接続詞",
+            "meaning": "もし…でなければ、でないかぎり"
+          }
+        ],
+        "example": "Our team meets in the park every Saturday unless the weather is terrible.",
+        "exampleTarget": "unless",
+        "exampleTranslation": "ひどい天気でないかぎり、私たちのチームは毎週土曜日に公園に集まる。",
+        "exampleTranslationTarget": "でないかぎり",
+        "exampleAudio": {
+          "file": "demo-examples-1-1.m4a",
+          "start": 41.22,
+          "end": 45.27
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 4.65,
+      "end": 5.5
+    }
+  },
+  {
+    "id": "ngsl-1006",
+    "word": "independent",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "頼らない、独立した"
+          }
+        ],
+        "example": "After college, she wanted to be independent of her parents and pay her own rent.",
+        "exampleTarget": "independent",
+        "exampleTranslation": "大学を出たあと、彼女は親に頼らない生活をして、家賃も自分で払いたかった。",
+        "exampleTranslationTarget": "頼らない",
+        "exampleAudio": {
+          "file": "demo-examples-1-2.m4a",
+          "start": 0.25,
+          "end": 5.03
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "関係がない、独自の"
+          }
+        ],
+        "example": "Two independent groups checked the results and reached the same conclusion.",
+        "exampleTarget": "independent",
+        "exampleTranslation": "互いに関係がない二つのグループが結果を確かめ、同じ結論に達した。",
+        "exampleTranslationTarget": "関係がない",
+        "exampleAudio": {
+          "file": "demo-examples-1-2.m4a",
+          "start": 5.21,
+          "end": 9.32
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 5.68,
+      "end": 6.71
+    }
+  },
+  {
+    "id": "ngsl-1007",
+    "word": "recommend",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "推薦する、勧める"
+          }
+        ],
+        "example": "Could you recommend a quiet café where I can study for a few hours?",
+        "exampleTarget": "recommend",
+        "exampleTranslation": "数時間勉強できる静かなカフェを勧めてもらえますか。",
+        "exampleTranslationTarget": "勧めて",
+        "exampleAudio": {
+          "file": "demo-examples-1-2.m4a",
+          "start": 9.5,
+          "end": 13.54
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 6.9,
+      "end": 7.84
+    }
+  },
+  {
+    "id": "ngsl-1008",
+    "word": "survey",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "調査"
+          },
+          {
+            "pos": "他動詞",
+            "meaning": "調査する"
+          }
+        ],
+        "example": "We ran a short survey to learn how students get to school each morning.",
+        "exampleTarget": "survey",
+        "exampleTranslation": "生徒が毎朝どうやって登校しているかを知るために、短い調査を行った。",
+        "exampleTranslationTarget": "調査",
+        "exampleAudio": {
+          "file": "demo-examples-1-2.m4a",
+          "start": 13.7,
+          "end": 17.83
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "見渡す、概観する"
+          }
+        ],
+        "example": "The new teacher stood at the door and surveyed the noisy classroom.",
+        "exampleTarget": "surveyed",
+        "exampleTranslation": "新しい先生は戸口に立って、騒がしい教室を見渡した。",
+        "exampleTranslationTarget": "見渡した",
+        "exampleAudio": {
+          "file": "demo-examples-1-2.m4a",
+          "start": 18.0,
+          "end": 21.65
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 8.03,
+      "end": 8.92
+    }
+  },
+  {
+    "id": "ngsl-1009",
+    "word": "majority",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "大多数、過半数"
+          }
+        ],
+        "example": "The majority of the club members voted to move the meetings to Thursday.",
+        "exampleTarget": "majority",
+        "exampleTranslation": "クラブの会員の大多数が、集まりを木曜日に移すことに賛成した。",
+        "exampleTranslationTarget": "大多数",
+        "exampleAudio": {
+          "file": "demo-examples-1-2.m4a",
+          "start": 21.83,
+          "end": 25.78
+        }
+      }
+    ],
+    "idioms": [
+      {
+        "phrase": "absolute majority",
+        "meaning": "絶対多数"
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 9.12,
+      "end": 10.11
+    }
+  },
+  {
+    "id": "ngsl-1010",
+    "word": "stick",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "棒、棒きれ、枝"
+          }
+        ],
+        "example": "The boy used a long stick to pull the ball out of the pond.",
+        "exampleTarget": "stick",
+        "exampleTranslation": "少年は長い棒を使って、池からボールを引き寄せた。",
+        "exampleTranslationTarget": "棒",
+        "exampleAudio": {
+          "file": "demo-examples-1-2.m4a",
+          "start": 25.96,
+          "end": 29.36
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "刺す、突き刺す"
+          }
+        ],
+        "example": "She stuck a small flag into the top of the sand castle.",
+        "exampleTarget": "stuck",
+        "exampleTranslation": "彼女は砂の城のてっぺんに小さな旗を突き刺した。",
+        "exampleTranslationTarget": "突き刺した",
+        "exampleAudio": {
+          "file": "demo-examples-1-2.m4a",
+          "start": 29.53,
+          "end": 32.69
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "自動詞",
+            "meaning": "はりつく、くっついて離れない"
+          }
+        ],
+        "example": "Wet sand sticks to your feet, so wash them before you come inside.",
+        "exampleTarget": "sticks",
+        "exampleTranslation": "ぬれた砂は足にはりつくので、中に入る前に洗ってね。",
+        "exampleTranslationTarget": "はりつく",
+        "exampleAudio": {
+          "file": "demo-examples-1-2.m4a",
+          "start": 32.87,
+          "end": 36.65
+        }
+      }
+    ],
+    "idioms": [
+      {
+        "phrase": "walking stick",
+        "meaning": "ステッキ、つえ"
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 10.3,
+      "end": 11.08
+    }
+  },
+  {
+    "id": "ngsl-1011",
+    "word": "request",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "頼む、要請する"
+          },
+          {
+            "pos": "名詞",
+            "meaning": "依頼、要請"
+          }
+        ],
+        "example": "The hotel guest requested an extra blanket because the room felt cold.",
+        "exampleTarget": "requested",
+        "exampleTranslation": "部屋が寒く感じたので、ホテルの客は毛布をもう一枚頼んだ。",
+        "exampleTranslationTarget": "頼んだ",
+        "exampleAudio": {
+          "file": "demo-examples-1-2.m4a",
+          "start": 36.83,
+          "end": 41.34
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 11.26,
+      "end": 12.18
+    }
+  },
+  {
+    "id": "ngsl-1012",
+    "word": "rich",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "金持ちの、豊かな"
+          }
+        ],
+        "example": "He grew up poor but became rich after his small app became popular.",
+        "exampleTarget": "rich",
+        "exampleTranslation": "彼は貧しく育ったが、小さなアプリが人気になって金持ちになった。",
+        "exampleAudio": {
+          "file": "demo-examples-1-3.m4a",
+          "start": 0.25,
+          "end": 4.56
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "富んだ"
+          }
+        ],
+        "example": "The region is rich in fresh water, so farmers rarely worry about dry summers.",
+        "exampleTarget": "rich",
+        "exampleTranslation": "その地域は真水に富んでいるので、農家が雨の少ない夏を心配することはめったにない。",
+        "exampleTranslationTarget": "富んで",
+        "exampleAudio": {
+          "file": "demo-examples-1-3.m4a",
+          "start": 4.73,
+          "end": 9.61
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "濃厚な、濃い"
+          }
+        ],
+        "example": "This soup is too rich for me; I prefer something lighter at lunch.",
+        "exampleTarget": "rich",
+        "exampleTranslation": "このスープは私には濃厚すぎる。昼はもっとあっさりしたものがいい。",
+        "exampleTranslationTarget": "濃厚",
+        "exampleAudio": {
+          "file": "demo-examples-1-3.m4a",
+          "start": 9.78,
+          "end": 13.63
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 12.36,
+      "end": 13.14
+    }
+  },
+  {
+    "id": "ngsl-1013",
+    "word": "wind",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "風"
+          }
+        ],
+        "example": "A cold wind from the north blew the leaves across the empty playground.",
+        "exampleTarget": "wind",
+        "exampleTranslation": "北からの冷たい風が、誰もいない校庭に落ち葉を吹き散らした。",
+        "exampleTranslationTarget": "風",
+        "exampleAudio": {
+          "file": "demo-examples-1-3.m4a",
+          "start": 13.81,
+          "end": 17.82
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "自動詞",
+            "meaning": "曲がりくねる、うねる"
+          }
+        ],
+        "example": "From the village, a narrow road winds up through the hills to the lake.",
+        "exampleTarget": "winds",
+        "exampleTranslation": "村からは細い道が、丘の間を曲がりくねって湖まで上っている。",
+        "exampleTranslationTarget": "曲がりくねって",
+        "exampleAudio": {
+          "file": "demo-examples-1-3.m4a",
+          "start": 17.99,
+          "end": 21.78
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "巻く、巻き上げる"
+          }
+        ],
+        "example": "Grandpa still winds his old watch every night before he goes to bed.",
+        "exampleTarget": "winds",
+        "exampleTranslation": "祖父は今でも、毎晩寝る前に古い腕時計のねじを巻く。",
+        "exampleTranslationTarget": "巻く",
+        "exampleAudio": {
+          "file": "demo-examples-1-3.m4a",
+          "start": 21.96,
+          "end": 25.93
+        }
+      }
+    ],
+    "idioms": [
+      {
+        "phrase": "wind instrument",
+        "meaning": "管楽器、吹奏楽器"
+      },
+      {
+        "phrase": "second wind",
+        "meaning": "元気の回復"
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 13.32,
+      "end": 14.13
+    }
+  },
+  {
+    "id": "ngsl-1014",
+    "word": "none",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "代名詞",
+            "meaning": "だれも…ない、少しも…ない"
+          }
+        ],
+        "example": "I asked five friends for help with moving, but none of them were free.",
+        "exampleTarget": "none",
+        "exampleTranslation": "引っ越しの手伝いを友達5人に頼んだが、だれも都合がつかなかった。",
+        "exampleAudio": {
+          "file": "demo-examples-1-3.m4a",
+          "start": 26.1,
+          "end": 29.98
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 14.33,
+      "end": 15.08
+    }
+  },
+  {
+    "id": "ngsl-1015",
+    "word": "exchange",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "取り交わす、取り替える"
+          },
+          {
+            "pos": "名詞",
+            "meaning": "交換すること、取り替え"
+          }
+        ],
+        "example": "At the end of the trip, we exchanged addresses and promised to write letters.",
+        "exampleTarget": "exchanged",
+        "exampleTranslation": "旅の終わりに、私たちは住所を取り交わし、手紙を書くと約束した。",
+        "exampleTranslationTarget": "取り交わし",
+        "exampleAudio": {
+          "file": "demo-examples-1-3.m4a",
+          "start": 30.16,
+          "end": 34.45
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "両替、為替"
+          }
+        ],
+        "example": "You can find a currency exchange counter right next to the arrival gate.",
+        "exampleTarget": "exchange",
+        "exampleTranslation": "到着口のすぐ隣に、両替の窓口があります。",
+        "exampleTranslationTarget": "両替",
+        "exampleAudio": {
+          "file": "demo-examples-1-3.m4a",
+          "start": 34.62,
+          "end": 38.84
+        }
+      }
+    ],
+    "idioms": [
+      {
+        "phrase": "exchange rate",
+        "meaning": "為替相場"
+      },
+      {
+        "phrase": "foreign exchange",
+        "meaning": "外国為替"
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 15.28,
+      "end": 16.26
+    }
+  },
+  {
+    "id": "ngsl-1016",
+    "word": "budget",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "予算"
+          }
+        ],
+        "example": "Our class has a small budget for the school festival, so we must plan carefully.",
+        "exampleTarget": "budget",
+        "exampleTranslation": "私たちのクラスは文化祭の予算が少ないので、よく計画しなければならない。",
+        "exampleTranslationTarget": "予算",
+        "exampleAudio": {
+          "file": "demo-examples-1-3.m4a",
+          "start": 39.01,
+          "end": 43.54
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 16.44,
+      "end": 17.31
+    }
+  },
+  {
+    "id": "ngsl-1017",
+    "word": "famous",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "有名な、名高い"
+          }
+        ],
+        "example": "This little town is famous for its spring flowers and its old stone bridge.",
+        "exampleTarget": "famous",
+        "exampleTranslation": "この小さな町は、春の花と古い石の橋で有名だ。",
+        "exampleTranslationTarget": "有名だ",
+        "exampleAudio": {
+          "file": "demo-examples-1-4.m4a",
+          "start": 0.25,
+          "end": 4.54
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 17.49,
+      "end": 18.34
+    }
+  },
+  {
+    "id": "ngsl-1018",
+    "word": "blood",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "血、血液"
+          }
+        ],
+        "example": "The nurse took a small amount of blood from my arm for the test.",
+        "exampleTarget": "blood",
+        "exampleTranslation": "看護師は検査のために、私の腕から血液を少し採った。",
+        "exampleTranslationTarget": "血液",
+        "exampleAudio": {
+          "file": "demo-examples-1-4.m4a",
+          "start": 4.7,
+          "end": 8.2
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "血統、家柄"
+          }
+        ],
+        "example": "Though she has royal blood, she lives a simple life on a farm.",
+        "exampleTarget": "blood",
+        "exampleTranslation": "彼女は王家の血統だが、農場で質素に暮らしている。",
+        "exampleTranslationTarget": "血統",
+        "exampleAudio": {
+          "file": "demo-examples-1-4.m4a",
+          "start": 8.38,
+          "end": 11.83
+        }
+      }
+    ],
+    "idioms": [
+      {
+        "phrase": "blood pressure",
+        "meaning": "血圧"
+      },
+      {
+        "phrase": "bad blood",
+        "meaning": "不和、敵意"
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 18.52,
+      "end": 19.37
+    }
+  },
+  {
+    "id": "ngsl-1019",
+    "word": "appropriate",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "適切な、適当な"
+          }
+        ],
+        "example": "Jeans are not appropriate for the wedding, so please wear something more formal.",
+        "exampleTarget": "appropriate",
+        "exampleTranslation": "結婚式にジーンズは適切ではないので、もっと改まった服を着てください。",
+        "exampleTranslationTarget": "適切",
+        "exampleAudio": {
+          "file": "demo-examples-1-4.m4a",
+          "start": 12.02,
+          "end": 16.26
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "充当する、あてる"
+          }
+        ],
+        "example": "The city appropriated extra money to repair the old library roof.",
+        "exampleTarget": "appropriated",
+        "exampleTranslation": "市は、古い図書館の屋根の修理に追加の資金を充当した。",
+        "exampleTranslationTarget": "充当した",
+        "exampleAudio": {
+          "file": "demo-examples-1-4.m4a",
+          "start": 16.44,
+          "end": 20.58
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 19.57,
+      "end": 20.62
+    }
+  },
+  {
+    "id": "ngsl-1020",
+    "word": "block",
+    "unit": 1,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "区画、街区、ブロック"
+          }
+        ],
+        "example": "The post office is two blocks from here, just past the flower shop.",
+        "exampleTarget": "blocks",
+        "exampleTranslation": "郵便局はここから2ブロック先の、花屋を過ぎたところです。",
+        "exampleTranslationTarget": "ブロック",
+        "exampleAudio": {
+          "file": "demo-examples-1-4.m4a",
+          "start": 20.76,
+          "end": 24.57
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "かたまり"
+          }
+        ],
+        "example": "He carved a small bird from a block of soft wood.",
+        "exampleTarget": "block",
+        "exampleTranslation": "彼はやわらかい木のかたまりから、小さな鳥を彫った。",
+        "exampleTranslationTarget": "かたまり",
+        "exampleAudio": {
+          "file": "demo-examples-1-4.m4a",
+          "start": 24.75,
+          "end": 27.6
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "ふさぐ、妨げる"
+          }
+        ],
+        "example": "A fallen tree blocked the road, so the bus had to turn back.",
+        "exampleTarget": "blocked",
+        "exampleTranslation": "倒れた木が道をふさいだので、バスは引き返すしかなかった。",
+        "exampleTranslationTarget": "ふさいだ",
+        "exampleAudio": {
+          "file": "demo-examples-1-4.m4a",
+          "start": 27.78,
+          "end": 31.29
+        }
+      }
+    ],
+    "idioms": [
+      {
+        "phrase": "stumbling block",
+        "meaning": "障害物、じゃまもの"
+      }
+    ],
+    "audio": {
+      "file": "demo-words-1.m4a",
+      "start": 20.81,
+      "end": 21.71
+    }
+  },
+  {
+    "id": "ngsl-1021",
+    "word": "warm",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "暖かい、温暖な"
+          }
+        ],
+        "example": "Put on a warm coat, because the wind by the lake gets cold after dark.",
+        "exampleTarget": "warm",
+        "exampleTranslation": "湖のそばの風は暗くなると冷たくなるから、暖かいコートを着なさい。",
+        "exampleTranslationTarget": "暖かい",
+        "exampleAudio": {
+          "file": "demo-examples-2-1.m4a",
+          "start": 0.25,
+          "end": 4.5
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "心からの、思いやりのある"
+          }
+        ],
+        "example": "Our new neighbors gave us a warm welcome and a basket of fresh apples.",
+        "exampleTarget": "warm",
+        "exampleTranslation": "新しい隣人たちは、心からの歓迎とともに、もぎたてのリンゴをかごいっぱいくれた。",
+        "exampleTranslationTarget": "心からの",
+        "exampleAudio": {
+          "file": "demo-examples-2-1.m4a",
+          "start": 4.68,
+          "end": 8.96
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "暖める"
+          },
+          {
+            "pos": "自動詞",
+            "meaning": "暖まる"
+          }
+        ],
+        "example": "She warmed her hands over the small fire while waiting for her brother.",
+        "exampleTarget": "warmed",
+        "exampleTranslation": "彼女は兄を待つ間、小さなたき火で手を暖めた。",
+        "exampleTranslationTarget": "暖めた",
+        "exampleAudio": {
+          "file": "demo-examples-2-1.m4a",
+          "start": 9.12,
+          "end": 12.86
+        }
+      }
+    ],
+    "idioms": [
+      {
+        "phrase": "warm front",
+        "meaning": "温暖前線"
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 0.25,
+      "end": 1.06
+    }
+  },
+  {
+    "id": "ngsl-1022",
+    "word": "count",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "数える"
+          },
+          {
+            "pos": "自動詞",
+            "meaning": "数を数える"
+          }
+        ],
+        "example": "The teacher counted the students twice before the bus left the zoo.",
+        "exampleTarget": "counted",
+        "exampleTranslation": "先生はバスが動物園を出る前に、生徒の人数を2回数えた。",
+        "exampleTranslationTarget": "数えた",
+        "exampleAudio": {
+          "file": "demo-examples-2-1.m4a",
+          "start": 13.04,
+          "end": 16.76
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "自動詞",
+            "meaning": "価値がある、重大である"
+          }
+        ],
+        "example": "What counts most in a job interview is being honest about yourself.",
+        "exampleTarget": "counts",
+        "exampleTranslation": "就職の面接で一番価値があるのは、自分について正直であることだ。",
+        "exampleTranslationTarget": "価値がある",
+        "exampleAudio": {
+          "file": "demo-examples-2-1.m4a",
+          "start": 16.94,
+          "end": 20.92
+        }
+      }
+    ],
+    "idioms": [
+      {
+        "phrase": "count noun",
+        "meaning": "可算名詞"
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 1.25,
+      "end": 2.13
+    }
+  },
+  {
+    "id": "ngsl-1023",
+    "word": "scene",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "現場"
+          }
+        ],
+        "example": "Police officers arrived at the scene a few minutes after the accident.",
+        "exampleTarget": "scene",
+        "exampleTranslation": "事故の数分後、警察官が現場に到着した。",
+        "exampleTranslationTarget": "現場",
+        "exampleAudio": {
+          "file": "demo-examples-2-1.m4a",
+          "start": 21.1,
+          "end": 25.14
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "場面"
+          }
+        ],
+        "example": "My favorite scene in the movie is when the two sisters finally meet again.",
+        "exampleTarget": "scene",
+        "exampleTranslation": "その映画で私が一番好きな場面は、二人の姉妹がついに再会するところだ。",
+        "exampleTranslationTarget": "場面",
+        "exampleAudio": {
+          "file": "demo-examples-2-1.m4a",
+          "start": 25.32,
+          "end": 29.51
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 2.33,
+      "end": 3.14
+    }
+  },
+  {
+    "id": "ngsl-1024",
+    "word": "writer",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "作家、著者"
+          }
+        ],
+        "example": "The writer spent three years living in the mountains to finish her first novel.",
+        "exampleTarget": "writer",
+        "exampleTranslation": "その作家は初めての小説を書き上げるために、3年間山で暮らした。",
+        "exampleTranslationTarget": "作家",
+        "exampleAudio": {
+          "file": "demo-examples-2-1.m4a",
+          "start": 29.69,
+          "end": 33.89
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 3.34,
+      "end": 4.17
+    }
+  },
+  {
+    "id": "ngsl-1025",
+    "word": "content",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "中身、内容物"
+          }
+        ],
+        "example": "The customs officer asked me to open my bag and show its contents.",
+        "exampleTarget": "contents",
+        "exampleTranslation": "税関の職員は、私にかばんを開けて中身を見せるよう求めた。",
+        "exampleTranslationTarget": "中身",
+        "exampleAudio": {
+          "file": "demo-examples-2-1.m4a",
+          "start": 34.07,
+          "end": 38.32
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "満足して、甘んじて"
+          }
+        ],
+        "example": "My grandmother is content with a quiet life and her small vegetable garden.",
+        "exampleTarget": "content",
+        "exampleTranslation": "祖母は静かな暮らしと小さな家庭菜園に満足している。",
+        "exampleTranslationTarget": "満足して",
+        "exampleAudio": {
+          "file": "demo-examples-2-2.m4a",
+          "start": 0.25,
+          "end": 5.04
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 4.36,
+      "end": 5.27
+    }
+  },
+  {
+    "id": "ngsl-1026",
+    "word": "prevent",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "防ぐ、予防する"
+          }
+        ],
+        "example": "A thin layer of oil on the blade will prevent the knife from rusting.",
+        "exampleTarget": "prevent",
+        "exampleTranslation": "刃に油を薄く塗っておけば、ナイフがさびるのを防ぐことができる。",
+        "exampleTranslationTarget": "防ぐ",
+        "exampleAudio": {
+          "file": "demo-examples-2-2.m4a",
+          "start": 5.22,
+          "end": 9.07
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 5.46,
+      "end": 6.31
+    }
+  },
+  {
+    "id": "ngsl-1027",
+    "word": "safe",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "安全な、危険のない"
+          }
+        ],
+        "example": "Is the old wooden bridge safe to cross, or should we take the long way?",
+        "exampleTarget": "safe",
+        "exampleTranslation": "その古い木の橋は渡っても安全ですか、それとも遠回りしたほうがいいですか。",
+        "exampleTranslationTarget": "安全",
+        "exampleAudio": {
+          "file": "demo-examples-2-2.m4a",
+          "start": 9.25,
+          "end": 13.45
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "金庫"
+          }
+        ],
+        "example": "The hotel room has a small safe for passports and other valuable items.",
+        "exampleTarget": "safe",
+        "exampleTranslation": "そのホテルの部屋には、パスポートなどの貴重品を入れる小さな金庫がある。",
+        "exampleTranslationTarget": "金庫",
+        "exampleAudio": {
+          "file": "demo-examples-2-2.m4a",
+          "start": 13.63,
+          "end": 18.14
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 6.51,
+      "end": 7.3
+    }
+  },
+  {
+    "id": "ngsl-1028",
+    "word": "invite",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "招待する、招く"
+          }
+        ],
+        "example": "We invited all our neighbors to a barbecue in the backyard on Sunday.",
+        "exampleTarget": "invited",
+        "exampleTranslation": "日曜日に裏庭でするバーベキューに、近所の人を全員招待した。",
+        "exampleTranslationTarget": "招待した",
+        "exampleAudio": {
+          "file": "demo-examples-2-2.m4a",
+          "start": 18.31,
+          "end": 22.43
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "誘発する、誘い起こす"
+          }
+        ],
+        "example": "The coach's surprising choice of players is sure to invite criticism from fans.",
+        "exampleTarget": "invite",
+        "exampleTranslation": "監督の意外な選手の選び方は、きっとファンの批判を誘発するだろう。",
+        "exampleTranslationTarget": "誘発する",
+        "exampleAudio": {
+          "file": "demo-examples-2-2.m4a",
+          "start": 22.6,
+          "end": 27.66
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 7.48,
+      "end": 8.34
+    }
+  },
+  {
+    "id": "ngsl-1029",
+    "word": "mix",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "混ぜ合わせる、混合する"
+          },
+          {
+            "pos": "自動詞",
+            "meaning": "混ざる"
+          }
+        ],
+        "example": "Mix the blue and yellow paint, and you will get a bright green.",
+        "exampleTarget": "Mix",
+        "exampleTranslation": "青と黄色の絵の具を混ぜ合わせると、明るい緑色になる。",
+        "exampleTranslationTarget": "混ぜ合わせる",
+        "exampleAudio": {
+          "file": "demo-examples-2-2.m4a",
+          "start": 27.83,
+          "end": 31.28
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "混合、ミックス"
+          }
+        ],
+        "example": "The music at the party was a mix of old jazz and modern pop.",
+        "exampleTarget": "mix",
+        "exampleTranslation": "パーティーの音楽は、古いジャズと今のポップスのミックスだった。",
+        "exampleTranslationTarget": "ミックス",
+        "exampleAudio": {
+          "file": "demo-examples-2-2.m4a",
+          "start": 31.45,
+          "end": 35.27
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 8.52,
+      "end": 9.27
+    }
+  },
+  {
+    "id": "ngsl-1030",
+    "word": "element",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "要素、成分"
+          }
+        ],
+        "example": "Trust is an important element of any friendship that lasts for many years.",
+        "exampleTarget": "element",
+        "exampleTranslation": "信頼は、長く続く友情の大切な要素だ。",
+        "exampleTranslationTarget": "要素",
+        "exampleAudio": {
+          "file": "demo-examples-2-2.m4a",
+          "start": 35.45,
+          "end": 39.86
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "元素"
+          }
+        ],
+        "example": "Each student chose one element from the periodic table and gave a short talk.",
+        "exampleTarget": "element",
+        "exampleTranslation": "生徒は一人ずつ周期表から元素を一つ選び、短い発表をした。",
+        "exampleTranslationTarget": "元素",
+        "exampleAudio": {
+          "file": "demo-examples-2-3.m4a",
+          "start": 0.25,
+          "end": 4.96
+        }
+      }
+    ],
+    "idioms": [
+      {
+        "phrase": "trace element",
+        "meaning": "微量元素"
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 9.47,
+      "end": 10.31
+    }
+  },
+  {
+    "id": "ngsl-1031",
+    "word": "effective",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "効果的な、有効な"
+          }
+        ],
+        "example": "Short daily practice is more effective than one long lesson each week.",
+        "exampleTarget": "effective",
+        "exampleTranslation": "毎日の短い練習は、週に一度の長いレッスンより効果的だ。",
+        "exampleTranslationTarget": "効果的",
+        "exampleAudio": {
+          "file": "demo-examples-2-3.m4a",
+          "start": 5.14,
+          "end": 9.52
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 10.51,
+      "end": 11.45
+    }
+  },
+  {
+    "id": "ngsl-1032",
+    "word": "correct",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "正しい、正確な"
+          }
+        ],
+        "example": "Please check that the phone number you wrote on the form is correct.",
+        "exampleTarget": "correct",
+        "exampleTranslation": "用紙に書いた電話番号が正しいか、確かめてください。",
+        "exampleTranslationTarget": "正しい",
+        "exampleAudio": {
+          "file": "demo-examples-2-3.m4a",
+          "start": 9.7,
+          "end": 13.28
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "訂正する、修正する"
+          }
+        ],
+        "example": "My friend kindly corrected the spelling mistakes in my English email.",
+        "exampleTarget": "corrected",
+        "exampleTranslation": "友人が、私の英語のメールのつづりの誤りを親切に訂正してくれた。",
+        "exampleTranslationTarget": "訂正して",
+        "exampleAudio": {
+          "file": "demo-examples-2-3.m4a",
+          "start": 13.45,
+          "end": 17.68
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 11.63,
+      "end": 12.51
+    }
+  },
+  {
+    "id": "ngsl-1033",
+    "word": "medical",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "医学の、医術の"
+          }
+        ],
+        "example": "Thanks to medical progress, many illnesses that were once deadly can now be cured.",
+        "exampleTarget": "medical",
+        "exampleTranslation": "医学の進歩のおかげで、かつては命にかかわった多くの病気が今では治せる。",
+        "exampleTranslationTarget": "医学の",
+        "exampleAudio": {
+          "file": "demo-examples-2-3.m4a",
+          "start": 17.87,
+          "end": 22.91
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 12.7,
+      "end": 13.55
+    }
+  },
+  {
+    "id": "ngsl-1034",
+    "word": "admit",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "認める"
+          }
+        ],
+        "example": "He finally admitted that he had forgotten to lock the back door.",
+        "exampleTarget": "admitted",
+        "exampleTranslation": "彼は、裏口のかぎをかけ忘れたことをようやく認めた。",
+        "exampleTranslationTarget": "認めた",
+        "exampleAudio": {
+          "file": "demo-examples-2-3.m4a",
+          "start": 23.08,
+          "end": 26.75
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "入れる、受け入れる"
+          }
+        ],
+        "example": "Children under twelve are admitted free when they come with an adult.",
+        "exampleTarget": "admitted",
+        "exampleTranslation": "12歳未満の子どもは、大人と一緒なら無料で入れてもらえる。",
+        "exampleTranslationTarget": "入れて",
+        "exampleAudio": {
+          "file": "demo-examples-2-3.m4a",
+          "start": 26.92,
+          "end": 30.77
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 13.75,
+      "end": 14.59
+    }
+  },
+  {
+    "id": "ngsl-1035",
+    "word": "beat",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "たたく、打つ"
+          }
+        ],
+        "example": "The little boy happily beat his toy drum while his father sang.",
+        "exampleTarget": "beat",
+        "exampleTranslation": "父親が歌う間、小さな男の子は楽しそうにおもちゃの太鼓をたたいた。",
+        "exampleTranslationTarget": "たたいた",
+        "exampleAudio": {
+          "file": "demo-examples-2-3.m4a",
+          "start": 30.94,
+          "end": 34.48
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "勢いよくかき混ぜる"
+          }
+        ],
+        "example": "For a fluffy omelet, beat three eggs with a little cold water.",
+        "exampleTarget": "beat",
+        "exampleTranslation": "ふわふわのオムレツにするには、卵3個を少しの冷たい水と一緒に勢いよくかき混ぜる。",
+        "exampleTranslationTarget": "勢いよくかき混ぜる",
+        "exampleAudio": {
+          "file": "demo-examples-2-3.m4a",
+          "start": 34.66,
+          "end": 38.36
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "自動詞",
+            "meaning": "鼓動する、脈打つ"
+          }
+        ],
+        "example": "My heart was beating fast as I walked onto the stage for the first time.",
+        "exampleTarget": "beating",
+        "exampleTranslation": "初めて舞台に上がったとき、私の心臓は速く鼓動していた。",
+        "exampleTranslationTarget": "鼓動して",
+        "exampleAudio": {
+          "file": "demo-examples-2-4.m4a",
+          "start": 0.25,
+          "end": 4.43
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 14.78,
+      "end": 15.56
+    }
+  },
+  {
+    "id": "ngsl-1036",
+    "word": "telephone",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "電話機、電話"
+          }
+        ],
+        "example": "There is an old black telephone on the desk in my grandfather's study.",
+        "exampleTarget": "telephone",
+        "exampleTranslation": "祖父の書斎の机には、古い黒い電話機がある。",
+        "exampleTranslationTarget": "電話機",
+        "exampleAudio": {
+          "file": "demo-examples-2-4.m4a",
+          "start": 4.6,
+          "end": 8.62
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "電話をかける"
+          }
+        ],
+        "example": "I telephoned the clinic to ask if they were open on holidays.",
+        "exampleTarget": "telephoned",
+        "exampleTranslation": "祝日も開いているかを聞くために、診療所に電話をかけた。",
+        "exampleTranslationTarget": "電話をかけた",
+        "exampleAudio": {
+          "file": "demo-examples-2-4.m4a",
+          "start": 8.79,
+          "end": 12.32
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 15.75,
+      "end": 16.74
+    }
+  },
+  {
+    "id": "ngsl-1037",
+    "word": "copy",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "部、冊"
+          }
+        ],
+        "example": "The library has only one copy of the book, so I had to wait.",
+        "exampleTarget": "copy",
+        "exampleTranslation": "図書館にはその本が1冊しかないので、私は待たなければならなかった。",
+        "exampleTranslationTarget": "冊",
+        "exampleAudio": {
+          "file": "demo-examples-2-4.m4a",
+          "start": 12.49,
+          "end": 16.17
+        }
+      },
+      {
+        "meanings": [
+          {
+            "pos": "他動詞",
+            "meaning": "写す、複写する"
+          }
+        ],
+        "example": "Please copy the words on the board into your notebook before class ends.",
+        "exampleTarget": "copy",
+        "exampleTranslation": "授業が終わる前に、黒板の言葉をノートに写してください。",
+        "exampleTranslationTarget": "写して",
+        "exampleAudio": {
+          "file": "demo-examples-2-4.m4a",
+          "start": 16.34,
+          "end": 20.29
+        }
+      }
+    ],
+    "idioms": [
+      {
+        "phrase": "carbon copy",
+        "meaning": "カーボン紙による写し"
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 16.94,
+      "end": 17.87
+    }
+  },
+  {
+    "id": "ngsl-1038",
+    "word": "committee",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "委員会"
+          }
+        ],
+        "example": "The town committee will decide next month where to build the new playground.",
+        "exampleTarget": "committee",
+        "exampleTranslation": "町の委員会は来月、新しい遊び場をどこに作るかを決める。",
+        "exampleTranslationTarget": "委員会",
+        "exampleAudio": {
+          "file": "demo-examples-2-4.m4a",
+          "start": 20.46,
+          "end": 24.47
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 18.07,
+      "end": 18.92
+    }
+  },
+  {
+    "id": "ngsl-1039",
+    "word": "aware",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "形容詞",
+            "meaning": "知っている、気づいている"
+          }
+        ],
+        "example": "Were you aware that the library closes early on the last Friday of each month?",
+        "exampleTarget": "aware",
+        "exampleTranslation": "毎月最後の金曜日は図書館が早く閉まることを、知っていましたか。",
+        "exampleTranslationTarget": "知っていました",
+        "exampleAudio": {
+          "file": "demo-examples-2-4.m4a",
+          "start": 24.64,
+          "end": 29.0
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 19.12,
+      "end": 19.93
+    }
+  },
+  {
+    "id": "ngsl-1040",
+    "word": "advice",
+    "unit": 2,
+    "senses": [
+      {
+        "meanings": [
+          {
+            "pos": "名詞",
+            "meaning": "助言、忠告"
+          }
+        ],
+        "example": "My older sister gave me useful advice before my first job interview.",
+        "exampleTarget": "advice",
+        "exampleTranslation": "姉は、私の初めての就職の面接の前に、役に立つ助言をくれた。",
+        "exampleTranslationTarget": "助言",
+        "exampleAudio": {
+          "file": "demo-examples-2-4.m4a",
+          "start": 29.18,
+          "end": 33.76
+        }
+      }
+    ],
+    "audio": {
+      "file": "demo-words-2.m4a",
+      "start": 20.12,
+      "end": 21.01
+    }
+  }
+]

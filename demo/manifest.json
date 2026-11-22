@@ -1,0 +1,12 @@
+{
+  "formatVersion": 1,
+  "id": "demo-ngsl",
+  "title": "デモ（NGSL）",
+  "createdAt": "2026-11-22",
+  "license": "CC BY-SA 4.0",
+  "attribution": "デモ教材 © 2026 yukiyamamoto0804、CC BY-SA 4.0（https://creativecommons.org/licenses/by-sa/4.0/ ）\n\"New General Service List (NGSL) 1.2\" by Browne, C., Culligan, B., & Phillips, J. © 2026 Dr. Charles Browne. https://www.newgeneralservicelist.com/new-general-service-list — licensed under CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). Modified: words with SFI Rank 1001–1040 were extracted, and translations, example sentences and audio were added.\nEJDict-hand by kujirahand, https://github.com/kujirahand/EJDict — CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)\nAudio generated with Kokoro-82M by hexgrad (https://huggingface.co/hexgrad/Kokoro-82M ; the model is licensed under Apache-2.0), using the converted model files distributed by kokoro-onnx (https://github.com/thewh1teagle/kokoro-onnx).\n無保証です。内容の正確さや特定の目的への適合を保証しません（CC BY-SA 4.0 の 5 条）。",
+  "units": [
+    { "id": 1, "title": "デモ 1" },
+    { "id": 2, "title": "デモ 2" }
+  ]
+}
