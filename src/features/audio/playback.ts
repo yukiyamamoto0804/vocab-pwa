@@ -1,5 +1,12 @@
 import type { AudioRef, Sense } from '../../db/types'
-import { playAudio, setPlaybackSession, stopAudio } from './player'
+import {
+  AudioFileError,
+  PlaybackBlockedError,
+  playAudio,
+  SegmentError,
+  setPlaybackSession,
+  stopAudio,
+} from './player'
 import { SpeechNotStartedError, SpeechUnavailableError, speak } from './speech'
 
 // 再生ボタンの音声（docs/specs/study-cards.md 9 章）。
@@ -23,8 +30,14 @@ let latestRequest = 0
  * （ファイルを読み込んで失敗するのを待つと操作の外になり、iOS では読み上げが捨てられることがあるため）
  */
 const unplayable = new Set<string>()
-const keyOf = (packId: string, a: AudioRef) =>
-  `${packId}\n${a.file}\n${a.start ?? ''}\n${a.end ?? ''}`
+/** ファイル単位の記録（見つからない・読み解けないなど、ファイルが原因のとき） */
+const fileKeyOf = (packId: string, a: AudioRef) => `${packId}\n${a.file}`
+/** 区間単位の記録（区間が長さの外など、その区間だけが原因のとき） */
+const segmentKeyOf = (packId: string, a: AudioRef) =>
+  `${fileKeyOf(packId, a)}\n${a.start ?? ''}\n${a.end ?? ''}`
+const isUnplayable = (packId: string, a: AudioRef) =>
+  unplayable.has(fileKeyOf(packId, a)) ||
+  unplayable.has(segmentKeyOf(packId, a))
 
 /** 鳴らせなかった音声の記録を消す。教材パックを取り込み直した後に呼ぶ */
 export function clearUnplayable(): void {
@@ -44,13 +57,19 @@ async function playOrSpeak(
 ): Promise<void> {
   latestRequest += 1
   const request = latestRequest
-  if (!audio || unplayable.has(keyOf(packId, audio))) return speakText(text)
+  if (!audio || isUnplayable(packId, audio)) return speakText(text)
   try {
     await playAudio(packId, audio)
   } catch (error) {
     if (request !== latestRequest) return
+    // 端末が再生を止めただけ（ファイルの問題ではない）なら、記録せずにもう一度押してもらう
+    if (error instanceof PlaybackBlockedError) throw error
     console.error(error)
-    unplayable.add(keyOf(packId, audio))
+    // 原因がファイルか区間にあると分かったときだけ覚える。一時的な失敗（DB を読めなかった など）は覚えない
+    if (error instanceof AudioFileError)
+      unplayable.add(fileKeyOf(packId, audio))
+    else if (error instanceof SegmentError)
+      unplayable.add(segmentKeyOf(packId, audio))
     try {
       await speakText(text)
     } catch (speechError) {

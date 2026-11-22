@@ -94,6 +94,10 @@ class FakeSynth extends EventTarget {
   cancelCount = 0
   speaking = false
   pending = false
+  paused = false
+  resume() {
+    this.paused = false
+  }
   getVoices() {
     return this.voices
   }
@@ -168,6 +172,14 @@ describe('speak / stopSpeech', () => {
     const done = speak('hello')
     synth.spoken[0].onerror?.({ error: 'synthesis-failed' })
     await expect(done).rejects.toThrow('synthesis-failed')
+  })
+
+  it('一時停止のまま残っていたら、再開してから読み上げる', async () => {
+    synth.voices = [voice('en-US', true)]
+    synth.paused = true
+    const { speak } = await import('./speech')
+    void speak('hello')
+    expect(synth.paused).toBe(false)
   })
 
   it('読み上げていないときは cancel しない', async () => {

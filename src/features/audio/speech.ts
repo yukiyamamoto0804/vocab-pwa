@@ -147,13 +147,15 @@ function synth(): SpeechSynthesis | undefined {
 /** 声の一覧が届くまで（長くても VOICE_WAIT_MS）待つ */
 function waitForVoices(s: SpeechSynthesis): Promise<SpeechSynthesisVoice[]> {
   return new Promise((resolve) => {
+    // 古いブラウザでは addEventListener を持たないことがあるので、そのときは時間だけ待つ
+    const canListen = typeof s.addEventListener === 'function'
     const done = () => {
       clearTimeout(timer)
-      s.removeEventListener('voiceschanged', done)
+      if (canListen) s.removeEventListener('voiceschanged', done)
       resolve(s.getVoices())
     }
     const timer = setTimeout(done, VOICE_WAIT_MS)
-    s.addEventListener('voiceschanged', done)
+    if (canListen) s.addEventListener('voiceschanged', done)
   })
 }
 
@@ -185,6 +187,8 @@ function speakWith(
   utterance.voice = voice
   utterance.lang = voice.lang
   current = utterance
+  // バックグラウンドから戻ったときに一時停止のまま残っていることがある（Android の Chrome など）
+  if (s.paused) s.resume()
   return new Promise<void>((resolve, reject) => {
     const finish = (error?: Error) => {
       clearTimeout(timer)

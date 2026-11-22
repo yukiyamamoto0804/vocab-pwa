@@ -1,5 +1,5 @@
 import { getAudioBlob } from '../../db/content'
-import type { AudioRef } from '../../db/types'
+import { type AudioRef, MAX_AUDIO_FILE_BYTES } from '../../db/types'
 import { resolveSegment } from './segment'
 import { stopSpeech } from './speech'
 import { encodeWav } from './wav'
@@ -14,10 +14,31 @@ import { encodeWav } from './wav'
 
 /**
  * デコード済みの音声を覚えておく合計の大きさ（バイト）。
- * デコード後の大きさは「長さ（秒）× サンプリングレート × チャンネル数 × 4 バイト」で、
- * 44.1kHz・ステレオなら 1 分でおよそ 21 MB になる。スマホのメモリを圧迫しないよう抑える。
+ * デコードした音声はモノラルにまとめて覚えるので、大きさは「長さ（秒）× サンプリングレート × 4 バイト」で、
+ * 44.1kHz なら 1 分でおよそ 10 MB になる。スマホのメモリを圧迫しないよう抑える。
  */
 const MAX_CACHE_BYTES = 100 * 1024 * 1024
+
+/** 音声ファイルそのものに原因がある失敗（見つからない・大きすぎる・読み解けない）。PlayButton は userMessage を画面に出す */
+export class AudioFileError extends Error {
+  readonly userMessage: string
+  constructor(message: string, userMessage: string) {
+    super(message)
+    this.userMessage = userMessage
+  }
+}
+
+/** 教材の音声に問題があるときの、利用者向けの文言 */
+const BROKEN_AUDIO_MESSAGE =
+  '音声ファイルを再生できません。教材パックの音声を確かめて、取り込み直してください'
+
+/** 端末が再生を止めた失敗（iOS で操作との結び付きが切れた など）。ファイルの問題ではない */
+export class PlaybackBlockedError extends Error {
+  readonly userMessage = '再生できませんでした。もう一度押してください'
+}
+
+/** 区間が音声の長さの外にある失敗 */
+export class SegmentError extends Error {}
 
 /** デコードするときのサンプリングレート */
 const DECODE_SAMPLE_RATE = 44100
@@ -32,8 +53,16 @@ let finishCurrent: (() => void) | undefined
 /** 最後に押された再生の番号。デコードを待つ間に別の再生が押されたら、古いほうは鳴らさない */
 let latestRequest = 0
 
+/** デコードしてモノラルにまとめた音声 */
+interface Decoded {
+  samples: Float32Array
+  sampleRate: number
+  /** 長さ（秒） */
+  duration: number
+}
+
 interface CacheEntry {
-  buffer: Promise<AudioBuffer>
+  decoded: Promise<Decoded>
   /** デコードが終わるまでは 0 */
   bytes: number
 }
@@ -87,44 +116,88 @@ function cacheKey(packId: string, file: string): string {
   return `${packId}\n${file}`
 }
 
-function loadBuffer(packId: string, file: string): Promise<AudioBuffer> {
+/** すべてのチャンネルを平均して、モノラルの 1 本にまとめる（覚えておく量を減らすため。再生もモノラル） */
+export function toMono(
+  buffer: Pick<AudioBuffer, 'numberOfChannels' | 'length' | 'getChannelData'>,
+): Float32Array {
+  if (buffer.numberOfChannels === 1) return buffer.getChannelData(0)
+  const mono = new Float32Array(buffer.length)
+  for (let c = 0; c < buffer.numberOfChannels; c += 1) {
+    const data = buffer.getChannelData(c)
+    for (let i = 0; i < data.length; i += 1) mono[i] += data[i]
+  }
+  for (let i = 0; i < mono.length; i += 1) mono[i] /= buffer.numberOfChannels
+  return mono
+}
+
+function loadDecoded(packId: string, file: string): Promise<Decoded> {
   const key = cacheKey(packId, file)
   const cached = cache.get(key)
   if (cached) {
     // 最近使ったものとして末尾に移す
     cache.delete(key)
     cache.set(key, cached)
-    return cached.buffer
+    return cached.decoded
   }
   const entry: CacheEntry = {
-    buffer: (async () => {
+    decoded: (async () => {
       const blob = await getAudioBlob(packId, file)
-      if (!blob) throw new Error(`音声ファイル ${file} が見つかりません`)
-      // デコードだけなので、音を出さない OfflineAudioContext を使う
-      const ctx = new OfflineAudioContext(1, 1, DECODE_SAMPLE_RATE)
-      return ctx.decodeAudioData(await blob.arrayBuffer())
+      if (!blob)
+        throw new AudioFileError(
+          `音声ファイル ${file} が見つかりません`,
+          BROKEN_AUDIO_MESSAGE,
+        )
+      // 取り込みでも確かめているが、古い版で取り込んだ教材のために再生の前にも確かめる（メモリ不足で落ちないように）
+      if (blob.size > MAX_AUDIO_FILE_BYTES)
+        throw new AudioFileError(
+          `音声ファイル ${file} が大きすぎます`,
+          `音声ファイルが大きすぎて再生できません（1 ファイル ${MAX_AUDIO_FILE_BYTES / 1024 / 1024} MB まで）。教材パックを作り直して取り込み直してください`,
+        )
+      let buffer: AudioBuffer
+      try {
+        // デコードだけなので、音を出さない OfflineAudioContext を使う
+        const ctx = new OfflineAudioContext(1, 1, DECODE_SAMPLE_RATE)
+        buffer = await ctx.decodeAudioData(await blob.arrayBuffer())
+      } catch (e) {
+        throw new AudioFileError(
+          `音声ファイル ${file} を読み解けません（${String(e)}）`,
+          BROKEN_AUDIO_MESSAGE,
+        )
+      }
+      return {
+        samples: toMono(buffer),
+        sampleRate: buffer.sampleRate,
+        duration: buffer.duration,
+      }
     })(),
     bytes: 0,
   }
   cache.set(key, entry)
-  entry.buffer.then(
-    (buffer) => {
-      entry.bytes = buffer.length * buffer.numberOfChannels * 4
+  entry.decoded.then(
+    (decoded) => {
+      entry.bytes = decoded.samples.length * 4
+      // 1 つで上限を超えるものは覚えておかない
+      if (entry.bytes > MAX_CACHE_BYTES) {
+        if (cache.get(key) === entry) cache.delete(key)
+        return
+      }
       evict(key)
     },
-    // 失敗したものは覚えておかない
-    () => cache.delete(key),
+    // 失敗したものは覚えておかない（取り込み直しなどで、同じキーの新しいものに替わっていたら消さない）
+    () => {
+      if (cache.get(key) === entry) cache.delete(key)
+    },
   )
-  return entry.buffer
+  return entry.decoded
 }
 
-// 合計が上限を超えたら、古いものから捨てる。今使うもの（keep）は残す
+// 合計が上限を超えたら、古いものから捨てる。今使うもの（keep）と、デコード中のものは残す
 function evict(keep: string): void {
   let total = 0
   for (const entry of cache.values()) total += entry.bytes
   for (const [key, entry] of cache) {
     if (total <= MAX_CACHE_BYTES) break
-    if (key === keep) continue
+    if (key === keep || entry.bytes === 0) continue
     cache.delete(key)
     total -= entry.bytes
   }
@@ -146,19 +219,17 @@ export function stopAudio(): void {
 // 区間だけを切り出した WAV にして、<audio> 要素に読み込ませる
 function setClip(
   audio: HTMLAudioElement,
-  buffer: AudioBuffer,
+  decoded: Decoded,
   offset: number,
   duration: number,
 ): void {
-  const from = Math.round(offset * buffer.sampleRate)
-  const to = Math.round((offset + duration) * buffer.sampleRate)
-  if (to <= from) throw new Error('再生する区間が短すぎます')
-  const channels = Array.from({ length: buffer.numberOfChannels }, (_, c) =>
-    buffer.getChannelData(c).subarray(from, to),
+  const from = Math.round(offset * decoded.sampleRate)
+  const to = Math.round((offset + duration) * decoded.sampleRate)
+  if (to <= from) throw new SegmentError('再生する区間が短すぎます')
+  const wav = new Blob(
+    [encodeWav([decoded.samples.subarray(from, to)], decoded.sampleRate)],
+    { type: 'audio/wav' },
   )
-  const wav = new Blob([encodeWav(channels, buffer.sampleRate)], {
-    type: 'audio/wav',
-  })
   setSource(audio, wav)
 }
 
@@ -170,19 +241,19 @@ export async function playAudio(packId: string, ref: AudioRef): Promise<void> {
   const audio = prepareElement()
   stopAudio()
   const request = latestRequest
-  let buffer: AudioBuffer
+  let decoded: Decoded
   try {
-    buffer = await loadBuffer(packId, ref.file)
+    decoded = await loadDecoded(packId, ref.file)
   } catch (e) {
     // 待っている間に止められた・別の再生が押されたなら、失敗も知らせない（機械の音声で読み直させない）
     if (request !== latestRequest) return
     throw e
   }
   if (request !== latestRequest) return // 待っている間に、別の再生が押された
-  const segment = resolveSegment(ref, buffer.duration)
-  if (!segment) throw new Error('再生する区間が音声の長さの外にあります')
+  const segment = resolveSegment(ref, decoded.duration)
+  if (!segment) throw new SegmentError('再生する区間が音声の長さの外にあります')
 
-  setClip(audio, buffer, segment.offset, segment.duration)
+  setClip(audio, decoded, segment.offset, segment.duration)
   await playLoaded(audio, segment.duration)
 }
 
@@ -208,6 +279,14 @@ function playLoaded(audio: HTMLAudioElement, duration: number): Promise<void> {
     )
     finishCurrent = finish
     audio.onended = () => finish()
-    audio.play().catch(finish)
+    audio.play().catch((e: unknown) => {
+      // 端末が再生を止めたときは、ファイルの問題ではないことが分かる失敗にする
+      finish(
+        e instanceof DOMException &&
+          (e.name === 'NotAllowedError' || e.name === 'AbortError')
+          ? new PlaybackBlockedError(e.message)
+          : e,
+      )
+    })
   })
 }

@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 vi.mock('./player', () => ({
+  AudioFileError: class AudioFileError extends Error {},
+  PlaybackBlockedError: class PlaybackBlockedError extends Error {},
+  SegmentError: class SegmentError extends Error {},
   playAudio: vi.fn(() => Promise.resolve()),
   stopAudio: vi.fn(),
   setPlaybackSession: vi.fn(),
@@ -12,7 +15,8 @@ vi.mock('./speech', () => ({
 }))
 
 const { clearUnplayable, playExample, playWord } = await import('./playback')
-const { playAudio } = await import('./player')
+const { AudioFileError, PlaybackBlockedError, SegmentError, playAudio } =
+  await import('./player')
 const { speak, SpeechUnavailableError } = await import('./speech')
 
 describe('playWord / playExample', () => {
@@ -37,14 +41,18 @@ describe('playWord / playExample', () => {
   })
 
   it('音声ファイルを鳴らせなかったら、機械の音声で読み直す', async () => {
-    vi.mocked(playAudio).mockRejectedValueOnce(new Error('decode failed'))
+    vi.mocked(playAudio).mockRejectedValueOnce(
+      new AudioFileError('decode failed', 'm'),
+    )
     vi.spyOn(console, 'error').mockImplementation(() => {})
     await playWord('p', { word: 'light', audio: { file: 'broken.mp3' } })
     expect(speak).toHaveBeenCalledWith('light')
   })
 
   it('読み直しもできなければ、機械の音声の失敗を返す', async () => {
-    vi.mocked(playAudio).mockRejectedValueOnce(new Error('decode failed'))
+    vi.mocked(playAudio).mockRejectedValueOnce(
+      new AudioFileError('decode failed', 'm'),
+    )
     vi.mocked(speak).mockRejectedValueOnce(new Error('no voice'))
     vi.spyOn(console, 'error').mockImplementation(() => {})
     await expect(
@@ -53,7 +61,9 @@ describe('playWord / playExample', () => {
   })
 
   it('音声ファイルも機械の音声も使えなければ、音声ファイルを再生できないと伝える', async () => {
-    vi.mocked(playAudio).mockRejectedValueOnce(new Error('decode failed'))
+    vi.mocked(playAudio).mockRejectedValueOnce(
+      new AudioFileError('decode failed', 'm'),
+    )
     vi.mocked(speak).mockRejectedValueOnce(new SpeechUnavailableError())
     vi.spyOn(console, 'error').mockImplementation(() => {})
     await expect(
@@ -84,12 +94,66 @@ describe('playWord / playExample', () => {
   })
 
   it('一度鳴らせなかった音声は、次からファイルを試さずにすぐ機械の音声で読む', async () => {
-    vi.mocked(playAudio).mockRejectedValueOnce(new Error('decode failed'))
+    vi.mocked(playAudio).mockRejectedValueOnce(
+      new AudioFileError('decode failed', 'm'),
+    )
     vi.spyOn(console, 'error').mockImplementation(() => {})
     const item = { word: 'light', audio: { file: 'broken.mp3' } }
     await playWord('p', item)
     await playWord('p', item)
     expect(playAudio).toHaveBeenCalledTimes(1)
     expect(speak).toHaveBeenCalledTimes(2)
+  })
+
+  it('端末が再生を止めただけなら、記録も読み直しもせずに失敗を返す', async () => {
+    vi.mocked(playAudio).mockRejectedValueOnce(new PlaybackBlockedError())
+    const item = { word: 'light', audio: { file: 'ok.mp3' } }
+    await expect(playWord('p', item)).rejects.toBeInstanceOf(
+      PlaybackBlockedError,
+    )
+    expect(speak).not.toHaveBeenCalled()
+    // 次に押したときは、また音声ファイルを試す
+    await playWord('p', item)
+    expect(playAudio).toHaveBeenCalledTimes(2)
+  })
+
+  it('ファイルが原因の失敗は、同じファイルのほかの区間もすぐ機械の音声にする', async () => {
+    vi.mocked(playAudio).mockRejectedValueOnce(
+      new AudioFileError('broken', 'message'),
+    )
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    await playWord('p', {
+      word: 'light',
+      audio: { file: 'broken.mp3', start: 0, end: 1 },
+    })
+    await playWord('p', {
+      word: 'dark',
+      audio: { file: 'broken.mp3', start: 2, end: 3 },
+    })
+    expect(playAudio).toHaveBeenCalledTimes(1)
+    expect(speak).toHaveBeenLastCalledWith('dark')
+  })
+
+  it('区間が原因の失敗は、その区間だけを覚える', async () => {
+    vi.mocked(playAudio).mockRejectedValueOnce(new SegmentError('out of range'))
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    await playWord('p', {
+      word: 'a',
+      audio: { file: 'f.mp3', start: 9, end: 10 },
+    })
+    await playWord('p', {
+      word: 'b',
+      audio: { file: 'f.mp3', start: 0, end: 1 },
+    })
+    expect(playAudio).toHaveBeenCalledTimes(2)
+  })
+
+  it('原因が分からない一時的な失敗は覚えず、次はまた音声ファイルを試す', async () => {
+    vi.mocked(playAudio).mockRejectedValueOnce(new Error('db closed'))
+    vi.spyOn(console, 'error').mockImplementation(() => {})
+    const item = { word: 'light', audio: { file: 'ok.mp3' } }
+    await playWord('p', item)
+    await playWord('p', item)
+    expect(playAudio).toHaveBeenCalledTimes(2)
   })
 })
