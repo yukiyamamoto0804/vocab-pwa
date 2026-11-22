@@ -4,7 +4,8 @@
 //   2. 音声: demo/audio/ の直下の demo-*.m4a で、1 MB 以下、items.json から使われていて、
 //      SHA-256 が audio-sources.json にあるものだけか。items.json から使われている音声がすべてあるか
 //   3. 中身を確かめる道具（scripts/demo/check-demo.mjs）に、ステージの内容で通るか
-//      道具そのものは作業中のファイルを実行する（道具を直した直後は、コミットされる版と違うことがある）
+//      道具そのものは作業中のファイルを実行するので、scripts/demo/ にステージしていない変更があれば止める
+//      （コミットされる版と違う道具で判定しないため）
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
@@ -43,6 +44,29 @@ const entries = git('ls-files', '--stage', '-z', '--', 'demo/')
 
 // demo/ がまだない（道具だけを先にコミットするときなど）なら、確かめるものはない
 if (entries.length === 0) process.exit(0)
+
+const unstaged = [
+  ...git('diff', '--name-only', '-z', '--', 'scripts/demo/')
+    .toString()
+    .split('\0'),
+  ...git(
+    'ls-files',
+    '--others',
+    '--exclude-standard',
+    '-z',
+    '--',
+    'scripts/demo/',
+  )
+    .toString()
+    .split('\0'),
+].filter(Boolean)
+if (unstaged.length) {
+  for (const p of unstaged) console.error(`- ${p}`)
+  console.error(
+    '- 中身を確かめる道具（scripts/demo/）に、ステージしていない変更があります。ステージするか、元に戻してください',
+  )
+  process.exit(1)
+}
 
 const usable = []
 for (const { mode, path } of entries) {
