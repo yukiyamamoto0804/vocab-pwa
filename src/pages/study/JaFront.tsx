@@ -25,8 +25,6 @@ export function JaFront({ item, senseIndex }: Props) {
   const [hintOpen, setHintOpen] = useState(false)
   const sense = item.senses[senseIndex]
   const cloze = clozeSegments(sense, item.word) ?? []
-  // ヒントは最初の空欄の語で作る（同じ語が複数あっても形は同じことが多い）
-  const answer = cloze.find((s) => s.mark)?.text ?? ''
 
   return (
     <div className={styles.front}>
@@ -63,7 +61,8 @@ export function JaFront({ item, senseIndex }: Props) {
       <div className={styles.hintBand} data-no-flip>
         {hintOpen ? (
           <p className={styles.hintText} lang="en">
-            {clozeHint(answer)}（{letterCount(answer)} 文字）
+            {/* ヒントは例文の中の形（ran など）ではなく、基本形（見出し語）で作る */}
+            {clozeHint(item.word)}（{letterCount(item.word)} 文字）
           </p>
         ) : (
           <button

@@ -93,13 +93,14 @@ export function pickClozeSense(
 }
 
 /** ヒント: 頭文字と、残りの英字の数だけの下線。英字以外（空白・ハイフンなど）はそのまま出す。例: light → l____ */
-export function clozeHint(answer: string): string {
-  return [...answer]
+export function clozeHint(word: string): string {
+  // 前後に空白が付いたデータでも、頭文字を出す
+  return [...word.trim()]
     .map((ch, i) => (i === 0 || !isLetter(ch) ? ch : '_'))
     .join('')
 }
 
 /** ヒントに添える文字数（英字だけを数える） */
-export function letterCount(answer: string): number {
-  return [...answer].filter(isLetter).length
+export function letterCount(word: string): number {
+  return [...word].filter(isLetter).length
 }

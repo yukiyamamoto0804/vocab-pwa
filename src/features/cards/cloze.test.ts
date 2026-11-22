@@ -114,6 +114,11 @@ describe('clozeHint / letterCount', () => {
     expect(clozeHint('well-known')).toBe('w___-_____')
     expect(letterCount('well-known')).toBe(9)
   })
+
+  it('前後に空白が付いていても、頭文字を出す', () => {
+    expect(clozeHint(' run')).toBe('r__')
+    expect(letterCount(' run')).toBe(3)
+  })
 })
 
 describe('pickClozeSense', () => {
