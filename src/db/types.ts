@@ -88,7 +88,7 @@ export interface Manifest {
 export interface PackRecord {
   id: string
   manifest: Manifest
-  /** 取り込み日時（エポックミリ秒） */
+  /** 最初に取り込んだ日時（エポックミリ秒）。取り込み直しても変えない（一覧の並びを保つため） */
   importedAt: number
 }
 

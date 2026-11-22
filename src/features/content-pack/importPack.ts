@@ -26,7 +26,7 @@ export type ImportResult =
 
 interface ImportOptions {
   db?: VocabDatabase
-  /** 取り込み日時（エポックミリ秒） */
+  /** 取り込み日時（エポックミリ秒）。初めて取り込むパックの importedAt になる */
   now?: number
 }
 

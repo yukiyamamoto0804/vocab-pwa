@@ -141,4 +141,15 @@ describe('listPacks', () => {
       ['pack-b', 1, 1],
     ])
   })
+
+  it('取り込み直しても、最初に取り込んだときの位置のまま', async () => {
+    await replacePack(content('pack-a', ['0001'], 1), db)
+    await replacePack(content('pack-b', ['0001'], 2), db)
+    await replacePack(content('pack-a', ['0001', '0002'], 3), db)
+    const list = await listPacks(db)
+    expect(list.map((s) => [s.pack.id, s.pack.importedAt])).toEqual([
+      ['pack-a', 1],
+      ['pack-b', 2],
+    ])
+  })
 })

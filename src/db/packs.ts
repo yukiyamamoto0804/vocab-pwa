@@ -26,6 +26,7 @@ export interface ReplaceSummary {
 
 // 教材パックを保存する。同じ id のパックがあれば、その教材を全て入れ替える。
 // 学習記録（progress など）には触れないので、id が同じ単語の記録は引き継がれる。
+// 取り込み直しても一覧の並びが変わらないよう、最初に取り込んだ日時は残す。
 // 途中で失敗した場合は何も書き込まれない（1 つのトランザクション）。
 export async function replacePack(
   content: PackContent,
@@ -36,12 +37,15 @@ export async function replacePack(
     'rw',
     [db.packs, db.units, db.items, db.audioFiles],
     async () => {
-      const replaced = (await db.packs.get(packId)) !== undefined
+      const old = await db.packs.get(packId)
+      const replaced = old !== undefined
       const oldItems = await db.items.where('packId').equals(packId).toArray()
       await db.units.where('packId').equals(packId).delete()
       await db.items.where('packId').equals(packId).delete()
       await db.audioFiles.where('packId').equals(packId).delete()
-      await db.packs.put(content.pack)
+      await db.packs.put(
+        old ? { ...content.pack, importedAt: old.importedAt } : content.pack,
+      )
       await db.units.bulkPut(content.units)
       await db.items.bulkPut(content.items)
       await db.audioFiles.bulkPut(content.audioFiles)
@@ -88,7 +92,7 @@ export interface PackSummary {
   unitCount: number
 }
 
-/** 取り込み済みのパックを、取り込んだ順に返す */
+/** 取り込み済みのパックを、最初に取り込んだ順に返す */
 export async function listPacks(
   db: VocabDatabase = defaultDb,
 ): Promise<PackSummary[]> {
