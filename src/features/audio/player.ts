@@ -1,6 +1,7 @@
 import { getAudioBlob } from '../../db/content'
 import type { AudioRef } from '../../db/types'
 import { resolveSegment } from './segment'
+import { stopSpeech } from './speech'
 import { encodeWav } from './wav'
 
 // 区間を指定して音声を再生する（docs/RULES.md 9 章）。
@@ -38,15 +39,22 @@ interface CacheEntry {
 }
 const cache = new Map<string, CacheEntry>()
 
+/**
+ * マナーモードでも音が出るように「再生用」の扱いにする（対応している iOS の Safari のみ）。
+ * 単語帳では音声が主役なので、ほかのアプリで流している音楽が止まることは受け入れる。
+ * 機械の音声（読み上げ）の前にも呼ぶ
+ */
+export function setPlaybackSession(): void {
+  const session = (navigator as { audioSession?: { type: string } })
+    .audioSession
+  if (session) session.type = 'playback'
+}
+
 // iOS では、ボタンを押した処理の中で一度 play() を呼んだ <audio> 要素だけが、
 // その後、デコードを待ってから再生できる。そのため解けるまでは、押されたときに無音を鳴らしておく
 function prepareElement(): HTMLAudioElement {
   if (!element) {
-    // マナーモードでも音が出るように「再生用」の扱いにする（対応している iOS の Safari のみ）。
-    // 単語帳では音声が主役なので、ほかのアプリで流している音楽が止まることは受け入れる
-    const session = (navigator as { audioSession?: { type: string } })
-      .audioSession
-    if (session) session.type = 'playback'
+    setPlaybackSession()
     element = new Audio()
   }
   if (!unlocked) {
@@ -127,11 +135,12 @@ export function clearAudioCache(): void {
   cache.clear()
 }
 
-/** 再生中の音声を止める。デコードを待っている再生も鳴らさない */
+/** 再生中の音声（機械の音声の読み上げも）を止める。デコードを待っている再生も鳴らさない */
 export function stopAudio(): void {
   latestRequest += 1
   element?.pause()
   finishCurrent?.()
+  stopSpeech()
 }
 
 // 区間だけを切り出した WAV にして、<audio> 要素に読み込ませる
@@ -161,13 +170,25 @@ export async function playAudio(packId: string, ref: AudioRef): Promise<void> {
   const audio = prepareElement()
   stopAudio()
   const request = latestRequest
-  const buffer = await loadBuffer(packId, ref.file)
+  let buffer: AudioBuffer
+  try {
+    buffer = await loadBuffer(packId, ref.file)
+  } catch (e) {
+    // 待っている間に止められた・別の再生が押されたなら、失敗も知らせない（機械の音声で読み直させない）
+    if (request !== latestRequest) return
+    throw e
+  }
   if (request !== latestRequest) return // 待っている間に、別の再生が押された
   const segment = resolveSegment(ref, buffer.duration)
   if (!segment) throw new Error('再生する区間が音声の長さの外にあります')
 
   setClip(audio, buffer, segment.offset, segment.duration)
-  await new Promise<void>((resolve, reject) => {
+  await playLoaded(audio, segment.duration)
+}
+
+/** 読み込んだ音声を再生し、終わる（または別の再生で止められる）と完了する */
+function playLoaded(audio: HTMLAudioElement, duration: number): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
     const finish = (error?: unknown) => {
       if (finishCurrent !== finish) return // すでに終わっている
       finishCurrent = undefined
@@ -183,7 +204,7 @@ export async function playAudio(packId: string, ref: AudioRef): Promise<void> {
         audio.pause()
         finish()
       },
-      (segment.duration + 3) * 1000,
+      (duration + 3) * 1000,
     )
     finishCurrent = finish
     audio.onended = () => finish()
