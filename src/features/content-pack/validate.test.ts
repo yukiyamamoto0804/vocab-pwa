@@ -29,11 +29,12 @@ describe('validatePack', () => {
     }
   })
 
-  it('イディオム・例文の該当語・例文の音声を受け付ける', () => {
+  it('イディオム・例文の該当語・訳の該当部分・例文の音声を受け付ける', () => {
     const p = base()
     p.items[0].idioms = [{ phrase: 'p', meaning: 'm' }]
     const senses = p.items[0].senses as Record<string, unknown>[]
     senses[0].exampleTarget = 'word0001'
+    senses[0].exampleTranslationTarget = '意味'
     senses[0].exampleAudio = { file: 'words.mp3' }
     expect(errorsOf(p)).toEqual([])
   })
@@ -83,6 +84,15 @@ describe('validatePack', () => {
           .exampleTranslation
       },
       'items.json の 1 番目（id: 0001）の senses[0].exampleTranslation',
+    ],
+    [
+      '訳の該当部分が空',
+      (p) => {
+        ;(
+          p.items[0].senses as Record<string, unknown>[]
+        )[0].exampleTranslationTarget = ''
+      },
+      'items.json の 1 番目（id: 0001）の senses[0].exampleTranslationTarget',
     ],
     [
       'id が重複',

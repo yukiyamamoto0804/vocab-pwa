@@ -280,6 +280,13 @@ function validateSense(
     fail(at('exampleTarget'), '空でない文字列が必要です')
     ok = false
   }
+  if (
+    raw.exampleTranslationTarget !== undefined &&
+    !isNonEmptyString(raw.exampleTranslationTarget)
+  ) {
+    fail(at('exampleTranslationTarget'), '空でない文字列が必要です')
+    ok = false
+  }
   const exampleAudio =
     raw.exampleAudio === undefined
       ? undefined
@@ -294,6 +301,8 @@ function validateSense(
   }
   if (raw.exampleTarget !== undefined)
     sense.exampleTarget = raw.exampleTarget as string
+  if (raw.exampleTranslationTarget !== undefined)
+    sense.exampleTranslationTarget = raw.exampleTranslationTarget as string
   if (exampleAudio) sense.exampleAudio = exampleAudio
   return sense
 }

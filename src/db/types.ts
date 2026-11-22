@@ -51,6 +51,8 @@ export interface Sense {
   example: string
   exampleTarget?: string
   exampleTranslation: string
+  /** 例文の訳の中で、該当語にあたる部分（日本語 → 解説で太字にする） */
+  exampleTranslationTarget?: string
   exampleAudio?: AudioRef
 }
 
