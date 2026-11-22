@@ -7,6 +7,7 @@ import { getLastTest, getLastUnitStudy } from '../../db/settings'
 import { buildStudyQuery } from '../../features/session/studyQuery'
 import { defaultTestRange } from '../../features/session/testItems'
 import { useAsync } from '../../lib/useAsync'
+import { ReviewSheet } from './ReviewSheet'
 import { TestSheet } from './TestSheet'
 import styles from './UnitsPage.module.css'
 import { unitLabel } from './unitLabel'
@@ -24,6 +25,7 @@ export function UnitsPage() {
     [packId],
   )
   const [testOpen, setTestOpen] = useState(false)
+  const [reviewOpen, setReviewOpen] = useState(false)
 
   if (data.status === 'loading') return null
   if (data.status === 'error') return <LoadError />
@@ -47,14 +49,24 @@ export function UnitsPage() {
       <Link to="/">← 教材パック</Link>
       <div className={styles.header}>
         <h1>{pack.manifest.title}</h1>
+        {/* ユニットがない（単語がない）パックでは、復習もテストもできない */}
         {testRange && (
-          <button
-            type="button"
-            className={styles.test}
-            onClick={() => setTestOpen(true)}
-          >
-            テスト
-          </button>
+          <div className={styles.actions}>
+            <button
+              type="button"
+              className={styles.action}
+              onClick={() => setReviewOpen(true)}
+            >
+              復習
+            </button>
+            <button
+              type="button"
+              className={styles.action}
+              onClick={() => setTestOpen(true)}
+            >
+              テスト
+            </button>
+          </div>
         )}
       </div>
       <LinkList
@@ -75,9 +87,11 @@ export function UnitsPage() {
           },
         }))}
       />
-      {testRange && (
+      {reviewOpen && (
+        <ReviewSheet onClose={() => setReviewOpen(false)} packId={packId} />
+      )}
+      {testRange && testOpen && (
         <TestSheet
-          open={testOpen}
           onClose={() => setTestOpen(false)}
           packId={packId}
           units={units}

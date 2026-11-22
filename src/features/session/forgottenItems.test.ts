@@ -3,7 +3,13 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { VocabDatabase } from '../../db/database'
 import { saveUnitStudySettings } from '../../db/settings'
 import type { StudySessionRecord } from '../../db/types'
-import { forgottenItemIds, loadMixItems, selectMixItems } from './mixItems'
+import {
+  forgottenItemIds,
+  loadMixItems,
+  loadReviewItems,
+  selectMixItems,
+  selectReviewItems,
+} from './forgottenItems'
 
 describe('forgottenItemIds', () => {
   it('一度でも「忘れた」と申告した単語を、重複なく返す', () => {
@@ -17,6 +23,40 @@ describe('forgottenItemIds', () => {
       'c',
       'd',
     ])
+  })
+
+  it('後の回で「忘れた」と申告せず「覚えた」と答えた単語は、克服したものとして返さない', () => {
+    const sessions = [
+      // 新しい順。a は最新の回で「覚えた」、b は最新の回でも「忘れた」
+      { itemIds: ['a', 'b', 'b'], ratings: 'rfr' },
+      { itemIds: ['a', 'b', 'c'], ratings: 'fff' },
+    ]
+    expect(forgottenItemIds(sessions).sort()).toEqual(['b', 'c'])
+  })
+
+  it('後の回で「曖昧」と答えただけなら、まだ克服していないとして返す', () => {
+    const sessions = [
+      // 新しい順。a は最新の回で「曖昧」、その前の回で「忘れた」。b は「曖昧」だけで忘れたことはない
+      { itemIds: ['a', 'b'], ratings: 'uu' },
+      { itemIds: ['a', 'b'], ratings: 'fr' },
+    ]
+    expect(forgottenItemIds(sessions)).toEqual(['a'])
+  })
+
+  it('同じ回に「曖昧」と「覚えた」が両方ある単語は、克服したものとして返さない', () => {
+    const sessions = [
+      { itemIds: ['a', 'a'], ratings: 'ur' },
+      { itemIds: ['a'], ratings: 'f' },
+    ]
+    expect(forgottenItemIds(sessions)).toEqual([])
+  })
+
+  it('除く単語は、複数の回で「忘れた」と申告していても返さない', () => {
+    const sessions = [
+      { itemIds: ['a'], ratings: 'f' },
+      { itemIds: ['a'], ratings: 'f' },
+    ]
+    expect(forgottenItemIds(sessions, new Set(['a']))).toEqual([])
   })
 
   it('除く単語（学習するユニットの単語）は返さない', () => {
@@ -53,7 +93,23 @@ describe('selectMixItems', () => {
   })
 })
 
-describe('loadMixItems', () => {
+describe('selectReviewItems', () => {
+  const items = Array.from({ length: 30 }, (_, i) => `w${i}`)
+
+  it('出題数だけ重複なく選ぶ。すべてなら全部をランダムな順で', () => {
+    const picked = selectReviewItems(items, 20)
+    expect(picked).toHaveLength(20)
+    expect(new Set(picked).size).toBe(20)
+    expect(selectReviewItems(items, 'all').sort()).toEqual([...items].sort())
+  })
+
+  it('対象が出題数より少なければ全部。空なら空', () => {
+    expect(selectReviewItems(['a', 'b'], 50).sort()).toEqual(['a', 'b'])
+    expect(selectReviewItems([], 'all')).toEqual([])
+  })
+})
+
+describe('loadMixItems / loadReviewItems', () => {
   let db: VocabDatabase
   let dbCount = 0
 
@@ -62,11 +118,12 @@ describe('loadMixItems', () => {
     startedAt: number,
     itemIds: string[],
     ratings: string,
+    mode: StudySessionRecord['mode'] = 'unit',
   ): StudySessionRecord => ({
     id,
     packId: 'p',
     startedAt,
-    mode: 'unit',
+    mode,
     face: 'en',
     itemIds,
     seconds: itemIds.map(() => 0),
@@ -75,7 +132,7 @@ describe('loadMixItems', () => {
 
   beforeEach(async () => {
     dbCount += 1
-    db = new VocabDatabase(`mix-items-test-${dbCount}`)
+    db = new VocabDatabase(`forgotten-items-test-${dbCount}`)
     // 単語 old・a・b・u がある（gone は取り込み直して消えた単語）
     await db.items.bulkPut(
       ['old', 'a', 'b', 'u'].map((id, order) => ({
@@ -108,6 +165,22 @@ describe('loadMixItems', () => {
 
   it('保存していなければ初期値（直前 3 回）を使う', async () => {
     expect((await load()).sort()).toEqual(['a', 'b', 'old', 'u'])
+  })
+
+  it('復習では、直前 N 回の忘れた単語をすべて返す', async () => {
+    const review = async (n: number) =>
+      (await loadReviewItems('p', n, db)).map((i) => i.id).sort()
+    expect(await review(1)).toEqual(['b', 'u'])
+    expect(await review(20)).toEqual(['a', 'b', 'old', 'u'])
+  })
+
+  it('復習の回で「忘れた」と申告せずに答えた単語は、復習からも混ぜる単語からも外れる', async () => {
+    await db.studySessions.put(session('s4', 4, ['a', 'b'], 'rf', 'review'))
+    expect(
+      (await loadReviewItems('p', 20, db)).map((i) => i.id).sort(),
+    ).toEqual(['b', 'old', 'u'])
+    await saveUnitStudySettings({ mixCount: 20, mixSessionRange: 10 }, db)
+    expect((await load()).sort()).toEqual(['b', 'old', 'u'])
   })
 
   it('混ぜる数が 0 なら空', async () => {

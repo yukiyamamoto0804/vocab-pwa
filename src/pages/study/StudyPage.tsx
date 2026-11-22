@@ -9,9 +9,14 @@ import {
 } from '../../db/content'
 import { saveLastTest, saveLastUnitStudy } from '../../db/settings'
 import { listReportedItemIds } from '../../db/study'
-import { loadMixItems } from '../../features/session/mixItems'
+import {
+  loadMixItems,
+  loadReviewItems,
+  selectReviewItems,
+} from '../../features/session/forgottenItems'
 import {
   parseStudyQuery,
+  type ReviewQuery,
   type TestQuery,
   type UnitQuery,
 } from '../../features/session/studyQuery'
@@ -45,11 +50,14 @@ export function StudyPage() {
       </>
     )
   }
-  return query.mode === 'unit' ? (
-    <UnitStudy query={query} />
-  ) : (
-    <TestStudy query={query} />
-  )
+  switch (query.mode) {
+    case 'unit':
+      return <UnitStudy query={query} />
+    case 'test':
+      return <TestStudy query={query} />
+    case 'review':
+      return <ReviewStudy query={query} />
+  }
 }
 
 function UnitStudy({ query }: { query: UnitQuery }) {
@@ -163,6 +171,50 @@ function TestStudy({ query }: { query: TestQuery }) {
       initialReported={reported}
       exitPath={unitsPath}
       onAnswered={handleAnswered}
+    />
+  )
+}
+
+function ReviewStudy({ query }: { query: ReviewQuery }) {
+  const { packId, sessionCount, count } = query
+  // 出す単語は読み込むときに 1 回だけ選ぶ（回答するたびに記録が増えて対象が変わるため）
+  const data = useAsync(async () => {
+    const [items, reported] = await Promise.all([
+      loadReviewItems(packId, sessionCount),
+      listReportedItemIds(packId),
+    ])
+    // 手順 8 で表面の種類を増やしたら、必要なデータがない単語はここで（選ぶ前に）除く
+    const selected = selectReviewItems(items, count)
+    const progress = await getProgressMap(
+      packId,
+      selected.map((i) => i.id),
+    )
+    return { items: selected, progress, reported }
+  }, [packId, sessionCount, count])
+
+  const unitsPath = `/packs/${encodeURIComponent(packId)}`
+  if (data.status === 'loading') return null
+  if (data.status === 'error') return <LoadError />
+  const { items, progress, reported } = data.value
+  if (items.length === 0) {
+    return (
+      <>
+        <h1>学習</h1>
+        <p>直前 {sessionCount} 回の学習に、忘れたままの単語はありません。</p>
+        <Link to={unitsPath}>← ユニット一覧</Link>
+      </>
+    )
+  }
+
+  return (
+    <StudySession
+      packId={packId}
+      mode="review"
+      face={query.face}
+      items={items}
+      initialProgress={progress}
+      initialReported={reported}
+      exitPath={unitsPath}
     />
   )
 }

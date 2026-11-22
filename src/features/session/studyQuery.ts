@@ -1,10 +1,8 @@
 import { FACES, type Face, type TestOrder } from '../../db/types'
 import { studyConfig } from '../studyConfig'
+import type { StudyCount } from './studyCount'
 
 // 学習画面の条件。URL のクエリで受け渡す（docs/ARCHITECTURE.md 1 章）。
-
-/** テストの出題数。'all' は範囲の単語すべて */
-export type TestCount = (typeof studyConfig.testCount.options)[number]
 
 interface BaseQuery {
   packId: string
@@ -22,12 +20,20 @@ export interface TestQuery extends BaseQuery {
   fromUnit: number
   /** 範囲の終了のユニット番号（開始以上） */
   toUnit: number
-  count: TestCount
+  count: StudyCount
   includeUnlearned: boolean
   order: TestOrder
 }
 
-export type StudyQuery = UnitQuery | TestQuery
+export interface ReviewQuery extends BaseQuery {
+  mode: 'review'
+  /** 対象範囲（直前何回の学習か） */
+  sessionCount: number
+  /** 出題数（選択肢はテストと同じ） */
+  count: StudyCount
+}
+
+export type StudyQuery = UnitQuery | TestQuery | ReviewQuery
 
 const DEFAULT_FACE: Face = 'en'
 
@@ -39,6 +45,9 @@ export function buildStudyQuery(query: StudyQuery): string {
   })
   if (query.mode === 'unit') {
     params.set('units', String(query.unitId))
+  } else if (query.mode === 'review') {
+    params.set('sessions', String(query.sessionCount))
+    params.set('count', String(query.count))
   } else {
     params.set('from', String(query.fromUnit))
     params.set('to', String(query.toUnit))
@@ -50,12 +59,19 @@ export function buildStudyQuery(query: StudyQuery): string {
 }
 
 /** 1 以上の整数の文字列なら数にする */
-function parseUnitId(value: string | null): number | null {
+function parsePositiveInt(value: string | null): number | null {
   return value !== null && /^[1-9]\d*$/.test(value) ? Number(value) : null
 }
 
+/** 出題数の選択肢にあればその値、なければ fallback */
+function parseCount(value: string | null, fallback: StudyCount): StudyCount {
+  return (
+    studyConfig.studyCount.options.find((c) => String(c) === value) ?? fallback
+  )
+}
+
 // 不正な条件なら null を返す。
-// face・count・unlearned・order は省略・不明な値のときデフォルトにする。
+// face・count・unlearned・order・sessions は省略・不明な値のときデフォルトにする。
 export function parseStudyQuery(params: URLSearchParams): StudyQuery | null {
   const mode = params.get('mode')
   const packId = params.get('pack')
@@ -65,19 +81,16 @@ export function parseStudyQuery(params: URLSearchParams): StudyQuery | null {
   const face = FACES.find((f) => f === faceParam) ?? DEFAULT_FACE
 
   if (mode === 'unit') {
-    const unitId = parseUnitId(params.get('units'))
+    const unitId = parsePositiveInt(params.get('units'))
     if (unitId === null) return null
     return { mode, packId, face, unitId }
   }
 
   if (mode === 'test') {
-    const fromUnit = parseUnitId(params.get('from'))
-    const toUnit = parseUnitId(params.get('to'))
+    const fromUnit = parsePositiveInt(params.get('from'))
+    const toUnit = parsePositiveInt(params.get('to'))
     if (fromUnit === null || toUnit === null || fromUnit > toUnit) return null
-    const countParam = params.get('count')
-    const count =
-      studyConfig.testCount.options.find((c) => String(c) === countParam) ??
-      studyConfig.testCount.default
+    const count = parseCount(params.get('count'), studyConfig.testCount.default)
     const orderParam = params.get('order')
     const order: TestOrder =
       orderParam === 'weak' || orderParam === 'random'
@@ -93,6 +106,18 @@ export function parseStudyQuery(params: URLSearchParams): StudyQuery | null {
       includeUnlearned: params.get('unlearned') === '1',
       order,
     }
+  }
+
+  if (mode === 'review') {
+    const { min, max, default: fallback } = studyConfig.reviewSessionRange
+    const value = parsePositiveInt(params.get('sessions'))
+    const sessionCount =
+      value !== null && value >= min && value <= max ? value : fallback
+    const count = parseCount(
+      params.get('count'),
+      studyConfig.reviewCount.default,
+    )
+    return { mode, packId, face, sessionCount, count }
   }
 
   return null

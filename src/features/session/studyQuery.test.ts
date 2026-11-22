@@ -31,6 +31,13 @@ describe('buildStudyQuery / parseStudyQuery', () => {
       face: 'ja',
       unitId: 3,
     },
+    {
+      mode: 'review',
+      packId: 'sample-pack',
+      face: 'en',
+      sessionCount: 20,
+      count: 50,
+    },
   ])('組み立てたクエリを読み戻すと元の条件になる（$mode）', (query) => {
     expect(parse(buildStudyQuery(query))).toEqual(query)
   })
@@ -120,5 +127,34 @@ describe('buildStudyQuery / parseStudyQuery', () => {
     ['テストで from が to より大きい', 'mode=test&pack=p&from=3&to=2'],
   ])('%s場合は null', (_, search) => {
     expect(parse(search)).toBeNull()
+  })
+})
+
+describe('復習のクエリ', () => {
+  it('count を省略・不正にすると「すべて」になる', () => {
+    expect(parse('mode=review&pack=p&sessions=3')).toMatchObject({
+      count: 'all',
+    })
+    expect(parse('mode=review&pack=p&sessions=3&count=7')).toMatchObject({
+      count: 'all',
+    })
+  })
+
+  it.each(['0', '21', 'a', ''])(
+    'sessions が範囲外・不正（%s）ならデフォルトにする',
+    (sessions) => {
+      expect(parse(`mode=review&pack=p&sessions=${sessions}`)).toMatchObject({
+        sessionCount: 3,
+      })
+    },
+  )
+
+  it('sessions は範囲の端（1 と 20）を受け付ける', () => {
+    expect(parse('mode=review&pack=p&sessions=1')).toMatchObject({
+      sessionCount: 1,
+    })
+    expect(parse('mode=review&pack=p&sessions=20')).toMatchObject({
+      sessionCount: 20,
+    })
   })
 })

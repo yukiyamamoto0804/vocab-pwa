@@ -85,7 +85,7 @@ export function UnitStudySettingsForm() {
         </select>
       </label>
       <p className={styles.note}>
-        ユニット学習で、直前の何回かの学習（ユニット学習とテスト）で「忘れた」と答えた単語を混ぜて出します。上限より多いときは、その中からランダムに選びます。
+        ユニット学習で、直前の何回かのユニット学習・テスト（その間の復習も含めて判定）で「忘れた」と答え、その後「覚えた」と答えていない単語を混ぜて出します。回数に復習は数えません。上限より多いときは、その中からランダムに選びます。
       </p>
       {error && (
         <p className={styles.error} role="alert">

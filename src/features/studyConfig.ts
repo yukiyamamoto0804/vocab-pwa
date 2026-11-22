@@ -5,14 +5,20 @@ export const studyConfig = {
   unitSize: 20,
   /** ユニット学習に混ぜる単語の数の上限（設定画面で変更できる。docs/specs/study-cards.md 7 章） */
   mixCount: { default: 5, min: 0, max: 20 },
-  /** テストの出題数の選択肢（'all' は範囲の単語すべて） */
-  testCount: { options: [20, 50, 100, 'all'], default: 50 },
+  /** テスト・復習の出題数の選択肢（'all' は対象の単語すべて） */
+  studyCount: { options: [20, 50, 100, 'all'] },
+  /** テストの出題数の初期値 */
+  testCount: { default: 50 },
   /** テストの苦手優先で、定着度をこの幅の帯に分け、同じ帯の単語どうしはランダムに並べる */
   testWeakBand: 0.1,
   /** テストの並び順の初期値 */
   testOrder: { default: 'weak' },
-  /** 混ぜる単語の対象範囲（直前の何回の学習で「忘れた」と申告した単語か。設定画面で変更できる） */
+  /** 混ぜる単語の対象範囲（直前の何回の学習で忘れた単語か。設定画面で変更できる） */
   mixSessionRange: { default: 3, min: 1, max: 10 },
+  /** 復習の対象範囲（直前の何回の学習で忘れた単語か。復習を始めるときに選ぶ） */
+  reviewSessionRange: { default: 3, min: 1, max: 20 },
+  /** 復習の出題数の初期値（選択肢はテストと同じ） */
+  reviewCount: { default: 'all' },
   /** 定着度の指数移動平均で、直近の結果をどれだけ重視するか */
   masteryLambda: 0.4,
 } as const

@@ -1,12 +1,12 @@
 import type { TestOrder } from '../../db/types'
 import { type Random, shuffle } from '../../lib/random'
 import { studyConfig } from '../studyConfig'
-import type { TestCount } from './studyQuery'
+import { countAfterTake, type StudyCount, takeCount } from './studyCount'
 
 // テストで出す単語を選んで並べる（docs/specs/study-cards.md 6 章「テストの範囲と出題数」「テストの並び順」）
 
 export interface TestOptions {
-  count: TestCount
+  count: StudyCount
   includeUnlearned: boolean
   order: TestOrder
 }
@@ -37,7 +37,7 @@ export function selectTestItems<T extends { id: string }>(
   const shuffled = shuffle(targets, random)
   const ordered =
     order === 'weak' ? shuffled.sort((a, b) => band(a) - band(b)) : shuffled
-  return count === 'all' ? ordered : ordered.slice(0, count)
+  return takeCount(ordered, count)
 }
 
 /** 選んだ条件で出す単語の数（開始する前に画面に出す） */
@@ -46,8 +46,7 @@ export function countTestItems(
   itemCount: number,
   { count, includeUnlearned }: Omit<TestOptions, 'order'>,
 ): number {
-  const targets = includeUnlearned ? itemCount : learnedCount
-  return count === 'all' ? targets : Math.min(count, targets)
+  return countAfterTake(includeUnlearned ? itemCount : learnedCount, count)
 }
 
 /**
