@@ -99,6 +99,18 @@ describe('replacePack の結果', () => {
       unchanged: 1,
     })
   })
+
+  it('キーの順番が違うだけなら「変更なし」と数える', async () => {
+    await replacePack(content('pack-a', ['0001']), db)
+    const next = content('pack-a', ['0001'])
+    // 同じ内容を、キーの順番を変えて組み立て直す
+    const { senses, word, ...rest } = next.items[0]
+    next.items[0] = { senses, ...rest, word }
+    expect(await replacePack(next, db)).toMatchObject({
+      changed: 0,
+      unchanged: 1,
+    })
+  })
 })
 
 describe('replacePack の失敗', () => {

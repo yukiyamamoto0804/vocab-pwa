@@ -163,3 +163,9 @@ export interface SettingRecord {
   key: string
   value: unknown
 }
+
+/**
+ * 音声ファイル 1 つの大きさの上限（バイト）。区間を鳴らすときはファイル全体を読み解くので、
+ * 長いファイルだとスマホのメモリが足りなくなるため。取り込みと再生の両方で使う（docs/CONTENT_FORMAT.md）
+ */
+export const MAX_AUDIO_FILE_BYTES = 5 * 1024 * 1024

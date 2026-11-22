@@ -2,6 +2,7 @@ import {
   type AudioRef,
   type ContentItem,
   type Idiom,
+  MAX_AUDIO_FILE_BYTES,
   type Manifest,
   type ManifestUnit,
   type Meaning,
@@ -25,6 +26,14 @@ const isObj = (v: unknown): v is Obj =>
 const isNonEmptyString = (v: unknown): v is string =>
   typeof v === 'string' && v.trim() !== ''
 
+/** id として使える文字列か。前後に空白があると、見た目が同じ別の id になり学習記録が引き継がれないので許さない */
+const checkId = (v: unknown): string | undefined =>
+  !isNonEmptyString(v)
+    ? '空でない文字列が必要です'
+    : v !== v.trim()
+      ? '前後に空白を入れないでください'
+      : undefined
+
 const isPositiveInt = (v: unknown): v is number =>
   typeof v === 'number' && Number.isInteger(v) && v >= 1
 
@@ -34,7 +43,7 @@ const isPartOfSpeech = (v: unknown): v is Meaning['pos'] =>
 export function validatePack(
   manifestRaw: unknown,
   itemsRaw: unknown,
-  audioFiles: ReadonlySet<string>,
+  audioFiles: ReadonlyMap<string, number>,
 ): ValidateResult {
   const errors: PackError[] = []
   const add = (where: string, message: string) =>
@@ -62,8 +71,9 @@ function validateManifest(raw: unknown, add: Add): Manifest | null {
     add(at('formatVersion'), '対応している形式のバージョンは 1 だけです')
     ok = false
   }
-  if (!isNonEmptyString(raw.id)) {
-    add(at('id'), '空でない文字列が必要です')
+  const idError = checkId(raw.id)
+  if (idError) {
+    add(at('id'), idError)
     ok = false
   }
   if (!isNonEmptyString(raw.title)) {
@@ -127,7 +137,7 @@ function itemLabel(index: number, id?: string): string {
 
 function validateItems(
   raw: unknown,
-  audioFiles: ReadonlySet<string>,
+  audioFiles: ReadonlyMap<string, number>,
   add: Add,
 ): ContentItem[] | null {
   if (!Array.isArray(raw)) {
@@ -166,7 +176,7 @@ function validateItems(
 function validateItem(
   raw: unknown,
   label: string,
-  audioFiles: ReadonlySet<string>,
+  audioFiles: ReadonlyMap<string, number>,
   add: Add,
 ): ContentItem | null {
   const at = (field: string) => `${label}の ${field}`
@@ -180,7 +190,8 @@ function validateItem(
     add(where, message)
   }
 
-  if (!isNonEmptyString(raw.id)) fail(at('id'), '空でない文字列が必要です')
+  const idError = checkId(raw.id)
+  if (idError) fail(at('id'), idError)
   if (!isNonEmptyString(raw.word)) fail(at('word'), '空でない文字列が必要です')
   if (raw.unit !== undefined && !isPositiveInt(raw.unit))
     fail(at('unit'), '1 以上の整数が必要です')
@@ -235,7 +246,7 @@ function validateItem(
 function validateSense(
   raw: unknown,
   where: string,
-  audioFiles: ReadonlySet<string>,
+  audioFiles: ReadonlyMap<string, number>,
   fail: Add,
 ): Sense | null {
   const at = (field: string) => `${where}.${field}`
@@ -310,7 +321,7 @@ function validateSense(
 function validateAudio(
   raw: unknown,
   where: string,
-  audioFiles: ReadonlySet<string>,
+  audioFiles: ReadonlyMap<string, number>,
   fail: Add,
 ): AudioRef | undefined {
   if (!isObj(raw) || !isNonEmptyString(raw.file)) {
@@ -318,8 +329,21 @@ function validateAudio(
     return undefined
   }
   let ok = true
-  if (!audioFiles.has(raw.file)) {
+  const size = audioFiles.get(raw.file)
+  if (size === undefined) {
     fail(`${where}.file`, `audio/ に ${raw.file} がありません`)
+    ok = false
+  } else if (size === 0) {
+    fail(
+      `${where}.file`,
+      `audio/ の ${raw.file} が空です（zip が壊れている可能性があります）`,
+    )
+    ok = false
+  } else if (size > MAX_AUDIO_FILE_BYTES) {
+    fail(
+      `${where}.file`,
+      `audio/ の ${raw.file} が大きすぎます（1 ファイル ${MAX_AUDIO_FILE_BYTES / 1024 / 1024} MB まで）`,
+    )
     ok = false
   }
   for (const key of ['start', 'end'] as const) {

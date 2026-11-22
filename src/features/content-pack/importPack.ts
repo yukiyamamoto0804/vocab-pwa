@@ -41,7 +41,7 @@ export async function importPack(
   const checked = validatePack(
     zip.manifest,
     zip.items,
-    new Set(zip.audio.keys()),
+    new Map([...zip.audio].map(([file, data]) => [file, data.length])),
   )
   if (!checked.ok) return checked
   const { manifest, items } = checked

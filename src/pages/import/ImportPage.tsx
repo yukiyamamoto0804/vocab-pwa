@@ -6,6 +6,7 @@ import {
   type ImportResult,
   importPack,
 } from '../../features/content-pack/importPack'
+import { checkZipSize } from '../../features/content-pack/readZip'
 import styles from './ImportPage.module.css'
 
 type State =
@@ -23,6 +24,12 @@ export function ImportPage() {
     const file = e.target.files?.[0]
     e.target.value = '' // 同じファイルを選び直しても反応するように
     if (!file) return
+    // 大きすぎるファイルは、丸ごと読み込む前に断る（読み込みの途中で端末が落ちないように）
+    const tooLarge = checkZipSize(file.size)
+    if (tooLarge) {
+      setState({ status: 'done', result: { ok: false, errors: tooLarge } })
+      return
+    }
     setState({ status: 'importing', fileName: file.name })
     try {
       const bytes = new Uint8Array(await file.arrayBuffer())
@@ -66,7 +73,10 @@ export function ImportPage() {
       </label>
 
       {state.status === 'importing' && (
-        <p className={styles.message}>{state.fileName} を取り込んでいます…</p>
+        <p className={styles.message}>
+          {state.fileName} を取り込んでいます…
+          この画面を離れると結果が見られなくなるので、終わるまでお待ちください。
+        </p>
       )}
       {state.status === 'done' && <Result result={state.result} />}
     </>

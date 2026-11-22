@@ -19,7 +19,7 @@ export interface ReplaceSummary {
   replaced: boolean
   added: number
   removed: number
-  /** 同じ id で、内容（見出し語・解説・音声・ユニット）が変わった単語 */
+  /** 同じ id で、内容（見出し語・解説・音声の指定・ユニット）が変わった単語 */
   changed: number
   unchanged: number
 }
@@ -50,9 +50,21 @@ export async function replacePack(
   )
 }
 
-// 並び順（order）だけの違いは変更とみなさない
+/** キーを並べ替えて文字列にする。保存した版によってキーの順番が違っても、同じ内容なら同じ文字列になる */
+function stableStringify(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableStringify).join(',')}]`
+  if (typeof value === 'object' && value !== null) {
+    const entries = Object.entries(value)
+      .filter(([, v]) => v !== undefined)
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${stableStringify(v)}`).join(',')}}`
+  }
+  return JSON.stringify(value)
+}
+
+// 並び順（order）だけの違いは変更とみなさない。音声は指定（ファイル名と区間）を比べ、ファイルの中身は比べない
 function itemKey({ order: _, ...item }: ItemRecord): string {
-  return JSON.stringify(item)
+  return stableStringify(item)
 }
 
 function compareItems(oldItems: ItemRecord[], newItems: ItemRecord[]) {

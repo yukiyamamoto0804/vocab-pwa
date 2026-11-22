@@ -8,7 +8,7 @@ function base() {
   return {
     manifest: structuredClone(manifest) as unknown as Record<string, unknown>,
     items: structuredClone(items) as unknown as Record<string, unknown>[],
-    audio: new Set(['words.mp3']),
+    audio: new Map([['words.mp3', 100]]),
   }
 }
 
@@ -95,6 +95,34 @@ describe('validatePack', () => {
       'items.json の 1 番目（id: 0001）の senses[0].exampleTranslationTarget',
     ],
     [
+      '単語の id の前後に空白がある',
+      (p) => {
+        p.items[0].id = '0001 '
+      },
+      'items.json の 1 番目（id: 0001 ）の id',
+    ],
+    [
+      'パックの id の前後に空白がある',
+      (p) => {
+        p.manifest.id = ' pack'
+      },
+      'manifest.json の id',
+    ],
+    [
+      '音声ファイルが空',
+      (p) => {
+        p.audio = new Map([['words.mp3', 0]])
+      },
+      'items.json の 1 番目（id: 0001）の audio.file',
+    ],
+    [
+      '音声ファイルが大きすぎる',
+      (p) => {
+        p.audio = new Map([['words.mp3', 6 * 1024 * 1024]])
+      },
+      'items.json の 1 番目（id: 0001）の audio.file',
+    ],
+    [
       'id が重複',
       (p) => {
         p.items[1].id = '0001'
@@ -104,7 +132,7 @@ describe('validatePack', () => {
     [
       '音声ファイルがない',
       (p) => {
-        p.audio = new Set()
+        p.audio = new Map()
       },
       'items.json の 1 番目（id: 0001）の audio.file',
     ],
@@ -144,7 +172,7 @@ describe('validatePack', () => {
   describe('ユニットの指定', () => {
     const withUnits = () => {
       const { manifest, items } = createDummyPack({ itemCount: 4, unitSize: 2 })
-      return { manifest, items, audio: new Set<string>() }
+      return { manifest, items, audio: new Map<string, number>() }
     }
 
     it('全ての単語に指定され、manifest の units にあれば通る', () => {
