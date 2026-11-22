@@ -4,7 +4,9 @@ import { LoadError } from '../../components/LoadError'
 import { Loading } from '../../components/Loading'
 import { StorageStatus } from '../../components/StorageStatus'
 import { listPacks } from '../../db/packs'
+import { DEMO_PACK_ID, demoPackInfo } from '../../features/demo/demoPack'
 import { useAsync } from '../../lib/useAsync'
+import { DemoButton } from './DemoButton'
 
 export function HomePage() {
   const packs = useAsync(() => listPacks(), [])
@@ -29,6 +31,15 @@ export function HomePage() {
             title: pack.manifest.title,
             meta: `${itemCount} 語・${unitCount} ユニット`,
           }))}
+        />
+      )}
+      {packs.status === 'done' && demoPackInfo && (
+        <DemoButton
+          info={demoPackInfo}
+          existing={
+            packs.value.find(({ pack }) => pack.id === DEMO_PACK_ID)?.pack
+          }
+          prominent={packs.value.length === 0}
         />
       )}
     </>

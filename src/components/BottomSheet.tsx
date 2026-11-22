@@ -12,12 +12,19 @@ interface Props {
   onClose: () => void
   /** 見出し */
   title: string
+  /** false の間は、✕・背景・Esc で閉じられないようにする（処理の途中など）。省略すると閉じられる */
+  closable?: boolean
   children: ReactNode
 }
 
 // 画面の下から出すシート（テスト・復習の条件を選ぶときなど）。
 // 置いている間だけ開く。閉じられたら onClose で呼び出し側が外す
-export function BottomSheet({ onClose, title, children }: Props) {
+export function BottomSheet({
+  onClose,
+  title,
+  closable = true,
+  children,
+}: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   /** 押し始めた位置が背景だったか（シートの中で押し始めて背景で離したときは閉じない） */
@@ -36,7 +43,9 @@ export function BottomSheet({ onClose, title, children }: Props) {
     }
   }, [])
 
-  const close = () => dialogRef.current?.close()
+  const close = () => {
+    if (closable) dialogRef.current?.close()
+  }
   const isBackdrop = (e: SyntheticEvent) => e.target === e.currentTarget
 
   return (
@@ -48,6 +57,10 @@ export function BottomSheet({ onClose, title, children }: Props) {
       // close イベントは後から届くため、その間に開き直していたら（開発時の StrictMode など）無視する
       onClose={() => {
         if (!dialogRef.current?.open) onClose()
+      }}
+      // Esc で閉じるのを、閉じられない間は止める
+      onCancel={(e) => {
+        if (!closable) e.preventDefault()
       }}
       // 背景（シートの外）を押したら閉じる
       onPointerDown={(e) => {
@@ -64,6 +77,7 @@ export function BottomSheet({ onClose, title, children }: Props) {
             type="button"
             className={styles.close}
             onClick={close}
+            disabled={!closable}
             aria-label="閉じる"
           >
             ✕

@@ -94,6 +94,11 @@ export interface PackRecord {
   manifest: Manifest
   /** 最初に取り込んだ日時（エポックミリ秒）。取り込み直しても変えない（一覧の並びを保つため） */
   importedAt: number
+  /**
+   * デモ教材から取り込んだときだけ、その版（items.json の SHA-256）。ふつうの取り込みでは入れない
+   * （docs/specs/demo-pack.md 6 章）
+   */
+  demoItemsSha256?: string
 }
 
 export interface UnitRecord {

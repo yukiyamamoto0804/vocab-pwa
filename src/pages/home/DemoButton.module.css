@@ -1,0 +1,56 @@
+/* 教材パックがないとき */
+.prominent {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  background: var(--color-accent);
+}
+
+/* 教材パックがあるとき（一覧の下に小さく） */
+.quiet {
+  min-height: 44px;
+  margin-top: 16px;
+  padding: 0 4px;
+  border: none;
+  font-size: 14px;
+  color: var(--color-accent);
+  background: none;
+}
+
+.text {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+/* 取り込みの画面の誤りの表示と同じ見た目 */
+.error {
+  margin: 12px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  white-space: pre-line;
+  background: var(--color-warning-surface);
+}
+
+.load {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 16px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ffffff;
+  background: var(--color-accent);
+}
+
+.load:disabled {
+  opacity: 0.6;
+}
