@@ -44,7 +44,18 @@ export class VocabDatabase extends Dexie {
     this.version(2).stores({
       studySessions: 'id, [packId+startedAt]',
     })
+    // 別の画面（新しい版のアプリ）が DB を更新しようとしたら、こちらの接続を閉じて更新を通し、画面に開き直すよう知らせる。
+    // 自動で開き直さないよう閉じたままにする。古い版のコードが、新しい版の形に変えたデータへ古い形で書き込まないようにするため
+    this.on('versionchange', () => {
+      this.close()
+      if (typeof window !== 'undefined')
+        window.dispatchEvent(new Event(DB_OUTDATED_EVENT))
+      return false
+    })
   }
 }
+
+/** DB を新しい版が更新したため、この画面の接続を閉じたときに window に送るイベントの名前 */
+export const DB_OUTDATED_EVENT = 'vocab-db-outdated'
 
 export const db = new VocabDatabase()

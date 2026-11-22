@@ -36,7 +36,7 @@ async function getNumberRecord<K extends string>(
   const record: Partial<Record<K, number>> = {}
   for (const field of fields) {
     const v = stored[field]
-    if (typeof v !== 'number') return undefined
+    if (typeof v !== 'number' || !Number.isFinite(v)) return undefined
     record[field] = v
   }
   return record as Record<K, number>

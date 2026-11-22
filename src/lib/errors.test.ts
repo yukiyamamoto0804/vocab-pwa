@@ -26,4 +26,10 @@ describe('isQuotaError', () => {
     expect(isQuotaError(new Error('other'))).toBe(false)
     expect(isQuotaError('QuotaExceededError')).toBe(false)
   })
+
+  it('Error を継承していない値（DOMException がそのまま届く場合など）も調べる', () => {
+    expect(isQuotaError({ name: 'QuotaExceededError' })).toBe(true)
+    expect(isQuotaError({ name: 'OtherError' })).toBe(false)
+    expect(isQuotaError('QuotaExceededError')).toBe(false)
+  })
 })

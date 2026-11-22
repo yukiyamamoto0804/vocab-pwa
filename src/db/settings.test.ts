@@ -41,6 +41,14 @@ describe('getLastTest / saveLastTest', () => {
     await db.settings.put({ key: 'lastTest:pack-a', value: { at: 1 } })
     expect(await getLastTest('pack-a', db)).toBeUndefined()
   })
+
+  it('NaN や Infinity は無いものとして扱う', async () => {
+    await db.settings.put({
+      key: 'lastTest:pack-a',
+      value: { at: Number.NaN, fromUnit: 1, toUnit: Number.POSITIVE_INFINITY },
+    })
+    expect(await getLastTest('pack-a', db)).toBeUndefined()
+  })
 })
 
 describe('getLastUnitStudy / saveLastUnitStudy', () => {

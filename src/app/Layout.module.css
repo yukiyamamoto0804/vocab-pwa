@@ -43,3 +43,11 @@
   gap: 16px;
   padding: 16px 16px calc(env(safe-area-inset-bottom) + 32px);
 }
+
+.outdated {
+  margin: 8px 16px 0;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--color-warning-surface);
+}
