@@ -38,19 +38,29 @@ export async function restoreBeforeAnswer(
   })
 }
 
-/** パックの学習の記録を、新しい順に count 回分返す */
+/**
+ * パックの学習の記録を、新しい順に、復習以外の回が count 回分になるまで返す。
+ * 復習の回は回数に数えないが、その間にある復習の回も返す（docs/specs/study-cards.md 6 章「直前の数回の学習で忘れた単語」）
+ */
 export async function listRecentSessions(
   packId: string,
   count: number,
   db: VocabDatabase = defaultDb,
 ): Promise<StudySessionRecord[]> {
-  if (count <= 0) return []
-  return db.studySessions
+  const sessions: StudySessionRecord[] = []
+  let counted = 0
+  if (!Number.isInteger(count) || count <= 0) return sessions
+  await db.studySessions
     .orderBy('startedAt')
     .reverse()
-    .filter((session) => session.packId === packId)
-    .limit(count)
-    .toArray()
+    // until は次の記録を each に渡す前に判定され、止めた記録は返らない（count 回目の直後で止まる）
+    .until(() => counted >= count)
+    .each((session) => {
+      if (session.packId !== packId) return
+      sessions.push(session)
+      if (session.mode !== 'review') counted += 1
+    })
+  return sessions
 }
 
 /** 報告済みの単語の id */

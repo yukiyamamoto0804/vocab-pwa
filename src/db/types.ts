@@ -10,8 +10,8 @@ export type Face = (typeof FACES)[number]
 /** 自己申告 */
 export type Rating = 'remembered' | 'unsure' | 'forgot'
 
-/** ユニット学習 / テスト */
-export type StudyMode = 'unit' | 'test'
+/** ユニット学習 / テスト / 復習 */
+export type StudyMode = 'unit' | 'test' | 'review'
 
 /** テストの並び順（苦手優先 / ランダム） */
 export type TestOrder = 'weak' | 'random'

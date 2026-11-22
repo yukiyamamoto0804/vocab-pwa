@@ -91,6 +91,22 @@ describe('toggleReport', () => {
 })
 
 describe('listRecentSessions', () => {
+  it('復習の回は回数に数えず、その間にある復習の回も返す', async () => {
+    await db.studySessions.bulkPut([
+      { ...emptySession, id: 'u1', startedAt: 1 },
+      { ...emptySession, id: 'r-old', startedAt: 2, mode: 'review' },
+      { ...emptySession, id: 'u2', startedAt: 3 },
+      { ...emptySession, id: 'r1', startedAt: 4, mode: 'review' },
+      { ...emptySession, id: 'r2', startedAt: 5, mode: 'review' },
+      { ...emptySession, id: 't3', startedAt: 6, mode: 'test' },
+    ])
+    const ids = async (count: number) =>
+      (await listRecentSessions('p', count, db)).map((s) => s.id)
+    expect(await ids(1)).toEqual(['t3'])
+    expect(await ids(2)).toEqual(['t3', 'r2', 'r1', 'u2'])
+    expect(await ids(10)).toEqual(['t3', 'r2', 'r1', 'u2', 'r-old', 'u1'])
+  })
+
   it('そのパックの記録を新しい順に count 回分返す', async () => {
     await db.studySessions.bulkPut([
       { ...emptySession, id: 'old', startedAt: 1 },
