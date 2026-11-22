@@ -1,10 +1,16 @@
 import type { Face, ItemRecord } from '../../db/types'
-import { clozeSenseIndexes } from './cloze'
+import type { Random } from '../../lib/random'
+import { clozeSenseIndexes, pickClozeSense } from './cloze'
 
 // 表面の種類ごとに必要なデータの判定（docs/specs/study-cards.md 3 章）
 
-/** 作り終えた表面の種類（選択肢に出す順）。例文の音声 → 解説は手順 8 で足す */
-export const AVAILABLE_FACES: readonly Face[] = ['en', 'word-audio', 'ja']
+/** 表面の種類の選択肢に出す順 */
+export const FACE_OPTIONS: readonly Face[] = [
+  'en',
+  'word-audio',
+  'ja',
+  'example-audio',
+]
 
 /** 初回に選ばれている表面の種類（docs/specs/study-cards.md 7 章） */
 export const DEFAULT_FACE: Face = 'en'
@@ -16,27 +22,51 @@ export const FACE_LABELS: Record<Face, string> = {
   'example-audio': '例文の音声 → 解説',
 }
 
-export function isAvailableFace(face: Face): boolean {
-  return AVAILABLE_FACES.includes(face)
+/** 音声だけの表面か */
+export function isAudioFace(face: Face): boolean {
+  return face === 'word-audio' || face === 'example-audio'
 }
 
 /** その表面のカードを作れる単語か。必要なデータがない単語は出題しない */
 export function hasFaceData(
-  item: Pick<ItemRecord, 'audio' | 'word' | 'senses'>,
+  item: Pick<ItemRecord, 'word' | 'senses' | 'audio'>,
   face: Face,
 ): boolean {
   switch (face) {
     case 'en':
       return true
+    // 音声だけの表面は、音声ファイルがある単語・用法だけ。機械の音声は聞き取りの練習に向かないため使わない（study-cards.md 3 章）
     case 'word-audio':
       return item.audio !== undefined
+    case 'example-audio':
+      return item.senses.some((s) => s.exampleAudio !== undefined)
     // 例文の中に該当語が見つかる用法が 1 つ以上あること
     case 'ja':
       return clozeSenseIndexes(item).length > 0
-    // まだ作っていない表面
-    case 'example-audio':
-      return false
   }
+}
+
+/**
+ * 表面に例文を使う種類で、表面に使う用法を選ぶ（学習を始めるときに単語ごとに 1 回）。
+ * 日本語 → 解説は例文に該当語が見つかる用法から、例文の音声 → 解説は例文の音声がある用法から、ランダムに選ぶ（study-cards.md 3 章）
+ */
+export function pickFrontSense(
+  item: Pick<ItemRecord, 'word' | 'senses'>,
+  face: 'ja' | 'example-audio',
+  random: Random = Math.random,
+): number {
+  if (face === 'ja') return pickClozeSense(item, random)
+  const candidates = item.senses.flatMap((s, i) =>
+    s.exampleAudio !== undefined ? [i] : [],
+  )
+  return candidates[Math.floor(random() * candidates.length)] ?? 0
+}
+
+/** 出さない理由 */
+function skipReason(face: Face): string {
+  return isAudioFace(face)
+    ? `${FACE_LABELS[face]}に使う音声がない`
+    : `${FACE_LABELS[face]}に必要なデータがない`
 }
 
 /** 表面に必要なデータがなくて出さない単語があるときのお知らせ。なければ undefined */
@@ -45,11 +75,13 @@ export function skippedNotice(
   face: Face,
 ): string | undefined {
   return skippedCount > 0
-    ? `${skippedCount} 語は、${FACE_LABELS[face]}に必要なデータがないため出しません。`
+    ? `${skippedCount} 語は、${skipReason(face)}ため出しません。`
     : undefined
 }
 
 /** 対象の単語がすべて、表面に必要なデータがなくて出せないときのお知らせ */
 export function noFaceDataMessage(face: Face): string {
-  return `選んだ表面（${FACE_LABELS[face]}）で出題できる単語がありません。表面を変えてください。`
+  return isAudioFace(face)
+    ? `選んだ表面（${FACE_LABELS[face]}）で出題できる単語がありません。音声のある単語がないためです。表面を変えてください。`
+    : `選んだ表面（${FACE_LABELS[face]}）で出題できる単語がありません。表面を変えてください。`
 }

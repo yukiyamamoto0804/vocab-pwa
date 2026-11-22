@@ -8,10 +8,12 @@ interface Props {
   item: ContentItem
   /** 見出し語の横に置くもの（音声の再生ボタンなど） */
   wordAside?: ReactNode
+  /** 用法ごとに、例文の横に置くもの（例文の再生ボタンなど） */
+  exampleAside?: (senseIndex: number) => ReactNode
 }
 
 // カードの裏面に出す解説（docs/specs/study-cards.md 2 章）
-export function Explanation({ item, wordAside }: Props) {
+export function Explanation({ item, wordAside, exampleAside }: Props) {
   const numbered = item.senses.length > 1
   return (
     <div className={styles.explanation}>
@@ -36,9 +38,12 @@ export function Explanation({ item, wordAside }: Props) {
               </span>
             ))}
           </p>
-          <p className={styles.example} lang="en">
-            {sense.example}
-          </p>
+          <div className={styles.exampleRow}>
+            <p className={styles.example} lang="en">
+              {sense.example}
+            </p>
+            {exampleAside?.(i)}
+          </div>
           <p className={styles.translation}>{sense.exampleTranslation}</p>
         </section>
       ))}

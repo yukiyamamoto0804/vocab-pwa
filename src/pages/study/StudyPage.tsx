@@ -6,7 +6,6 @@ import { saveLastTest, saveLastUnitStudy } from '../../db/settings'
 import { listReportedItemIds } from '../../db/study'
 import {
   hasFaceData,
-  isAvailableFace,
   noFaceDataMessage,
   skippedNotice,
 } from '../../features/cards/faces'
@@ -40,18 +39,6 @@ export function StudyPage() {
         <h1>学習</h1>
         <p>学習の条件が正しくありません。</p>
         <Link to="/">ホームへ戻る</Link>
-      </>
-    )
-  }
-  // まだ作っていない表面（手順 8）
-  if (!isAvailableFace(query.face)) {
-    return (
-      <>
-        <h1>学習</h1>
-        <p>この学習の方法は準備中です。</p>
-        <Link to={`/packs/${encodeURIComponent(query.packId)}`}>
-          ← ユニット一覧
-        </Link>
       </>
     )
   }

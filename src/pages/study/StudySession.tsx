@@ -11,8 +11,9 @@ import type {
   StudyMode,
   StudySessionRecord,
 } from '../../db/types'
+import { playExample, playWord } from '../../features/audio/playback'
 import { playAudio, stopAudio } from '../../features/audio/player'
-import { pickClozeSense } from '../../features/cards/cloze'
+import { isAudioFace, pickFrontSense } from '../../features/cards/faces'
 import { applyAnswer } from '../../features/mastery/mastery'
 import {
   answerCard,
@@ -79,14 +80,14 @@ export function StudySession(props: Props) {
   /** 保存の失敗。容量不足なら 'quota' */
   const [saveError, setSaveError] = useState<'quota' | 'other' | null>(null)
   /**
-   * 日本語 → 解説で、単語ごとに表面に使う用法。学習を始めるときに 1 回だけ選び、
-   * その回の学習の間（裏返す・出し直す）は同じ用法のままにする（study-cards.md 3 章）
+   * 表面に例文を使う種類（日本語 → 解説、例文の音声 → 解説）で、単語ごとに表面に使う用法。
+   * 学習を始めるときに 1 回だけ選び、その回の学習の間（裏返す・出し直す）は同じ用法のままにする（study-cards.md 3 章）
    */
-  const [clozeSenses] = useState(
+  const [frontSenses] = useState(
     () =>
       new Map(
-        face === 'ja'
-          ? items.map((i): [string, number] => [i.id, pickClozeSense(i)])
+        face === 'ja' || face === 'example-audio'
+          ? items.map((i): [string, number] => [i.id, pickFrontSense(i, face)])
           : [],
       ),
   )
@@ -210,20 +211,32 @@ export function StudySession(props: Props) {
     )
   }
 
-  const { audio } = item
-  const audioButton = (label: string, size?: PlayButtonSize) =>
-    audio && (
-      <PlayButton
-        label={label}
-        size={size}
-        onPlay={() => playAudio(packId, audio)}
-      />
-    )
-  // 単語の音声 → 解説の表面では、再生ボタンを主役として大きくし、読み上げソフトにも単語を伝えない
-  const frontAudioButton =
+  // 音声があれば音声、なければ機械の音声で読む（study-cards.md 9 章）
+  const wordButton = (label: string, size?: PlayButtonSize) => (
+    <PlayButton
+      label={label}
+      size={size}
+      onPlay={() => playWord(packId, item)}
+    />
+  )
+  // 音声だけの表面では、再生ボタンを主役として大きくし、読み上げソフトにも単語や例文を伝えない。
+  // 聞き取りの練習なので機械の音声は使わず、教材の音声だけを鳴らす（出題するのは音声がある単語・用法だけ。study-cards.md 3 章）
+  const frontAudio =
     face === 'word-audio'
-      ? audioButton('単語の音声', 'huge')
-      : audioButton(`${item.word} の音声`, 'large')
+      ? item.audio
+      : face === 'example-audio'
+        ? item.senses[frontSenses.get(item.id) ?? 0].exampleAudio
+        : undefined
+  const audioOnly = isAudioFace(face)
+  const frontAudioButton = audioOnly
+    ? frontAudio && (
+        <PlayButton
+          label={face === 'word-audio' ? '単語の音声' : '例文の音声'}
+          size="huge"
+          onPlay={() => playAudio(packId, frontAudio)}
+        />
+      )
+    : wordButton(`${item.word} の音声`, 'large')
 
   return (
     <div className={styles.screen}>
@@ -242,22 +255,24 @@ export function StudySession(props: Props) {
         onRate={answer}
         front={
           face === 'ja' ? (
-            <JaFront item={item} senseIndex={clozeSenses.get(item.id) ?? 0} />
+            <JaFront item={item} senseIndex={frontSenses.get(item.id) ?? 0} />
           ) : (
-            // 単語の音声 → 解説では、単語の文字を出さず再生ボタンだけを大きく置く（study-cards.md 3 章）
+            // 音声の表面では、文字を出さず再生ボタンだけを大きく置く（study-cards.md 3 章）
             <div className={styles.front}>
-              {face !== 'word-audio' && (
+              {!audioOnly && (
                 <p className={styles.frontWord} lang="en">
                   {item.word}
                 </p>
               )}
-              {frontAudioButton && (
-                <div className={styles.audioBand} data-face={face} data-no-flip>
-                  {frontAudioButton}
-                </div>
-              )}
+              <div
+                className={styles.audioBand}
+                data-audio-only={audioOnly}
+                data-no-flip
+              >
+                {frontAudioButton}
+              </div>
               <p className={styles.hint}>
-                {face === 'word-audio'
+                {audioOnly
                   ? '音声を聞いて意味を思い出したら、タップして裏返す'
                   : 'タップして裏返す'}
               </p>
@@ -270,7 +285,7 @@ export function StudySession(props: Props) {
               item={item}
               wordAside={
                 <>
-                  {audioButton(`${item.word} の音声`)}
+                  {wordButton(`${item.word} の音声`)}
                   <button
                     type="button"
                     className={styles.report}
@@ -283,6 +298,16 @@ export function StudySession(props: Props) {
                   </button>
                 </>
               }
+              exampleAside={(i) => (
+                <PlayButton
+                  label={
+                    item.senses.length > 1
+                      ? `例文 ${i + 1} の音声`
+                      : '例文の音声'
+                  }
+                  onPlay={() => playExample(packId, item.senses[i])}
+                />
+              )}
             />
           </FitContent>
         }

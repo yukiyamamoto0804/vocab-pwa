@@ -186,15 +186,15 @@ describe('loadMixItems / loadReviewItems', () => {
   })
 
   it('表面に必要なデータがない単語は、復習からも混ぜる単語からも除く', async () => {
-    // a だけ単語の音声がある
-    await db.items.update(['p', 'a'], { audio: { file: 'a.mp3' } })
-    const review = await loadReviewItems('p', 20, 'word-audio', db)
+    // a だけ、例文に見出し語が出てくる（日本語 → 解説を作れる）
+    await db.items.update(['p', 'a'], {
+      senses: [{ meanings: [], example: 'An a.', exampleTranslation: '' }],
+    })
+    const review = await loadReviewItems('p', 20, 'ja', db)
     expect(review.items.map((i) => i.id)).toEqual(['a'])
     expect(review.skippedCount).toBe(3)
     expect(
-      (await loadMixItems('p', new Set(), 'word-audio', { db })).map(
-        (i) => i.id,
-      ),
+      (await loadMixItems('p', new Set(), 'ja', { db })).map((i) => i.id),
     ).toEqual(['a'])
   })
 

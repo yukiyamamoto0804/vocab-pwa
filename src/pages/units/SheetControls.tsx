@@ -1,5 +1,5 @@
 import type { Face } from '../../db/types'
-import { AVAILABLE_FACES, FACE_LABELS } from '../../features/cards/faces'
+import { FACE_LABELS, FACE_OPTIONS } from '../../features/cards/faces'
 import type { StudyCount } from '../../features/session/studyCount'
 import { studyConfig } from '../../features/studyConfig'
 import styles from './StudySheet.module.css'
@@ -59,7 +59,7 @@ export function FaceField(props: {
     <fieldset className={styles.field}>
       <legend>表面</legend>
       <div className={styles.choices}>
-        {AVAILABLE_FACES.map((option) => (
+        {FACE_OPTIONS.map((option) => (
           <Choice
             key={option}
             name="face"

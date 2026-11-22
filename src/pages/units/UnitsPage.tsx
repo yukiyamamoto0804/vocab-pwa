@@ -10,7 +10,7 @@ import {
   saveLastFace,
 } from '../../db/settings'
 import type { Face } from '../../db/types'
-import { DEFAULT_FACE, isAvailableFace } from '../../features/cards/faces'
+import { DEFAULT_FACE } from '../../features/cards/faces'
 import { buildStudyQuery } from '../../features/session/studyQuery'
 import { defaultTestRange } from '../../features/session/testItems'
 import { useAsync } from '../../lib/useAsync'
@@ -41,10 +41,8 @@ export function UnitsPage() {
   if (data.status === 'loading') return null
   if (data.status === 'error') return <LoadError />
   const [pack, units, lastTest, lastUnitStudy, lastFace] = data.value
-  // 前回選んだ表面が今は選べない（保存した後に作り直した、など）ときは、初回と同じ表面にする
-  const face =
-    chosenFace ??
-    (lastFace && isAvailableFace(lastFace) ? lastFace : DEFAULT_FACE)
+  // 前回選んだ表面がなければ（初回）、初回の表面にする
+  const face = chosenFace ?? lastFace ?? DEFAULT_FACE
 
   function chooseFace(next: Face) {
     setChosenFace(next)

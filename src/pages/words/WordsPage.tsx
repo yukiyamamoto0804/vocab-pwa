@@ -4,7 +4,8 @@ import { LoadError } from '../../components/LoadError'
 import { PlayButton } from '../../components/PlayButton'
 import { getProgressMap, getUnit, listUnitItems } from '../../db/content'
 import type { ItemRecord, ProgressRecord } from '../../db/types'
-import { playAudio, stopAudio } from '../../features/audio/player'
+import { playWord } from '../../features/audio/playback'
+import { stopAudio } from '../../features/audio/player'
 import { useAsync } from '../../lib/useAsync'
 import styles from './WordsPage.module.css'
 
@@ -71,7 +72,6 @@ function WordRow({
   item: ItemRecord
   progress?: ProgressRecord
 }) {
-  const { audio } = item
   return (
     <li className={styles.row}>
       <div className={styles.main}>
@@ -90,12 +90,11 @@ function WordRow({
           </p>
         ))}
       </div>
-      {audio && (
-        <PlayButton
-          label={`${item.word} の音声`}
-          onPlay={() => playAudio(item.packId, audio)}
-        />
-      )}
+      {/* 音声があれば音声、なければ機械の音声で読む（study-cards.md 9 章） */}
+      <PlayButton
+        label={`${item.word} の音声`}
+        onPlay={() => playWord(item.packId, item)}
+      />
     </li>
   )
 }
