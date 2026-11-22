@@ -3,13 +3,16 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { VocabDatabase } from './database'
 import {
   getExampleTextShown,
+  getLastExport,
   getLastFace,
   getLastTest,
   getLastUnitStudy,
   getStoredUnitStudySettings,
+  isBackedUpSettingKey,
   lastTestSetting,
   lastUnitStudySetting,
   saveExampleTextShown,
+  saveLastExport,
   saveLastFace,
   saveUnitStudySettings,
 } from './settings'
@@ -105,5 +108,36 @@ describe('getExampleTextShown / saveExampleTextShown', () => {
     expect(await getExampleTextShown(db)).toBe(true)
     await db.settings.put({ key: 'exampleTextShown', value: 'yes' })
     expect(await getExampleTextShown(db)).toBe(false)
+  })
+})
+
+describe('isBackedUpSettingKey', () => {
+  it('学習記録のファイルに含めるキーだけを選ぶ', () => {
+    for (const key of [
+      'face',
+      'unitStudy',
+      'exampleTextShown',
+      'lastTest:pack-a',
+      'lastUnitStudy:pack-a',
+    ])
+      expect(isBackedUpSettingKey(key), key).toBe(true)
+    for (const key of [
+      'inProgress:pack-a',
+      'lastExport',
+      'exportChoice',
+      'lastTestX',
+      'other',
+    ])
+      expect(isBackedUpSettingKey(key), key).toBe(false)
+  })
+})
+
+describe('getLastExport / saveLastExport', () => {
+  it('保存した日時を読み出す。保存していない・形の違う値なら undefined', async () => {
+    expect(await getLastExport(db)).toBeUndefined()
+    await saveLastExport(1234, db)
+    expect(await getLastExport(db)).toBe(1234)
+    await db.settings.put({ key: 'lastExport', value: '1234' })
+    expect(await getLastExport(db)).toBeUndefined()
   })
 })

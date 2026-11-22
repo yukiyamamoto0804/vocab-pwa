@@ -134,3 +134,34 @@ export async function saveExampleTextShown(
 ): Promise<void> {
   await db.settings.put({ key: EXAMPLE_TEXT_SHOWN_KEY, value: shown })
 }
+
+/**
+ * 学習記録のファイルに含める設定のキーか（docs/specs/backup.md 3 章）。
+ * 途中でやめた学習（inProgress:<packId>）と、端末ごとの値（lastExport など）は含めない
+ */
+export function isBackedUpSettingKey(key: string): boolean {
+  return (
+    key === FACE_KEY ||
+    key === UNIT_STUDY_KEY ||
+    key === EXAMPLE_TEXT_SHOWN_KEY ||
+    key.startsWith(lastTestKey('')) ||
+    key.startsWith(lastUnitStudyKey(''))
+  )
+}
+
+const LAST_EXPORT_KEY = 'lastExport'
+
+/** 学習記録を最後にエクスポートした日時（docs/specs/backup.md 5 章）。保存していない・形の違う値なら undefined */
+export async function getLastExport(
+  db: VocabDatabase = defaultDb,
+): Promise<number | undefined> {
+  const value = (await db.settings.get(LAST_EXPORT_KEY))?.value
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined
+}
+
+export async function saveLastExport(
+  at: number,
+  db: VocabDatabase = defaultDb,
+): Promise<void> {
+  await db.settings.put({ key: LAST_EXPORT_KEY, value: at })
+}

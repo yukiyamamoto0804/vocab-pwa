@@ -1,4 +1,5 @@
 import { StorageStatus } from '../../components/StorageStatus'
+import { BackupSection } from './BackupSection'
 import { DisplaySettingsForm } from './DisplaySettingsForm'
 import { UnitStudySettingsForm } from './UnitStudySettingsForm'
 
@@ -19,8 +20,8 @@ export function SettingsPage() {
         <StorageStatus />
       </section>
       <section>
-        <h2>学習記録のバックアップ</h2>
-        <p>エクスポート / インポート（準備中）</p>
+        <h2>バックアップ</h2>
+        <BackupSection />
       </section>
     </>
   )
