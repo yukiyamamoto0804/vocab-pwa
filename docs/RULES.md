@@ -92,11 +92,12 @@ GitHub（公開・コードのみ）
 
 | 段階 | 仕組み | 内容 |
 |---|---|---|
-| 意味のレビュー | `copyright-reviewer` エージェント（`.claude/agents/`） | 教材の内容・教材を推測できる情報・公開経路への混入・第三者素材のライセンスを確認し、PASS ならステージ内容に対する承認を記録する |
+| 意味のレビュー | `copyright-reviewer` エージェント（`.claude/agents/`） | 教材の内容・教材を推測できる情報・公開経路への混入・第三者素材のライセンスを確認し、PASS ならステージ内容に対する承認を記録する（`scripts/approve-copyright-review.sh`） |
 | 機械的チェック | git フック（`scripts/git-hooks/`） | `data/`・`private/`・メディアファイルの混入、禁止語（非公開リスト）、承認の有無を確認し、問題があればコミットを止める |
 
 - 禁止語リストは Git 管理外（`.git/info/copyright-denylist`）に置く。
 - フックの回避（`--no-verify` など）は禁止。
+- 承認を記録するスクリプトは、Claude Code のプロジェクト設定（`.claude/settings.json`）で確認なしに実行できるよう許可している。copyright-reviewer が PASS のときに止まらず記録できるようにするため。許可はエージェントごとに分けられないので、メインのエージェントが自分で実行しないことは、`CLAUDE.md` の「承認マーカーを自分で書き込まない」という決まりで守る。スクリプトを書き換えて別の処理を確認なしで動かせないよう、スクリプトの編集は設定で禁止している（直すときは人が編集する）。
 - 新しい環境で clone した場合は `git config core.hooksPath scripts/git-hooks` を実行してフックを有効にする。
 
 ## 9. 技術スタック

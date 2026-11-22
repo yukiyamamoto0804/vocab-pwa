@@ -1,5 +1,8 @@
 {
   "permissions": {
+    "allow": [
+      "Bash(scripts/approve-copyright-review.sh)"
+    ],
     "deny": [
       "Bash(git *--no-verify*)",
       "Bash(git commit -n*)",
@@ -7,7 +10,8 @@
       "Bash(git -c *)",
       "Bash(git config*core.hooksPath*)",
       "Edit(.git/copyright-review-approved)",
-      "Edit(.git/info/copyright-denylist)"
+      "Edit(.git/info/copyright-denylist)",
+      "Edit(scripts/approve-copyright-review.sh)"
     ]
   }
 }
