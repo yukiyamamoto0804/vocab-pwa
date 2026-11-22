@@ -5,6 +5,12 @@ export const studyConfig = {
   unitSize: 20,
   /** ユニット学習に混ぜる単語の数（学習開始時に変更できる） */
   mixCount: { default: 5, min: 0, max: 20 },
+  /** テストの出題数の選択肢（'all' は範囲の単語すべて） */
+  testCount: { options: [20, 50, 100, 'all'], default: 50 },
+  /** テストの苦手優先で、定着度をこの幅の帯に分け、同じ帯の単語どうしはランダムに並べる */
+  testWeakBand: 0.1,
+  /** テストの並び順の初期値 */
+  testOrder: { default: 'weak' },
   /** 混ぜる単語の対象範囲（直前の何ユニットか） */
   mixUnitRange: 3,
   /** 重みの底上げ */

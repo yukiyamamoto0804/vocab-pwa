@@ -8,13 +8,14 @@ import type {
   ItemRecord,
   ProgressRecord,
   Rating,
+  StudyMode,
   StudySessionRecord,
 } from '../../db/types'
 import { playAudio, stopAudio } from '../../features/audio/player'
 import { applyAnswer } from '../../features/mastery/mastery'
 import {
   answerCard,
-  createUnitDeck,
+  createDeck,
   currentCard,
   type Deck,
   isFinished,
@@ -42,21 +43,25 @@ interface State {
 
 interface Props {
   packId: string
+  mode: StudyMode
   face: Face
+  /** 出す順に並べた単語 */
   items: ItemRecord[]
   initialProgress: Map<string, ProgressRecord>
   initialReported: Set<string>
   exitPath: string
+  /** 回答を保存するたびに呼ぶ */
+  onAnswered?: () => void
 }
 
 export function StudySession(props: Props) {
-  const { packId, face, items, exitPath } = props
+  const { packId, mode, face, items, exitPath, onAnswered } = props
   const [state, setState] = useState<State>(() => ({
-    deck: createUnitDeck(items.map((i) => i.id)),
+    deck: createDeck(items.map((i) => i.id)),
     session: createSessionRecord({
       id: randomId(),
       packId,
-      mode: 'unit',
+      mode,
       face,
       startedAt: Date.now(),
     }),
@@ -95,6 +100,7 @@ export function StudySession(props: Props) {
     setBusy(true)
     try {
       await saveAnswer(next.session, progress)
+      onAnswered?.()
       stopAudio()
       setPrevious(state)
       setState(next)

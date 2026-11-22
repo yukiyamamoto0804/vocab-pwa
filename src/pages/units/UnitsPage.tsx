@@ -1,21 +1,33 @@
+import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { LinkList } from '../../components/LinkList'
 import { LoadError } from '../../components/LoadError'
 import { getPack, listUnitSummaries } from '../../db/content'
+import { getLastTest } from '../../db/settings'
 import { buildStudyQuery } from '../../features/session/studyQuery'
+import { defaultTestRange } from '../../features/session/testItems'
 import { studyConfig } from '../../features/studyConfig'
 import { useAsync } from '../../lib/useAsync'
+import { TestSheet } from './TestSheet'
+import styles from './UnitsPage.module.css'
+import { unitLabel } from './unitLabel'
 
 export function UnitsPage() {
   const { packId = '' } = useParams()
   const data = useAsync(
-    () => Promise.all([getPack(packId), listUnitSummaries(packId)]),
+    () =>
+      Promise.all([
+        getPack(packId),
+        listUnitSummaries(packId),
+        getLastTest(packId),
+      ]),
     [packId],
   )
+  const [testOpen, setTestOpen] = useState(false)
 
   if (data.status === 'loading') return null
   if (data.status === 'error') return <LoadError />
-  const [pack, units] = data.value
+  const [pack, units, lastTest] = data.value
   if (!pack) {
     return (
       <>
@@ -25,31 +37,53 @@ export function UnitsPage() {
     )
   }
 
+  const testRange = defaultTestRange(
+    units.map(({ unit, learnedCount }) => ({ id: unit.id, learnedCount })),
+    lastTest,
+  )
+
   return (
     <>
       <Link to="/">← 教材パック</Link>
-      <h1>{pack.manifest.title}</h1>
+      <div className={styles.header}>
+        <h1>{pack.manifest.title}</h1>
+        {testRange && (
+          <button
+            type="button"
+            className={styles.test}
+            onClick={() => setTestOpen(true)}
+          >
+            テスト
+          </button>
+        )}
+      </div>
       <LinkList
         items={units.map(({ unit, itemCount, learnedCount }) => ({
           key: String(unit.id),
           to: `/packs/${encodeURIComponent(packId)}/units/${unit.id}`,
-          title: unit.title
-            ? `ユニット ${unit.id}　${unit.title}`
-            : `ユニット ${unit.id}`,
+          title: unitLabel(unit),
           meta: `${itemCount} 語・学習済み ${learnedCount} 語`,
           action: {
             to: `/study?${buildStudyQuery({
               mode: 'unit',
               packId,
-              unitIds: [unit.id],
               face: 'en',
+              unitId: unit.id,
               mixCount: studyConfig.mixCount.default,
-              order: 'weak',
             })}`,
             label: '学習',
           },
         }))}
       />
+      {testRange && (
+        <TestSheet
+          open={testOpen}
+          onClose={() => setTestOpen(false)}
+          packId={packId}
+          units={units}
+          initialRange={testRange}
+        />
+      )}
     </>
   )
 }

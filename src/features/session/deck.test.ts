@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  answerCard,
-  createDeck,
-  createUnitDeck,
-  currentCard,
-  isFinished,
-} from './deck'
+import { answerCard, createDeck, currentCard, isFinished } from './deck'
 
 describe('deck', () => {
   it('申告するたびに次のカードへ進み、全て終わると終了になる', () => {
@@ -32,13 +26,5 @@ describe('deck', () => {
   it('終わった後に申告しても変わらない', () => {
     const deck = answerCard(createDeck(['a']), 'remembered')
     expect(answerCard(deck, 'forgot')).toBe(deck)
-  })
-
-  it('ユニット学習では、単語をランダムに並べて出す', () => {
-    // 並べ替えの細部は shuffle のテスト（lib/random.test.ts）で確かめている
-    const deck = createUnitDeck(['a', 'b', 'c'], () => 0)
-    expect([...deck.queue].sort()).toEqual(['a', 'b', 'c'])
-    expect(deck.queue).not.toEqual(['a', 'b', 'c'])
-    expect(deck.position).toBe(0)
   })
 })
