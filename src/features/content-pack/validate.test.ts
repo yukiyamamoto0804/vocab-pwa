@@ -39,7 +39,32 @@ describe('validatePack', () => {
     expect(errorsOf(p)).toEqual([])
   })
 
+  it('ライセンスと出典を受け付け、取り込む内容に残す', () => {
+    const p = base()
+    p.manifest.license = 'CC BY-SA 4.0'
+    p.manifest.attribution = '単語リストの出典: ダミー'
+    const result = validatePack(p.manifest, p.items, p.audio)
+    expect(result.ok && result.manifest).toMatchObject({
+      license: 'CC BY-SA 4.0',
+      attribution: '単語リストの出典: ダミー',
+    })
+  })
+
   it.each<[string, (p: ReturnType<typeof base>) => void, string]>([
+    [
+      'ライセンスが文字列でない',
+      (p) => {
+        p.manifest.license = 4
+      },
+      'manifest.json の license',
+    ],
+    [
+      '出典が文字列でない',
+      (p) => {
+        p.manifest.attribution = ['a']
+      },
+      'manifest.json の attribution',
+    ],
     [
       '形式のバージョンが違う',
       (p) => {

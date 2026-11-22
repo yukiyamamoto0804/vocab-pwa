@@ -80,9 +80,11 @@ function validateManifest(raw: unknown, add: Add): Manifest | null {
     add(at('title'), '空でない文字列が必要です')
     ok = false
   }
-  if (raw.createdAt !== undefined && typeof raw.createdAt !== 'string') {
-    add(at('createdAt'), '文字列が必要です')
-    ok = false
+  for (const field of ['createdAt', 'license', 'attribution'] as const) {
+    if (raw[field] !== undefined && typeof raw[field] !== 'string') {
+      add(at(field), '文字列が必要です')
+      ok = false
+    }
   }
 
   let units: ManifestUnit[] | undefined
@@ -126,6 +128,9 @@ function validateManifest(raw: unknown, add: Add): Manifest | null {
     title: raw.title as string,
   }
   if (typeof raw.createdAt === 'string') manifest.createdAt = raw.createdAt
+  if (typeof raw.license === 'string') manifest.license = raw.license
+  if (typeof raw.attribution === 'string')
+    manifest.attribution = raw.attribution
   if (units) manifest.units = units
   return manifest
 }

@@ -41,3 +41,15 @@
     position: static;
   }
 }
+
+/* このパックについて（ライセンスと出典。docs/specs/demo-pack.md 6 章） */
+.about {
+  margin-top: 24px;
+  font-size: 14px;
+}
+
+/* 開閉の三角を残すため display は変えず、上下の余白で押せる高さ（44px）にする */
+.about summary {
+  padding-block: 12px;
+  cursor: pointer;
+}

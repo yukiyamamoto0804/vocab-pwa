@@ -80,6 +80,10 @@ export interface Manifest {
   id: string
   title: string
   createdAt?: string
+  /** 教材のライセンス（docs/CONTENT_FORMAT.md） */
+  license?: string
+  /** 出典・帰属表示の文 */
+  attribution?: string
   units?: ManifestUnit[]
 }
 

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router'
 import { LinkList } from '../../components/LinkList'
 import { LoadError } from '../../components/LoadError'
 import { Loading } from '../../components/Loading'
+import { PackCredits } from '../../components/PackCredits'
 import { getPack, listUnitSummaries } from '../../db/content'
 import {
   getLastFace,
@@ -110,6 +111,23 @@ export function UnitsPage() {
           },
         }))}
       />
+      {/* ライセンスと出典を、取り込んだ後も確かめられるようにする（docs/specs/demo-pack.md 6 章） */}
+      <details className={styles.about}>
+        <summary>このパックについて</summary>
+        <PackCredits
+          license={pack.manifest.license}
+          attribution={pack.manifest.attribution}
+        >
+          <dt>名前</dt>
+          <dd>{pack.manifest.title}</dd>
+          {pack.manifest.createdAt && (
+            <>
+              <dt>作成日</dt>
+              <dd>{pack.manifest.createdAt}</dd>
+            </>
+          )}
+        </PackCredits>
+      </details>
       {reviewOpen && (
         <ReviewSheet
           onClose={() => setReviewOpen(false)}

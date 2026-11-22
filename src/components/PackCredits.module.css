@@ -1,0 +1,20 @@
+.credits {
+  margin: 0;
+  font-size: 14px;
+}
+
+.credits dt {
+  margin-top: 8px;
+  font-weight: bold;
+}
+
+.credits dd {
+  margin: 4px 0 0;
+  /* 空白のない長い文字列や URL も、画面の幅で折り返す */
+  overflow-wrap: anywhere;
+}
+
+/* 出典は改行で複数行にできる（docs/CONTENT_FORMAT.md） */
+.attribution {
+  white-space: pre-line;
+}
