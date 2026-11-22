@@ -29,10 +29,6 @@
   overflow-wrap: anywhere;
 }
 
-.blank {
-  letter-spacing: 1px;
-}
-
 /* ヒントのボタンの周りの、触れても裏返らない帯（横いっぱい） */
 .hintBand {
   display: flex;
@@ -54,20 +50,12 @@
 
 .hintText {
   margin: 0;
+  outline: none;
   font-size: 18px;
   letter-spacing: 2px;
 }
 
-/* 画面には出さず、読み上げソフトにだけ伝える */
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
+/* ExampleAudioFront.module.css の .flipHint と揃えている */
 .flipHint {
   margin: 0;
   font-size: 13px;

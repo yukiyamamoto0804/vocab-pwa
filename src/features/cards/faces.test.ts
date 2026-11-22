@@ -23,7 +23,7 @@ describe('hasFaceData', () => {
     expect(hasFaceData(item(), 'en')).toBe(true)
   })
 
-  it('音声だけの表面は、音声ファイルがある単語・用法だけ（機械の音声は使わない）', () => {
+  it('音声の表面は、音声ファイルがある単語・用法だけ（機械の音声は使わない）', () => {
     expect(hasFaceData(item({ audio }), 'word-audio')).toBe(true)
     expect(hasFaceData(item(), 'word-audio')).toBe(false)
     expect(hasFaceData(item(), 'example-audio')).toBe(false)
@@ -59,7 +59,7 @@ describe('skippedNotice / noFaceDataMessage', () => {
     expect(skippedNotice(0, 'ja')).toBeUndefined()
   })
 
-  it('音声だけの表面で出せないときは、音声がないことを伝える', () => {
+  it('音声の表面で出せないときは、音声がないことを伝える', () => {
     expect(noFaceDataMessage('example-audio')).toContain('音声のある単語がない')
     expect(noFaceDataMessage('ja')).not.toContain('音声')
   })

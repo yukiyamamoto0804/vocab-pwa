@@ -1,0 +1,13 @@
+.blank {
+  letter-spacing: 1px;
+}
+
+/* 画面には出さず、読み上げソフトにだけ伝える */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

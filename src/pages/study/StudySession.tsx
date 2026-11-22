@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { Explanation } from '../../components/Explanation'
 import { PlayButton, type PlayButtonSize } from '../../components/PlayButton'
+import { getExampleTextShown } from '../../db/settings'
 import { restoreBeforeAnswer, saveAnswer, toggleReport } from '../../db/study'
 import type {
   Face,
@@ -28,6 +29,8 @@ import {
 } from '../../features/session/sessionRecord'
 import { isQuotaError } from '../../lib/errors'
 import { randomId } from '../../lib/random'
+import { useAsync } from '../../lib/useAsync'
+import { ExampleAudioFront } from './ExampleAudioFront'
 import { FitContent } from './FitContent'
 import { JaFront } from './JaFront'
 import { RATING_LABELS } from './ratingLabels'
@@ -91,6 +94,11 @@ export function StudySession(props: Props) {
           : [],
       ),
   )
+
+  /** 例文の音声 → 解説で、空欄の英文を最初から表示するか（設定）。読み込むまでは、初期値どおりボタンで表示する */
+  const exampleTextSetting = useAsync(getExampleTextShown, [])
+  const exampleTextShown =
+    exampleTextSetting.status === 'done' && exampleTextSetting.value
 
   // 画面を離れたら、再生中の音声を止める
   useEffect(() => stopAudio, [])
@@ -201,6 +209,10 @@ export function StudySession(props: Props) {
     </p>
   )
 
+  // 例文の音声 → 解説では、設定（例文を最初から表示するか）を読み込むまでカードを出さない（一瞬ボタンが見えないように）
+  if (face === 'example-audio' && exampleTextSetting.status === 'loading')
+    return null
+
   if (!item) {
     return (
       <div className={styles.screen}>
@@ -219,7 +231,7 @@ export function StudySession(props: Props) {
       onPlay={() => playWord(packId, item)}
     />
   )
-  // 音声だけの表面では、再生ボタンを主役として大きくし、読み上げソフトにも単語や例文を伝えない。
+  // 音声の表面では、再生ボタンを主役として大きくし、読み上げソフトにも単語や例文を伝えない。
   // 聞き取りの練習なので機械の音声は使わず、教材の音声だけを鳴らす（出題するのは音声がある単語・用法だけ。study-cards.md 3 章）
   const frontAudio =
     face === 'word-audio'
@@ -256,8 +268,15 @@ export function StudySession(props: Props) {
         front={
           face === 'ja' ? (
             <JaFront item={item} senseIndex={frontSenses.get(item.id) ?? 0} />
+          ) : face === 'example-audio' ? (
+            <ExampleAudioFront
+              item={item}
+              senseIndex={frontSenses.get(item.id) ?? 0}
+              playButton={frontAudioButton}
+              initiallyShown={exampleTextShown}
+            />
           ) : (
-            // 音声の表面では、文字を出さず再生ボタンだけを大きく置く（study-cards.md 3 章）
+            // 英語 → 解説と単語の音声 → 解説の表面。単語の音声 → 解説では、文字を出さず再生ボタンだけを大きく置く（study-cards.md 3 章）
             <div className={styles.front}>
               {!audioOnly && (
                 <p className={styles.frontWord} lang="en">

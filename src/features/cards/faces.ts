@@ -22,7 +22,7 @@ export const FACE_LABELS: Record<Face, string> = {
   'example-audio': '例文の音声 → 解説',
 }
 
-/** 音声だけの表面か */
+/** 音声の表面か */
 export function isAudioFace(face: Face): boolean {
   return face === 'word-audio' || face === 'example-audio'
 }
@@ -35,7 +35,7 @@ export function hasFaceData(
   switch (face) {
     case 'en':
       return true
-    // 音声だけの表面は、音声ファイルがある単語・用法だけ。機械の音声は聞き取りの練習に向かないため使わない（study-cards.md 3 章）
+    // 音声の表面は、音声ファイルがある単語・用法だけ。機械の音声は聞き取りの練習に向かないため使わない（study-cards.md 3 章）
     case 'word-audio':
       return item.audio !== undefined
     case 'example-audio':

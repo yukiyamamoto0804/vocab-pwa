@@ -1,0 +1,62 @@
+.front {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  gap: 12px;
+}
+
+/* 再生ボタンの周りの、触れても裏返らない帯（横いっぱい） */
+.playBand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  margin: 0 -20px;
+}
+
+/* 「例文を表示」ボタンの周りの、触れても裏返らない帯。高さを固定し、それ以外の場所では裏返るようにする */
+.revealBand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  margin: 0 -20px;
+}
+
+/* 余った高さを埋める（触れると裏返る） */
+.spacer {
+  flex: 1;
+}
+
+/* JaFront.module.css の .hintButton と揃えている */
+.revealButton {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--color-accent);
+  border-radius: 22px;
+  font-size: 15px;
+  color: var(--color-accent);
+  background: transparent;
+}
+
+/* FitContent が縮めるので、文字の大きさは em で指定する */
+.example {
+  margin: 0;
+  font-size: 1.25em;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* JaFront.module.css の .flipHint と揃えている */
+.flipHint {
+  margin: 0;
+  font-size: 13px;
+  text-align: center;
+  opacity: 0.5;
+}
+
+/* 押して出した英文。操作の位置を移すためにフォーカスできるが、枠は出さない */
+.revealed:focus {
+  outline: none;
+}
