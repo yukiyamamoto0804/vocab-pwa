@@ -1,3 +1,4 @@
+import { Fragment } from 'react'
 import type { Face } from '../../db/types'
 import { FACE_LABELS, FACE_OPTIONS } from '../../features/cards/faces'
 import type { StudyCount } from '../../features/session/studyCount'
@@ -21,7 +22,19 @@ export function Choice(props: {
         checked={props.checked}
         onChange={props.onChange}
       />
-      {props.label}
+      <span className={styles.choiceLabel}>
+        {/* 幅が足りないときは「→」の前で改行し、語の途中で切れないようにする（例: 単語の音声 / → 解説） */}
+        {props.label.split(' → ').map((part, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: 文言を区切っただけで、並びは変わらない
+          <Fragment key={i}>
+            {i > 0 && ' '}
+            <span className={styles.nowrap}>
+              {i > 0 && '→ '}
+              {part}
+            </span>
+          </Fragment>
+        ))}
+      </span>
     </label>
   )
 }

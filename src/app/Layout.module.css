@@ -6,6 +6,8 @@
 .header {
   position: sticky;
   top: 0;
+  /* 下に固定する部品（--header-height を使うもの）より手前に出す */
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
