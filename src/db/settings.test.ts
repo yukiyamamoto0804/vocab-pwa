@@ -2,9 +2,11 @@ import 'fake-indexeddb/auto'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { VocabDatabase } from './database'
 import {
+  getLastFace,
   getLastTest,
   getLastUnitStudy,
   getStoredUnitStudySettings,
+  saveLastFace,
   saveLastTest,
   saveLastUnitStudy,
   saveUnitStudySettings,
@@ -71,5 +73,15 @@ describe('getStoredUnitStudySettings / saveUnitStudySettings', () => {
       mixCount: 0,
       mixSessionRange: 10,
     })
+  })
+})
+
+describe('getLastFace / saveLastFace', () => {
+  it('保存した表面の種類を読み出す。保存していない・不明な値なら undefined', async () => {
+    expect(await getLastFace(db)).toBeUndefined()
+    await saveLastFace('word-audio', db)
+    expect(await getLastFace(db)).toBe('word-audio')
+    await db.settings.put({ key: 'face', value: 'xx' })
+    expect(await getLastFace(db)).toBeUndefined()
   })
 })

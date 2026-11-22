@@ -1,4 +1,5 @@
 import { db as defaultDb, type VocabDatabase } from './database'
+import { FACES, type Face } from './types'
 
 // アプリの状態（settings テーブル）の読み書き
 
@@ -96,4 +97,21 @@ export async function saveUnitStudySettings(
   db: VocabDatabase = defaultDb,
 ): Promise<void> {
   await db.settings.put({ key: UNIT_STUDY_KEY, value: settings })
+}
+
+const FACE_KEY = 'face'
+
+/** 前回選んだ表面の種類（docs/specs/study-cards.md 7 章）。アプリ全体で 1 つ。保存していない・不明な値なら undefined */
+export async function getLastFace(
+  db: VocabDatabase = defaultDb,
+): Promise<Face | undefined> {
+  const value = (await db.settings.get(FACE_KEY))?.value
+  return FACES.find((face) => face === value)
+}
+
+export async function saveLastFace(
+  face: Face,
+  db: VocabDatabase = defaultDb,
+): Promise<void> {
+  await db.settings.put({ key: FACE_KEY, value: face })
 }
