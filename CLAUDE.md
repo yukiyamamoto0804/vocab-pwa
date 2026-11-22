@@ -43,6 +43,7 @@
   - `study-cards.md` — 暗記カード（表面の種類・裏面の内容・学習の流れ）
   - `demo-pack.md` — 公開するデモ教材（作り方・確かめ方・画面）
 - `docs/CONTENT_FORMAT.md` — 教材パックの形式（ドラフト）
+- `docs/CREATING_PACKS.md` — 教材パックの作り方（データを作る人向けの手順）
 
 ## 開発コマンド
 

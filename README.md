@@ -19,3 +19,4 @@ npm run dev
 ## ドキュメント
 
 - [docs/RULES.md](docs/RULES.md) — 開発の基本ルール
+- [docs/CREATING_PACKS.md](docs/CREATING_PACKS.md) — 自分のデータで教材パックを作る手順
