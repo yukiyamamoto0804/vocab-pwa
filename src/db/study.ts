@@ -1,3 +1,4 @@
+import Dexie from 'dexie'
 import { randomId } from '../lib/random'
 import { db as defaultDb, type VocabDatabase } from './database'
 import type { ProgressRecord, StudySessionRecord } from './types'
@@ -40,6 +41,7 @@ export async function restoreBeforeAnswer(
 
 /**
  * パックの学習の記録を、新しい順に、復習以外の回が count 回分になるまで返す。
+ * パックと日時の索引で、そのパックの記録だけを読む。
  * 復習の回は回数に数えないが、その間にある復習の回も返す（docs/specs/study-cards.md 6 章「直前の数回の学習で忘れた単語」）
  */
 export async function listRecentSessions(
@@ -51,12 +53,12 @@ export async function listRecentSessions(
   let counted = 0
   if (!Number.isInteger(count) || count <= 0) return sessions
   await db.studySessions
-    .orderBy('startedAt')
+    .where('[packId+startedAt]')
+    .between([packId, Dexie.minKey], [packId, Dexie.maxKey])
     .reverse()
     // until は次の記録を each に渡す前に判定され、止めた記録は返らない（count 回目の直後で止まる）
     .until(() => counted >= count)
     .each((session) => {
-      if (session.packId !== packId) return
       sessions.push(session)
       if (session.mode !== 'review') counted += 1
     })

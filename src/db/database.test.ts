@@ -1,7 +1,9 @@
 import 'fake-indexeddb/auto'
+import Dexie from 'dexie'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { VocabDatabase } from './database'
-import type { ItemRecord } from './types'
+import { listRecentSessions } from './study'
+import type { ItemRecord, StudySessionRecord } from './types'
 
 let db: VocabDatabase
 let dbCount = 0
@@ -59,5 +61,64 @@ describe('VocabDatabase', () => {
       .equals(['pack-a', 2])
       .toArray()
     expect(items.map((i) => i.id)).toEqual(['0002', '0003'])
+  })
+})
+
+describe('VocabDatabase のバージョン更新', () => {
+  it('バージョン 1 で保存した記録は 2 で開いても残り、学習の記録は足した索引で読める', async () => {
+    const name = 'database-upgrade-test'
+    const session = (
+      id: string,
+      packId: string,
+      startedAt: number,
+    ): StudySessionRecord => ({
+      id,
+      packId,
+      startedAt,
+      mode: 'unit',
+      face: 'en',
+      itemIds: [],
+      seconds: [],
+      ratings: '',
+    })
+    try {
+      // バージョン 1 の DB（database.ts の version(1) と同じ定義）を作り、記録を入れておく
+      const v1 = new Dexie(name)
+      v1.version(1).stores({
+        packs: 'id',
+        units: '[packId+id]',
+        items: '[packId+id], [packId+unit]',
+        audioFiles: '[packId+file]',
+        progress: '[packId+itemId]',
+        studySessions: 'id, startedAt, packId',
+        reports: 'id, [packId+itemId]',
+        settings: 'key',
+      })
+      await v1
+        .table('studySessions')
+        .bulkPut([
+          session('a1', 'a', 1),
+          session('b1', 'b', 2),
+          session('a2', 'a', 3),
+        ])
+      await v1
+        .table('settings')
+        .put({ key: 'unitStudy', value: { mixCount: 7 } })
+      await v1.table('items').put(dummyItem('a', '0001', 1, 0))
+      v1.close()
+
+      const db = new VocabDatabase(name)
+      expect((await listRecentSessions('a', 10, db)).map((s) => s.id)).toEqual([
+        'a2',
+        'a1',
+      ])
+      expect((await db.settings.get('unitStudy'))?.value).toEqual({
+        mixCount: 7,
+      })
+      expect((await db.items.get(['a', '0001']))?.word).toBe('word0001')
+      db.close()
+    } finally {
+      await Dexie.delete(name)
+    }
   })
 })

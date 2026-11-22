@@ -11,7 +11,8 @@ import type {
 } from './types'
 
 // テーブル構造は docs/ARCHITECTURE.md 4 章。
-// 構造を変えるときはバージョンを上げ、マイグレーションを書く。
+// 構造を変えるときはバージョンを上げる。既存の記録の形を変える・値を作り直すときは upgrade で移し替える
+// （索引を足す・消すだけなら、IndexedDB が既存の記録から作り直すので不要）。
 export class VocabDatabase extends Dexie {
   // 教材
   packs!: EntityTable<PackRecord, 'id'>
@@ -36,6 +37,12 @@ export class VocabDatabase extends Dexie {
       studySessions: 'id, startedAt, packId',
       reports: 'id, [packId+itemId]',
       settings: 'key',
+    })
+    // 2: パックごとの学習の記録を新しい順に読むための索引を足す（listRecentSessions）。
+    // 使わなくなった startedAt・packId だけの索引は外す（packId だけで探すときも、複合索引の先頭で足りる）。
+    // 索引のもとの packId と startedAt は既存の記録にも入っているので、索引は自動で作られ、移し替えは要らない
+    this.version(2).stores({
+      studySessions: 'id, [packId+startedAt]',
     })
   }
 }
