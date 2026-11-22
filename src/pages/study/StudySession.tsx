@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { Explanation } from '../../components/Explanation'
-import { PlayButton } from '../../components/PlayButton'
+import { PlayButton, type PlayButtonSize } from '../../components/PlayButton'
 import { restoreBeforeAnswer, saveAnswer, toggleReport } from '../../db/study'
 import type {
   Face,
@@ -52,10 +52,12 @@ interface Props {
   exitPath: string
   /** 回答を保存するたびに呼ぶ */
   onAnswered?: () => void
+  /** 最初のカードの上に出すお知らせ（表面に必要なデータがなくて出さない単語があるときなど） */
+  notice?: string
 }
 
 export function StudySession(props: Props) {
-  const { packId, mode, face, items, exitPath, onAnswered } = props
+  const { packId, mode, face, items, exitPath, onAnswered, notice } = props
   const [state, setState] = useState<State>(() => ({
     deck: createDeck(items.map((i) => i.id)),
     session: createSessionRecord({
@@ -195,17 +197,29 @@ export function StudySession(props: Props) {
   }
 
   const { audio } = item
-  const audioButton = audio && (
-    <PlayButton
-      label={`${item.word} の音声`}
-      onPlay={() => playAudio(packId, audio)}
-    />
-  )
+  const audioButton = (label: string, size?: PlayButtonSize) =>
+    audio && (
+      <PlayButton
+        label={label}
+        size={size}
+        onPlay={() => playAudio(packId, audio)}
+      />
+    )
+  // 単語の音声 → 解説の表面では、再生ボタンを主役として大きくし、読み上げソフトにも単語を伝えない
+  const frontAudioButton =
+    face === 'word-audio'
+      ? audioButton('単語の音声', 'huge')
+      : audioButton(`${item.word} の音声`, 'large')
 
   return (
     <div className={styles.screen}>
       {topBar}
       {errorMessage}
+      {notice && state.deck.position === 0 && (
+        <p className={styles.notice} role="status">
+          {notice}
+        </p>
+      )}
       <StudyCard
         // カードが変わったら、スワイプの途中の状態を持ち越さない
         key={`${state.deck.position}`}
@@ -213,16 +227,23 @@ export function StudySession(props: Props) {
         onFlip={() => setFlipped(true)}
         onRate={answer}
         front={
+          // 単語の音声 → 解説では、単語の文字を出さず再生ボタンだけを大きく置く（study-cards.md 3 章）
           <div className={styles.front}>
-            <p className={styles.frontWord} lang="en">
-              {item.word}
-            </p>
-            {audioButton && (
-              <div className={styles.audioBand} data-no-flip>
-                {audioButton}
+            {face !== 'word-audio' && (
+              <p className={styles.frontWord} lang="en">
+                {item.word}
+              </p>
+            )}
+            {frontAudioButton && (
+              <div className={styles.audioBand} data-face={face} data-no-flip>
+                {frontAudioButton}
               </div>
             )}
-            <p className={styles.hint}>タップして裏返す</p>
+            <p className={styles.hint}>
+              {face === 'word-audio'
+                ? '音声を聞いて意味を思い出したら、タップして裏返す'
+                : 'タップして裏返す'}
+            </p>
           </div>
         }
         back={
@@ -231,7 +252,7 @@ export function StudySession(props: Props) {
               item={item}
               wordAside={
                 <>
-                  {audioButton}
+                  {audioButton(`${item.word} の音声`)}
                   <button
                     type="button"
                     className={styles.report}

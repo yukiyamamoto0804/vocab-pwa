@@ -2,11 +2,13 @@ import { getItems } from '../../db/content'
 import type { VocabDatabase } from '../../db/database'
 import { listRecentSessions } from '../../db/study'
 import {
+  type Face,
   type ItemRecord,
   RATING_CODES,
   type StudySessionRecord,
 } from '../../db/types'
 import { type Random, shuffle } from '../../lib/random'
+import { hasFaceData } from '../cards/faces'
 import { type StudyCount, takeCount } from './studyCount'
 import { loadUnitStudySettings } from './unitStudySettings'
 
@@ -62,6 +64,7 @@ export function selectMixItems<T>(
 export async function loadMixItems(
   packId: string,
   unitItemIds: ReadonlySet<string>,
+  face: Face,
   { db, random }: { db?: VocabDatabase; random?: Random } = {},
 ): Promise<ItemRecord[]> {
   const { mixCount, mixSessionRange } = await loadUnitStudySettings(db)
@@ -72,13 +75,17 @@ export async function loadMixItems(
     forgottenItemIds(sessions, unitItemIds),
     db,
   )
-  // 手順 8 で表面の種類を増やしたら、必要なデータがない単語は候補から（選ぶ前に）除く
-  return selectMixItems(candidates, mixCount, random)
+  // 表面に必要なデータがない単語は、候補から（選ぶ前に）除く
+  return selectMixItems(
+    candidates.filter((item) => hasFaceData(item, face)),
+    mixCount,
+    random,
+  )
 }
 
 /**
  * 復習で出す単語を、ランダムな順で出題数まで選ぶ。
- * items は、表面に必要なデータがない単語を除いた後のもの（手順 8）
+ * items は、表面に必要なデータがない単語を除いた後のもの（loadReviewItems の結果）
  */
 export function selectReviewItems<T>(
   items: readonly T[],
@@ -88,12 +95,22 @@ export function selectReviewItems<T>(
   return takeCount(shuffle(items, random), count)
 }
 
-/** 復習で出す単語（直前 sessionCount 回の学習で忘れた単語すべて）を読み込む。並びは記録の順のまま */
+/**
+ * 復習で出す単語の候補（直前 sessionCount 回の学習で忘れた単語のうち、表面に必要なデータがあるもの）を読み込む。
+ * 並びは記録の順のまま
+ */
 export async function loadReviewItems(
   packId: string,
   sessionCount: number,
+  face: Face,
   db?: VocabDatabase,
-): Promise<ItemRecord[]> {
+): Promise<{
+  items: ItemRecord[]
+  /** 表面に必要なデータがなくて除いた単語の数 */
+  skippedCount: number
+}> {
   const sessions = await listRecentSessions(packId, sessionCount, db)
-  return getItems(packId, forgottenItemIds(sessions), db)
+  const all = await getItems(packId, forgottenItemIds(sessions), db)
+  const items = all.filter((item) => hasFaceData(item, face))
+  return { items, skippedCount: all.length - items.length }
 }

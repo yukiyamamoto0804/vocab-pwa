@@ -1,5 +1,13 @@
+import 'fake-indexeddb/auto'
 import { describe, expect, it } from 'vitest'
-import { countTestItems, defaultTestRange, selectTestItems } from './testItems'
+import { VocabDatabase } from '../../db/database'
+import {
+  countTestItems,
+  defaultTestRange,
+  loadTestCandidates,
+  selectTestItems,
+  skippedTestCount,
+} from './testItems'
 
 const ids = ['a', 'b', 'c', 'd', 'e']
 const items = ids.map((id) => ({ id }))
@@ -172,5 +180,49 @@ describe('defaultTestRange', () => {
       defaultTestRange(units.map((u) => ({ ...u, learnedCount: 0 }))),
     ).toEqual({ fromUnit: 1, toUnit: 1 })
     expect(defaultTestRange([])).toBeUndefined()
+  })
+})
+
+describe('loadTestCandidates', () => {
+  it('範囲の単語のうち表面に必要なデータがあるものと、その学習状況を返す', async () => {
+    const db = new VocabDatabase('test-candidates')
+    try {
+      // 単語 1〜3 はユニット 1、4 はユニット 2。音声があるのは 1 と 2。学習済みは 2 と 3
+      await db.items.bulkPut(
+        [1, 2, 3, 4].map((n) => ({
+          packId: 'p',
+          id: `w${n}`,
+          unit: n <= 3 ? 1 : 2,
+          order: n,
+          word: `word${n}`,
+          senses: [],
+          ...(n <= 2 ? { audio: { file: `w${n}.mp3` } } : {}),
+        })),
+      )
+      await db.progress.bulkPut(
+        ['w2', 'w3'].map((itemId) => ({
+          packId: 'p',
+          itemId,
+          mastery: 0.5,
+          lastReviewedAt: 0,
+          lastReviewedAtByFace: {},
+        })),
+      )
+      const en = await loadTestCandidates('p', 1, 1, 'en', db)
+      expect(en.items.map((i) => i.id)).toEqual(['w1', 'w2', 'w3'])
+      expect([...en.progress.keys()].sort()).toEqual(['w2', 'w3'])
+
+      const audio = await loadTestCandidates('p', 1, 2, 'word-audio', db)
+      expect(audio.items.map((i) => i.id)).toEqual(['w1', 'w2'])
+      expect([...audio.progress.keys()]).toEqual(['w2'])
+      // 音声がないのは w3（学習済み）と w4（未学習）
+      expect(audio.skippedCount).toBe(2)
+      expect(audio.skippedLearnedCount).toBe(1)
+      expect(en.skippedCount).toBe(0)
+      expect(skippedTestCount(audio, true)).toBe(2)
+      expect(skippedTestCount(audio, false)).toBe(1)
+    } finally {
+      await db.delete()
+    }
   })
 })

@@ -156,7 +156,9 @@ describe('loadMixItems / loadReviewItems', () => {
   })
 
   const load = async (unitItemIds: string[] = []) =>
-    (await loadMixItems('p', new Set(unitItemIds), { db })).map((i) => i.id)
+    (await loadMixItems('p', new Set(unitItemIds), 'en', { db })).map(
+      (i) => i.id,
+    )
 
   it('直前 N 回の「忘れた」だけを対象にし、消えた単語と学習するユニットの単語は除く', async () => {
     await saveUnitStudySettings({ mixCount: 20, mixSessionRange: 2 }, db)
@@ -169,7 +171,7 @@ describe('loadMixItems / loadReviewItems', () => {
 
   it('復習では、直前 N 回の忘れた単語をすべて返す', async () => {
     const review = async (n: number) =>
-      (await loadReviewItems('p', n, db)).map((i) => i.id).sort()
+      (await loadReviewItems('p', n, 'en', db)).items.map((i) => i.id).sort()
     expect(await review(1)).toEqual(['b', 'u'])
     expect(await review(20)).toEqual(['a', 'b', 'old', 'u'])
   })
@@ -177,10 +179,23 @@ describe('loadMixItems / loadReviewItems', () => {
   it('復習の回で「忘れた」と申告せずに答えた単語は、復習からも混ぜる単語からも外れる', async () => {
     await db.studySessions.put(session('s4', 4, ['a', 'b'], 'rf', 'review'))
     expect(
-      (await loadReviewItems('p', 20, db)).map((i) => i.id).sort(),
+      (await loadReviewItems('p', 20, 'en', db)).items.map((i) => i.id).sort(),
     ).toEqual(['b', 'old', 'u'])
     await saveUnitStudySettings({ mixCount: 20, mixSessionRange: 10 }, db)
     expect((await load()).sort()).toEqual(['b', 'old', 'u'])
+  })
+
+  it('表面に必要なデータがない単語は、復習からも混ぜる単語からも除く', async () => {
+    // a だけ単語の音声がある
+    await db.items.update(['p', 'a'], { audio: { file: 'a.mp3' } })
+    const review = await loadReviewItems('p', 20, 'word-audio', db)
+    expect(review.items.map((i) => i.id)).toEqual(['a'])
+    expect(review.skippedCount).toBe(3)
+    expect(
+      (await loadMixItems('p', new Set(), 'word-audio', { db })).map(
+        (i) => i.id,
+      ),
+    ).toEqual(['a'])
   })
 
   it('混ぜる数が 0 なら空', async () => {

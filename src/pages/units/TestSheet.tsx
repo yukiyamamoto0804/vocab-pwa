@@ -2,11 +2,17 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { BottomSheet } from '../../components/BottomSheet'
 import type { UnitSummary } from '../../db/content'
-import type { TestOrder } from '../../db/types'
+import type { Face, TestOrder } from '../../db/types'
+import { noFaceDataMessage } from '../../features/cards/faces'
 import type { StudyCount } from '../../features/session/studyCount'
 import { buildStudyQuery } from '../../features/session/studyQuery'
-import { countTestItems } from '../../features/session/testItems'
+import {
+  countTestItems,
+  loadTestCandidates,
+  skippedTestCount,
+} from '../../features/session/testItems'
 import { studyConfig } from '../../features/studyConfig'
+import { useAsync } from '../../lib/useAsync'
 import { Choice, CountField } from './SheetControls'
 import styles from './StudySheet.module.css'
 import { unitLabel } from './unitLabel'
@@ -15,6 +21,8 @@ interface Props {
   /** 閉じられたとき（✕・背景・Esc）に呼ぶ */
   onClose: () => void
   packId: string
+  /** ユニット一覧で選んでいる表面の種類 */
+  face: Face
   /** 番号順のユニット */
   units: UnitSummary[]
   initialRange: { fromUnit: number; toUnit: number }
@@ -27,7 +35,13 @@ const ORDER_LABELS: Record<TestOrder, string> = {
 
 // テストの条件を選ぶシート（docs/specs/study-cards.md 6 章「テストの範囲と出題数」）。
 // 開いている間だけ置き、開くたびに条件を最初の値に戻す
-export function TestSheet({ onClose, packId, units, initialRange }: Props) {
+export function TestSheet({
+  onClose,
+  packId,
+  face,
+  units,
+  initialRange,
+}: Props) {
   const navigate = useNavigate()
 
   const [fromUnit, setFromUnit] = useState(initialRange.fromUnit)
@@ -36,12 +50,29 @@ export function TestSheet({ onClose, packId, units, initialRange }: Props) {
   const [includeUnlearned, setIncludeUnlearned] = useState(false)
   const [order, setOrder] = useState<TestOrder>(studyConfig.testOrder.default)
 
-  const inRange = units.filter(
-    ({ unit }) => unit.id >= fromUnit && unit.id <= toUnit,
-  )
-  const learned = inRange.reduce((sum, u) => sum + u.learnedCount, 0)
-  const total = inRange.reduce((sum, u) => sum + u.itemCount, 0)
-  const selected = countTestItems(learned, total, { count, includeUnlearned })
+  // 表面に必要なデータがない単語は出題しないので、範囲を変えるたびに数え直す
+  const targets = useAsync(async () => {
+    const c = await loadTestCandidates(packId, fromUnit, toUnit, face)
+    return {
+      learnedCount: c.progress.size,
+      itemCount: c.items.length,
+      skippedCount: c.skippedCount,
+      skippedLearnedCount: c.skippedLearnedCount,
+    }
+  }, [packId, fromUnit, toUnit, face])
+  const selected =
+    targets.status === 'done'
+      ? countTestItems(targets.value.learnedCount, targets.value.itemCount, {
+          count,
+          includeUnlearned,
+        })
+      : 0
+  // 表面に必要なデータがなくて出せない単語の数（出題の候補の中で数える）。
+  // テストは範囲の全部を出すものではないので知らせず、出せる単語が 1 つもないときの理由にだけ使う
+  const skipped =
+    targets.status === 'done'
+      ? skippedTestCount(targets.value, includeUnlearned)
+      : 0
 
   // 開始が終了より後ろにならないよう、片方を変えたらもう片方を合わせる
   function changeFrom(id: number) {
@@ -58,7 +89,7 @@ export function TestSheet({ onClose, packId, units, initialRange }: Props) {
       `/study?${buildStudyQuery({
         mode: 'test',
         packId,
-        face: 'en',
+        face,
         fromUnit,
         toUnit,
         count,
@@ -116,11 +147,17 @@ export function TestSheet({ onClose, packId, units, initialRange }: Props) {
       </label>
 
       <p className={styles.summary} aria-live="polite">
-        {selected > 0
-          ? `${selected} 語を出題します（範囲の学習済み ${learned} 語・全 ${total} 語）`
-          : includeUnlearned
-            ? '範囲に単語がありません。範囲を変えてください。'
-            : '範囲に学習済みの単語がありません。範囲を変えるか、「未学習の語も含める」を選んでください。'}
+        {targets.status === 'loading'
+          ? '対象の単語を数えています…'
+          : targets.status === 'error'
+            ? '対象の単語を読み込めませんでした。閉じてから開き直してください。'
+            : selected > 0
+              ? `${selected} 語を出題します（範囲の学習済み ${targets.value.learnedCount} 語・全 ${targets.value.itemCount} 語）`
+              : skipped > 0
+                ? noFaceDataMessage(face)
+                : includeUnlearned
+                  ? '範囲に単語がありません。範囲を変えてください。'
+                  : '範囲に学習済みの単語がありません。範囲を変えるか、「未学習の語も含める」を選んでください。'}
       </p>
 
       <button

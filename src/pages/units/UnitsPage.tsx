@@ -3,11 +3,19 @@ import { Link, useParams } from 'react-router'
 import { LinkList } from '../../components/LinkList'
 import { LoadError } from '../../components/LoadError'
 import { getPack, listUnitSummaries } from '../../db/content'
-import { getLastTest, getLastUnitStudy } from '../../db/settings'
+import {
+  getLastFace,
+  getLastTest,
+  getLastUnitStudy,
+  saveLastFace,
+} from '../../db/settings'
+import type { Face } from '../../db/types'
+import { DEFAULT_FACE, isAvailableFace } from '../../features/cards/faces'
 import { buildStudyQuery } from '../../features/session/studyQuery'
 import { defaultTestRange } from '../../features/session/testItems'
 import { useAsync } from '../../lib/useAsync'
 import { ReviewSheet } from './ReviewSheet'
+import { FaceField } from './SheetControls'
 import { TestSheet } from './TestSheet'
 import styles from './UnitsPage.module.css'
 import { unitLabel } from './unitLabel'
@@ -21,15 +29,28 @@ export function UnitsPage() {
         listUnitSummaries(packId),
         getLastTest(packId),
         getLastUnitStudy(packId),
+        getLastFace(),
       ]),
     [packId],
   )
   const [testOpen, setTestOpen] = useState(false)
   const [reviewOpen, setReviewOpen] = useState(false)
+  /** 選び直した表面の種類。選び直すまでは前回選んだもの（data の lastFace）を使う */
+  const [chosenFace, setChosenFace] = useState<Face>()
 
   if (data.status === 'loading') return null
   if (data.status === 'error') return <LoadError />
-  const [pack, units, lastTest, lastUnitStudy] = data.value
+  const [pack, units, lastTest, lastUnitStudy, lastFace] = data.value
+  // 前回選んだ表面が今は選べない（保存した後に作り直した、など）ときは、初回と同じ表面にする
+  const face =
+    chosenFace ??
+    (lastFace && isAvailableFace(lastFace) ? lastFace : DEFAULT_FACE)
+
+  function chooseFace(next: Face) {
+    setChosenFace(next)
+    // 次に開いたときの初期値に使うだけなので、保存に失敗しても選んだ表面で続ける
+    saveLastFace(next).catch((e: unknown) => console.error(e))
+  }
   if (!pack) {
     return (
       <>
@@ -69,6 +90,9 @@ export function UnitsPage() {
           </div>
         )}
       </div>
+      <div className={styles.faces}>
+        <FaceField value={face} onChange={chooseFace} />
+      </div>
       <LinkList
         items={units.map(({ unit, itemCount, learnedCount }) => ({
           key: String(unit.id),
@@ -80,7 +104,7 @@ export function UnitsPage() {
             to: `/study?${buildStudyQuery({
               mode: 'unit',
               packId,
-              face: 'en',
+              face,
               unitId: unit.id,
             })}`,
             label: '学習',
@@ -88,12 +112,17 @@ export function UnitsPage() {
         }))}
       />
       {reviewOpen && (
-        <ReviewSheet onClose={() => setReviewOpen(false)} packId={packId} />
+        <ReviewSheet
+          onClose={() => setReviewOpen(false)}
+          packId={packId}
+          face={face}
+        />
       )}
       {testRange && testOpen && (
         <TestSheet
           onClose={() => setTestOpen(false)}
           packId={packId}
+          face={face}
           units={units}
           initialRange={testRange}
         />

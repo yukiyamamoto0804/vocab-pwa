@@ -1,5 +1,13 @@
-import type { TestOrder } from '../../db/types'
+import { getProgressMap, listItemsInUnits } from '../../db/content'
+import type { VocabDatabase } from '../../db/database'
+import type {
+  Face,
+  ItemRecord,
+  ProgressRecord,
+  TestOrder,
+} from '../../db/types'
 import { type Random, shuffle } from '../../lib/random'
+import { hasFaceData } from '../cards/faces'
 import { studyConfig } from '../studyConfig'
 import { countAfterTake, type StudyCount, takeCount } from './studyCount'
 
@@ -38,6 +46,57 @@ export function selectTestItems<T extends { id: string }>(
   const ordered =
     order === 'weak' ? shuffled.sort((a, b) => band(a) - band(b)) : shuffled
   return takeCount(ordered, count)
+}
+
+/**
+ * テストの範囲の単語のうち、表面に必要なデータがある単語と、その学習状況を読み込む。
+ * シートに出す語数（TestSheet）と実際に出す単語（StudyPage の TestStudy）を、同じ数え方にするため 1 か所にまとめる
+ */
+export async function loadTestCandidates(
+  packId: string,
+  fromUnit: number,
+  toUnit: number,
+  face: Face,
+  db?: VocabDatabase,
+): Promise<{
+  items: ItemRecord[]
+  progress: Map<string, ProgressRecord>
+  /** 表面に必要なデータがなくて除いた単語の数（未学習の語を含めるとき） */
+  skippedCount: number
+  /** そのうち学習済みの単語の数（未学習の語を含めないときは、こちらが出さない数になる） */
+  skippedLearnedCount: number
+}> {
+  const all = await listItemsInUnits(packId, fromUnit, toUnit, db)
+  const allProgress = await getProgressMap(
+    packId,
+    all.map((i) => i.id),
+    db,
+  )
+  const items: ItemRecord[] = []
+  const progress = new Map<string, ProgressRecord>()
+  let skippedCount = 0
+  let skippedLearnedCount = 0
+  for (const item of all) {
+    const p = allProgress.get(item.id)
+    if (hasFaceData(item, face)) {
+      items.push(item)
+      if (p) progress.set(item.id, p)
+    } else {
+      skippedCount += 1
+      if (p) skippedLearnedCount += 1
+    }
+  }
+  return { items, progress, skippedCount, skippedLearnedCount }
+}
+
+/** 表面に必要なデータがなくて出せない、出題の候補の数（未学習の語を含めないときは学習済みの分だけ） */
+export function skippedTestCount(
+  candidates: { skippedCount: number; skippedLearnedCount: number },
+  includeUnlearned: boolean,
+): number {
+  return includeUnlearned
+    ? candidates.skippedCount
+    : candidates.skippedLearnedCount
 }
 
 /** 選んだ条件で出す単語の数（開始する前に画面に出す） */

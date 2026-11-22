@@ -1,4 +1,4 @@
-/* テスト・復習の条件を選ぶシートの中身 */
+/* テスト・復習の条件を選ぶシートの中身と、ユニット一覧の表面の種類の選択肢 */
 .field {
   margin: 0;
   padding: 0;
@@ -43,6 +43,7 @@
 
 .choices {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
@@ -90,6 +91,14 @@
 .summary {
   font-size: 14px;
   opacity: 0.8;
+}
+
+/* 表面に必要なデータがなくて出さない単語があるときのお知らせ */
+.notice {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  background: var(--color-warning-surface);
 }
 
 .start {

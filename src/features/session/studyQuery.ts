@@ -1,4 +1,5 @@
 import { FACES, type Face, type TestOrder } from '../../db/types'
+import { DEFAULT_FACE } from '../cards/faces'
 import { studyConfig } from '../studyConfig'
 import type { StudyCount } from './studyCount'
 
@@ -34,8 +35,6 @@ export interface ReviewQuery extends BaseQuery {
 }
 
 export type StudyQuery = UnitQuery | TestQuery | ReviewQuery
-
-const DEFAULT_FACE: Face = 'en'
 
 export function buildStudyQuery(query: StudyQuery): string {
   const params = new URLSearchParams({

@@ -78,10 +78,9 @@
   margin: 0 -20px;
 }
 
-.audioBand button {
-  width: 64px;
-  height: 64px;
-  font-size: 22px;
+/* 単語の音声 → 解説では、再生ボタンが表面の主役になるので帯も広くする */
+.audioBand[data-face="word-audio"] {
+  min-height: 160px;
 }
 
 .hint {
@@ -188,4 +187,12 @@
   color: #ffffff;
   text-decoration: none;
   background: var(--color-accent);
+}
+
+.notice {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  background: var(--color-warning-surface);
 }

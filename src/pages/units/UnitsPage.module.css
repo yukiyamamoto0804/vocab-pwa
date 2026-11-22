@@ -22,3 +22,8 @@
   color: #ffffff;
   background: var(--color-accent);
 }
+
+/* 表面の種類の選択肢。ユニット学習・テスト・復習のどれにも使う */
+.faces {
+  margin-bottom: 16px;
+}
