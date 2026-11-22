@@ -11,7 +11,8 @@ export default defineConfig({
   base: './',
   plugins: [
     react(),
-    // デモ教材（demo/）を zip にして配信物に入れる（docs/specs/demo-pack.md 5 章）
+    // デモ教材（demo/）を zip にして配信物に入れる（docs/specs/demo-pack.md 5 章）。
+    // zip は Service Worker で前もってキャッシュしない（下の VitePWA の既定の対象は js・css・html とアイコンだけ）
     demoPack(fileURLToPath(new URL('./demo', import.meta.url))),
     VitePWA({
       registerType: 'autoUpdate',

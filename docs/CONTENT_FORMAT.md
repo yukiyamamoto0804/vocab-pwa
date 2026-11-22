@@ -171,7 +171,9 @@ my-pack.zip
 
 次の場合は取り込みを中止し、どの単語のどの項目が不正かを表示する。
 
+- zip として開けない、`manifest.json`・`items.json` がない、または JSON として読めない
 - 必須項目がない、または型が違う（任意の項目の `createdAt`・`license`・`attribution` も、書く場合は文字列にする）
+- 文字列の項目（必須のものと、`exampleTarget`・`exampleTranslationTarget`・イディオム）が空、または空白だけ
 - `id` がパック内で重複している
 - `pos` が品詞の一覧にない
 - `unit` が一部の単語にだけ指定されている、または `units` にない番号を指している
@@ -184,7 +186,7 @@ my-pack.zip
 - `start` / `end` が負の数、または `start` ≥ `end`
 - `items.json` が空
 - zip のファイル数（OS が加えるファイルを除く）が 10,000 を超える、zip そのものや展開後の合計サイズが 200 MB を超える、または `manifest.json`・`items.json` が 1 つで 20 MB を超える（スマホのメモリ不足で止まるのを防ぐため）
-- `manifest.json` が複数ある（教材パックごとに別の zip にする）
+- 1 段下のフォルダに `manifest.json` が複数ある（教材パックごとに別の zip にする）。zip の直下にある `manifest.json` は、下のフォルダのものより優先して使う。2 段以上深いフォルダの `manifest.json` は見つけない
 
 ## 取り込み直し
 

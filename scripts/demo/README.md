@@ -6,7 +6,7 @@
 | ファイル | 内容 | 必要なもの |
 |---|---|---|
 | `check-demo.mjs` | 中身（選定・順序・訳・イディオム・太字・音声の記録・README の版の記載）を確かめる。`--candidates` で訳語の候補の一覧を出す | Node.js |
-| `make_audio.py` | 単語と例文の音声を作り、区間を `items.json` に書き込む（`make`）。作り直して記録と合うかを確かめる（`verify`） | Python 3、`requirements.txt` の依存、ffmpeg |
+| `make_audio.py` | 単語と例文の音声を作り、区間を `items.json` に書き込む（`make`）。作り直して記録と合うかを確かめる（`verify`） | Python 3.11 以降、`requirements.txt` の依存、ffmpeg |
 
 ## 中身を確かめる
 
@@ -20,7 +20,7 @@ node scripts/demo/check-demo.mjs --candidates # 40 語と熟語の訳語の候�
 
 ## 音声を作る
 
-Python 3.11 以降が必要。
+Python 3.11 以降が必要。下の例は macOS・Linux の書き方（Windows では `.venv-demo\Scripts\python` のように読み替える）。
 
 ```sh
 python3 -m venv .venv-demo

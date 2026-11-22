@@ -2,21 +2,29 @@ import type { ReactNode } from 'react'
 import { linkify } from '../lib/linkify'
 import styles from './PackCredits.module.css'
 
-// 教材パックのライセンスと出典（manifest.json の license・attribution）を表示する（docs/specs/demo-pack.md 6 章）。
+// 教材パックの作成日・ライセンス・出典（manifest.json の createdAt・license・attribution）を表示する（docs/specs/demo-pack.md 6 章）。
 // 出典の中の URL は https・http のものだけをリンクにする。children に渡した行（<dt>・<dd>）は前に並べる
 export function PackCredits({
+  createdAt,
   license,
   attribution,
   children,
 }: {
+  createdAt?: string
   license?: string
   attribution?: string
   children?: ReactNode
 }) {
-  if (!license && !attribution && !children) return null
+  if (!createdAt && !license && !attribution && !children) return null
   return (
     <dl className={styles.credits}>
       {children}
+      {createdAt && (
+        <>
+          <dt>作成日</dt>
+          <dd>{createdAt}</dd>
+        </>
+      )}
       {license && (
         <>
           <dt>ライセンス</dt>

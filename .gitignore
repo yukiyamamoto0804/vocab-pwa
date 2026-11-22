@@ -7,6 +7,14 @@ private/
 !demo/audio/demo-*.m4a
 *.wav
 *.zip
+*.aac
+*.ogg
+*.flac
+# 読み上げのモデル・声のファイル（各自取得する。docs/RULES.md 11 章）
+*.onnx
+voices-*.bin
+*.safetensors
+*.npz
 
 # ===== 依存関係・ビルド成果物 =====
 node_modules/

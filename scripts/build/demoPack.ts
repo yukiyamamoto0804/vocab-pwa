@@ -19,7 +19,7 @@ export interface DemoPackInfo {
   itemsSha256: string
 }
 
-interface DemoPack {
+export interface DemoPack {
   info: DemoPackInfo
   zip: Uint8Array
 }
@@ -28,7 +28,7 @@ interface DemoPack {
 const FILES = ['manifest.json', 'items.json', 'README.md', 'LICENSE']
 const AUDIO = /^demo-[A-Za-z0-9_-]+\.m4a$/
 
-function readDemo(dir: string): DemoPack | null {
+export function readDemo(dir: string): DemoPack | null {
   if (!existsSync(join(dir, 'manifest.json'))) return null
   const files: Zippable = {}
   for (const name of FILES) {

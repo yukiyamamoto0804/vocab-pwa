@@ -97,7 +97,11 @@ function DemoSheet({
         ユニットのデモ教材です。教材を用意しなくてもアプリを試せます。教材パックの形式（manifest.json・items.json・音声）の見本にもなります。
         {update && ' 新しい版があります。学習記録は引き継がれます。'}
       </p>
-      <PackCredits license={info.license} attribution={info.attribution} />
+      <PackCredits
+        createdAt={info.createdAt}
+        license={info.license}
+        attribution={info.attribution}
+      />
       {status.busy === false && status.error && (
         <p className={styles.error} role="alert">
           {status.error}

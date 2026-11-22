@@ -29,7 +29,7 @@ fi
 # 1. ローカルデータ・メディアファイル・モデルのファイル
 #    デモ教材の音声（demo/audio/ の直下の demo-*.m4a）だけは通し、中身は 2 で確かめる
 bad_files=$(names --diff-filter=ACMRT \
-  | grep -iE '^(data|private)/|^CLAUDE\.local\.md$|\.(mp3|m4a|aac|wav|ogg|flac|zip|onnx|bin|pt|pth|safetensors|npz|npy|ckpt|gguf)$' \
+  | grep -iE '^(data|private)/|^CLAUDE\.local\.md$|\.(mp3|m4a|mp4|aac|wav|ogg|oga|opus|webm|flac|csv|zip|onnx|bin|pt|pth|safetensors|npz|npy|ckpt|gguf)$' \
   | grep -vE '^demo/audio/demo-[A-Za-z0-9_-]+\.m4a$' || true)
 if [ -n "$bad_files" ]; then
   printf '%s\n' "$bad_files" >&2

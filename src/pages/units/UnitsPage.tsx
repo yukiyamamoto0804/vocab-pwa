@@ -115,17 +115,12 @@ export function UnitsPage() {
       <details className={styles.about}>
         <summary>このパックについて</summary>
         <PackCredits
+          createdAt={pack.manifest.createdAt}
           license={pack.manifest.license}
           attribution={pack.manifest.attribution}
         >
           <dt>名前</dt>
           <dd>{pack.manifest.title}</dd>
-          {pack.manifest.createdAt && (
-            <>
-              <dt>作成日</dt>
-              <dd>{pack.manifest.createdAt}</dd>
-            </>
-          )}
         </PackCredits>
       </details>
       {reviewOpen && (

@@ -87,6 +87,9 @@
 - `demo/README.md` に、EJDict-hand のコミット、NGSL の CSV の SHA-256、飛ばした順位が書かれている（道具で確かめる。文の書き方はレビューで確かめる）。
 - JSON の形（配列であること、用法・訳が 1 つ以上あること、太字などが空でない文字列であること）を先に確かめ、違えばほかの確かめをせずに止める。
 - ユニットが 2 つで、並びの順に 20 語ずつに分かれている。
+- `manifest.json` の `id` が `demo-ngsl`、`license` が `CC BY-SA 4.0`、`attribution` があり、ユニットの名前が「デモ 1」「デモ 2」である。
+- すべての単語に `audio`、すべての用法に `exampleAudio` がある（どの表面の種類でも全部の語を出せるようにするため）。
+- `demo/` があれば、アプリの取り込みの検証（`validatePack`）に通ることを、テスト（`scripts/build/demoPack.test.mjs`。`npm test` に含まれる）で、配信するのと同じ zip を作り、アプリの取り込みと同じ道筋（zip の展開と検証）で確かめる（品詞の誤りや、zip に入らない名前の音声などを、配信する前に見つけるため）。
 
 ### 訳語の取り出し方
 
@@ -163,7 +166,7 @@ scripts/demo/              中身を確かめる道具（Node.js）・音声を�
 - ビルドのとき、`demo/` の `manifest.json`・`items.json`・`audio/`・`README.md`・`LICENSE` を zip にまとめ（fflate を使う）、配信物に `demo/demo-ngsl.zip` として入れる。zip はコミットしない。開発サーバーでも同じ URL で配る。この処理は Vite のプラグインとして `scripts/build/` に置き、`vite.config.ts` から読み込む。
 - `demo/` は Biome の対象から外す（`biome.json`）。道具が書き出す JSON の整形を Biome に変えられると、`demo/items.json` の SHA-256 が変わり、照らし合わせの記録や埋め込んだハッシュと合わなくなるため。
 - アプリからは、配信物の置き場所からの相対 URL（`demo/demo-ngsl.zip`）で受け取る（配信先のパス構成に依存しないため）。
-- ビルドのとき、`demo/manifest.json` の `title`・`createdAt`・`license`・`attribution` と、`demo/items.json` の SHA-256 を、Vite の `define` でアプリに埋め込む（6 章の説明のシートで zip を受け取る前に表示するためと、更新の判定のため）。出典の文は `manifest.json` の 1 か所だけに書く。
+- ビルドのとき、`demo/manifest.json` の `title`・`createdAt`・`license`・`attribution` と、`demo/items.json` の SHA-256 を、Vite の `define` でアプリに埋め込む（6 章の説明のシートで、zip を受け取る前に名前・作成日・ライセンス・出典を表示するためと、更新の判定のため）。出典の文は `manifest.json` の 1 か所だけに書く。
 - アプリの側でデモを受け取って取り込む処理は `src/features/demo/` に置き、取り込みそのものは `features/content-pack/` の処理を使う。
 - デモの zip は、Service Worker で前もってキャッシュしない（アプリ本体を軽く保つため）。オフラインで「デモを試す」を押したときは、ネットにつないでから試すよう伝える。
 - ビルドのあと、`dist/` に入っている教材になりうるファイル（`.zip`・音声の拡張子・`manifest.json`・`items.json`）が、デモの zip だけであることを確かめる。PWA のマニフェスト（`manifest.webmanifest`）は対象外。この確かめは `vite build` の後に実行するスクリプト（`scripts/build/`）にし、`npm run build` に含める（CI も同じコマンドで確かめられる）。
@@ -172,9 +175,10 @@ scripts/demo/              中身を確かめる道具（Node.js）・音声を�
 
 ### デモを試す
 
-- ホームに「デモを試す」ボタンを置く。教材パックが 1 つもないときは目立たせ、あるときは一覧の下に小さく出す。
+- ホームに「デモを試す」ボタンを置く。教材パックが 1 つもないときは目立たせ、あるときは一覧の下に小さく出す。`demo/` がないビルドでは出さない。
 - 押すと、説明のシートを開く。中身は、デモの説明（20 語 × 2 ユニット・形式の見本であること）、ライセンスと出典（ビルドのときに埋め込んだもの）、「読み込む」ボタン。
 - 「読み込む」で `demo/demo-ngsl.zip?v=<埋め込んだ SHA-256 の先頭 12 文字>` を受け取り（ブラウザのキャッシュに残った古い zip を受け取らないため）、ふつうの取り込みと同じ処理（検証・保存）で取り込む。取り込んだらユニット一覧を開く。
+- 保存する前に、zip の `manifest.json` の `id` が `demo-ngsl` かを確かめ、違えば取り込まない（ほかのパックを上書きしないため）。ビルドのプラグインも、`id` と `title` を確かめる。
 - 「デモを試す」から取り込んだときだけ、埋め込んだ `items.json` の SHA-256 を `packs` の `demoItemsSha256` に保存する（取り込むときに計算しない。計算に使う機能は HTTPS でしか使えないため）。ふつうの取り込みでは保存しないので、デモの zip をふつうに取り込むと「デモを更新」が出る（安全側の動き）。
 - `id` が `demo-ngsl` のパックがすでにあるとき:
   - 保存した `demoItemsSha256` が、埋め込んだ SHA-256 と同じなら、ボタンを「デモを開く」にして、そのパックのユニット一覧を開く。
