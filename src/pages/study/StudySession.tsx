@@ -12,6 +12,7 @@ import type {
   StudySessionRecord,
 } from '../../db/types'
 import { playAudio, stopAudio } from '../../features/audio/player'
+import { pickClozeSense } from '../../features/cards/cloze'
 import { applyAnswer } from '../../features/mastery/mastery'
 import {
   answerCard,
@@ -27,6 +28,7 @@ import {
 import { isQuotaError } from '../../lib/errors'
 import { randomId } from '../../lib/random'
 import { FitContent } from './FitContent'
+import { JaFront } from './JaFront'
 import { RATING_LABELS } from './ratingLabels'
 import { StudyCard } from './StudyCard'
 import styles from './StudySession.module.css'
@@ -76,6 +78,18 @@ export function StudySession(props: Props) {
   const [busy, setBusy] = useState(false)
   /** 保存の失敗。容量不足なら 'quota' */
   const [saveError, setSaveError] = useState<'quota' | 'other' | null>(null)
+  /**
+   * 日本語 → 解説で、単語ごとに表面に使う用法。学習を始めるときに 1 回だけ選び、
+   * その回の学習の間（裏返す・出し直す）は同じ用法のままにする（study-cards.md 3 章）
+   */
+  const [clozeSenses] = useState(
+    () =>
+      new Map(
+        face === 'ja'
+          ? items.map((i): [string, number] => [i.id, pickClozeSense(i)])
+          : [],
+      ),
+  )
 
   // 画面を離れたら、再生中の音声を止める
   useEffect(() => stopAudio, [])
@@ -227,24 +241,28 @@ export function StudySession(props: Props) {
         onFlip={() => setFlipped(true)}
         onRate={answer}
         front={
-          // 単語の音声 → 解説では、単語の文字を出さず再生ボタンだけを大きく置く（study-cards.md 3 章）
-          <div className={styles.front}>
-            {face !== 'word-audio' && (
-              <p className={styles.frontWord} lang="en">
-                {item.word}
+          face === 'ja' ? (
+            <JaFront item={item} senseIndex={clozeSenses.get(item.id) ?? 0} />
+          ) : (
+            // 単語の音声 → 解説では、単語の文字を出さず再生ボタンだけを大きく置く（study-cards.md 3 章）
+            <div className={styles.front}>
+              {face !== 'word-audio' && (
+                <p className={styles.frontWord} lang="en">
+                  {item.word}
+                </p>
+              )}
+              {frontAudioButton && (
+                <div className={styles.audioBand} data-face={face} data-no-flip>
+                  {frontAudioButton}
+                </div>
+              )}
+              <p className={styles.hint}>
+                {face === 'word-audio'
+                  ? '音声を聞いて意味を思い出したら、タップして裏返す'
+                  : 'タップして裏返す'}
               </p>
-            )}
-            {frontAudioButton && (
-              <div className={styles.audioBand} data-face={face} data-no-flip>
-                {frontAudioButton}
-              </div>
-            )}
-            <p className={styles.hint}>
-              {face === 'word-audio'
-                ? '音声を聞いて意味を思い出したら、タップして裏返す'
-                : 'タップして裏返す'}
-            </p>
-          </div>
+            </div>
+          )
         }
         back={
           <FitContent>

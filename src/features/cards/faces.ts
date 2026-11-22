@@ -1,9 +1,10 @@
 import type { Face, ItemRecord } from '../../db/types'
+import { clozeSenseIndexes } from './cloze'
 
 // 表面の種類ごとに必要なデータの判定（docs/specs/study-cards.md 3 章）
 
-/** 作り終えた表面の種類（選択肢に出す順）。日本語 → 解説、例文の音声 → 解説は手順 8 で足す */
-export const AVAILABLE_FACES: readonly Face[] = ['en', 'word-audio']
+/** 作り終えた表面の種類（選択肢に出す順）。例文の音声 → 解説は手順 8 で足す */
+export const AVAILABLE_FACES: readonly Face[] = ['en', 'word-audio', 'ja']
 
 /** 初回に選ばれている表面の種類（docs/specs/study-cards.md 7 章） */
 export const DEFAULT_FACE: Face = 'en'
@@ -21,7 +22,7 @@ export function isAvailableFace(face: Face): boolean {
 
 /** その表面のカードを作れる単語か。必要なデータがない単語は出題しない */
 export function hasFaceData(
-  item: Pick<ItemRecord, 'audio'>,
+  item: Pick<ItemRecord, 'audio' | 'word' | 'senses'>,
   face: Face,
 ): boolean {
   switch (face) {
@@ -29,8 +30,10 @@ export function hasFaceData(
       return true
     case 'word-audio':
       return item.audio !== undefined
-    // まだ作っていない表面
+    // 例文の中に該当語が見つかる用法が 1 つ以上あること
     case 'ja':
+      return clozeSenseIndexes(item).length > 0
+    // まだ作っていない表面
     case 'example-audio':
       return false
   }

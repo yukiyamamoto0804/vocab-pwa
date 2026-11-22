@@ -1,0 +1,76 @@
+.front {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  gap: 12px;
+}
+
+/* FitContent が縮めるので、文字の大きさは em で指定する */
+.texts {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+  padding-top: 1em;
+}
+
+.translation {
+  margin: 0;
+  font-size: 1.125em;
+}
+
+.translation strong {
+  color: var(--color-accent);
+}
+
+.example {
+  margin: 0;
+  font-size: 1.25em;
+  overflow-wrap: anywhere;
+}
+
+.blank {
+  letter-spacing: 1px;
+}
+
+/* ヒントのボタンの周りの、触れても裏返らない帯（横いっぱい） */
+.hintBand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64px;
+  margin: 0 -20px;
+}
+
+.hintButton {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--color-accent);
+  border-radius: 22px;
+  font-size: 15px;
+  color: var(--color-accent);
+  background: transparent;
+}
+
+.hintText {
+  margin: 0;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+/* 画面には出さず、読み上げソフトにだけ伝える */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.flipHint {
+  margin: 0;
+  font-size: 13px;
+  text-align: center;
+  opacity: 0.5;
+}
