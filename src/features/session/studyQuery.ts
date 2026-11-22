@@ -14,8 +14,6 @@ interface BaseQuery {
 export interface UnitQuery extends BaseQuery {
   mode: 'unit'
   unitId: number
-  /** 混ぜる単語の数 */
-  mixCount: number
 }
 
 export interface TestQuery extends BaseQuery {
@@ -41,7 +39,6 @@ export function buildStudyQuery(query: StudyQuery): string {
   })
   if (query.mode === 'unit') {
     params.set('units', String(query.unitId))
-    params.set('mix', String(query.mixCount))
   } else {
     params.set('from', String(query.fromUnit))
     params.set('to', String(query.toUnit))
@@ -58,7 +55,7 @@ function parseUnitId(value: string | null): number | null {
 }
 
 // 不正な条件なら null を返す。
-// face・mix・count・unlearned・order は省略・不明な値のときデフォルトにする。
+// face・count・unlearned・order は省略・不明な値のときデフォルトにする。
 export function parseStudyQuery(params: URLSearchParams): StudyQuery | null {
   const mode = params.get('mode')
   const packId = params.get('pack')
@@ -70,12 +67,7 @@ export function parseStudyQuery(params: URLSearchParams): StudyQuery | null {
   if (mode === 'unit') {
     const unitId = parseUnitId(params.get('units'))
     if (unitId === null) return null
-    const { min, max, default: defaultMix } = studyConfig.mixCount
-    const mixParam = params.get('mix') ?? ''
-    const mix = Number(mixParam)
-    const mixCount =
-      /^\d+$/.test(mixParam) && mix >= min && mix <= max ? mix : defaultMix
-    return { mode, packId, face, unitId, mixCount }
+    return { mode, packId, face, unitId }
   }
 
   if (mode === 'test') {

@@ -30,7 +30,6 @@ describe('buildStudyQuery / parseStudyQuery', () => {
       packId: 'sample-pack',
       face: 'ja',
       unitId: 3,
-      mixCount: 0,
     },
   ])('組み立てたクエリを読み戻すと元の条件になる（$mode）', (query) => {
     expect(parse(buildStudyQuery(query))).toEqual(query)
@@ -42,7 +41,6 @@ describe('buildStudyQuery / parseStudyQuery', () => {
       packId: 'p',
       face: 'en',
       unitId: 3,
-      mixCount: 5,
     })
     for (const key of ['from', 'to', 'count', 'unlearned', 'order'])
       expect(new URLSearchParams(search).has(key)).toBe(false)
@@ -59,7 +57,7 @@ describe('buildStudyQuery / parseStudyQuery', () => {
       includeUnlearned: false,
       order: 'weak',
     })
-    for (const key of ['units', 'mix'])
+    for (const key of ['units'])
       expect(new URLSearchParams(search).has(key)).toBe(false)
   })
 
@@ -81,11 +79,8 @@ describe('buildStudyQuery / parseStudyQuery', () => {
     expect(get(false)).toBeNull()
   })
 
-  it('face・mix を省略するとデフォルトになる', () => {
-    expect(parse('mode=unit&pack=p&units=1')).toMatchObject({
-      face: 'en',
-      mixCount: 5,
-    })
+  it('face を省略するとデフォルトになる', () => {
+    expect(parse('mode=unit&pack=p&units=1')?.face).toBe('en')
   })
 
   it('count・unlearned・order を省略するとデフォルトになる', () => {
@@ -93,26 +88,6 @@ describe('buildStudyQuery / parseStudyQuery', () => {
       count: 50,
       includeUnlearned: false,
       order: 'weak',
-    })
-  })
-
-  it.each([
-    ['範囲外', '21'],
-    ['負の数', '-1'],
-    ['小数', '2.5'],
-    ['数字でない', 'a'],
-  ])('mix が%sならデフォルトにする', (_, mix) => {
-    expect(parse(`mode=unit&pack=p&units=1&mix=${mix}`)).toMatchObject({
-      mixCount: 5,
-    })
-  })
-
-  it('mix は範囲の端（0 と 20）を受け付ける', () => {
-    expect(parse('mode=unit&pack=p&units=1&mix=0')).toMatchObject({
-      mixCount: 0,
-    })
-    expect(parse('mode=unit&pack=p&units=1&mix=20')).toMatchObject({
-      mixCount: 20,
     })
   })
 

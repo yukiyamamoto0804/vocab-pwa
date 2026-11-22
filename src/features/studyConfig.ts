@@ -3,7 +3,7 @@
 export const studyConfig = {
   /** 教材でユニットが指定されていないとき、自動で区切る語数 */
   unitSize: 20,
-  /** ユニット学習に混ぜる単語の数（学習開始時に変更できる） */
+  /** ユニット学習に混ぜる単語の数の上限（設定画面で変更できる。docs/specs/study-cards.md 7 章） */
   mixCount: { default: 5, min: 0, max: 20 },
   /** テストの出題数の選択肢（'all' は範囲の単語すべて） */
   testCount: { options: [20, 50, 100, 'all'], default: 50 },
@@ -11,14 +11,8 @@ export const studyConfig = {
   testWeakBand: 0.1,
   /** テストの並び順の初期値 */
   testOrder: { default: 'weak' },
-  /** 混ぜる単語の対象範囲（直前の何ユニットか） */
-  mixUnitRange: 3,
-  /** 重みの底上げ */
-  weightFloor: 0.2,
-  /** 重みの日数の頭打ち（日） */
-  weightMaxDays: 30,
-  /** 重みの日数の割る数（日） */
-  weightDayScale: 14,
+  /** 混ぜる単語の対象範囲（直前の何回の学習で「忘れた」と申告した単語か。設定画面で変更できる） */
+  mixSessionRange: { default: 3, min: 1, max: 10 },
   /** 定着度の指数移動平均で、直近の結果をどれだけ重視するか */
   masteryLambda: 0.4,
 } as const

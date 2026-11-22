@@ -9,6 +9,7 @@ import {
 } from '../../db/content'
 import { saveLastTest, saveLastUnitStudy } from '../../db/settings'
 import { listReportedItemIds } from '../../db/study'
+import { loadMixItems } from '../../features/session/mixItems'
 import {
   parseStudyQuery,
   type TestQuery,
@@ -53,18 +54,33 @@ export function StudyPage() {
 
 function UnitStudy({ query }: { query: UnitQuery }) {
   const { packId, unitId } = query
+  // 出す単語は読み込むときに 1 回だけ選ぶ（描画のたびに選び直さない）
   const data = useAsync(async () => {
-    const [unit, items, reported] = await Promise.all([
+    const [unit, unitItems, reported] = await Promise.all([
       getUnit(packId, unitId),
       listUnitItems(packId, unitId),
       listReportedItemIds(packId),
     ])
+    // 混ぜる単語は補助的なものなので、読み込めなくても混ぜずに学習を始める
+    const mixed = await loadMixItems(
+      packId,
+      new Set(unitItems.map((i) => i.id)),
+    ).catch((e: unknown) => {
+      console.error(e)
+      return []
+    })
     const progress = await getProgressMap(
       packId,
-      items.map((i) => i.id),
+      [...unitItems, ...mixed].map((i) => i.id),
     )
-    // 並び順で覚えてしまうのを防ぐため、ランダムに並べて出す
-    return { unit, items: shuffle(items), progress, reported }
+    // 並び順で覚えてしまうのを防ぐため、混ぜた単語も含めてランダムに並べて出す
+    return {
+      unit,
+      unitItemCount: unitItems.length,
+      items: shuffle([...unitItems, ...mixed]),
+      progress,
+      reported,
+    }
   }, [packId, unitId])
   // 最初の回答を保存できたら、学習したものとして日時とユニットを残す
   const handleAnswered = useOnFirstAnswer(() =>
@@ -74,8 +90,8 @@ function UnitStudy({ query }: { query: UnitQuery }) {
   const unitsPath = `/packs/${encodeURIComponent(packId)}`
   if (data.status === 'loading') return null
   if (data.status === 'error') return <LoadError />
-  const { unit, items, progress, reported } = data.value
-  if (!unit || items.length === 0) {
+  const { unit, unitItemCount, items, progress, reported } = data.value
+  if (!unit || unitItemCount === 0) {
     return (
       <>
         <p>ユニットが見つからないか、単語がありません。</p>

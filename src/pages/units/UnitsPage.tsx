@@ -6,7 +6,6 @@ import { getPack, listUnitSummaries } from '../../db/content'
 import { getLastTest, getLastUnitStudy } from '../../db/settings'
 import { buildStudyQuery } from '../../features/session/studyQuery'
 import { defaultTestRange } from '../../features/session/testItems'
-import { studyConfig } from '../../features/studyConfig'
 import { useAsync } from '../../lib/useAsync'
 import { TestSheet } from './TestSheet'
 import styles from './UnitsPage.module.css'
@@ -71,7 +70,6 @@ export function UnitsPage() {
               packId,
               face: 'en',
               unitId: unit.id,
-              mixCount: studyConfig.mixCount.default,
             })}`,
             label: '学習',
           },
