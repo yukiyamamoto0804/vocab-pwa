@@ -51,6 +51,12 @@ describe('clozeSegments', () => {
     expect(clozeSegments({ example: 'A flight.' }, 'light')).toBeUndefined()
   })
 
+  it('アクセント付きの文字が続く所は、ほかの語の一部として当てない', () => {
+    expect(clozeSegments({ example: 'A café.' }, 'caf')).toBeUndefined()
+    // e と結合文字（U+0301）で書いた é
+    expect(clozeSegments({ example: 'A cafe\u0301.' }, 'cafe')).toBeUndefined()
+  })
+
   it('記号を含む語もそのまま探す', () => {
     expect(
       blanks(clozeSegments({ example: "It's well-known." }, 'well-known')),
@@ -108,6 +114,11 @@ describe('clozeHint / letterCount', () => {
     expect(letterCount('light')).toBe(5)
     expect(clozeHint('look up')).toBe('l___ __')
     expect(letterCount('look up')).toBe(6)
+  })
+
+  it('アクセント付きの文字も文字として隠して数える', () => {
+    expect(clozeHint('naïve')).toBe('n____')
+    expect(letterCount('naïve')).toBe(5)
   })
 
   it('ハイフンなどの英字以外は、隠さず数えない', () => {

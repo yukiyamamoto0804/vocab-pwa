@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Link, useParams } from 'react-router'
 import { LoadError } from '../../components/LoadError'
+import { Loading } from '../../components/Loading'
 import { PlayButton } from '../../components/PlayButton'
 import { getProgressMap, getUnit, listUnitItems } from '../../db/content'
 import type { ItemRecord, ProgressRecord } from '../../db/types'
@@ -37,7 +38,13 @@ export function WordsPage() {
   const back = (
     <Link to={`/packs/${encodeURIComponent(packId)}`}>← ユニット一覧</Link>
   )
-  if (data.status === 'loading') return back
+  if (data.status === 'loading')
+    return (
+      <>
+        {back}
+        <Loading />
+      </>
+    )
   if (data.status === 'error') return <LoadError />
   const { unit, items, progress } = data.value
   if (!unit) {

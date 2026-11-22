@@ -14,8 +14,9 @@ function escapeRegExp(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+/** 文字か（naïve の ï のようなアクセント付きの文字や、結合文字で書いたアクセントも含める） */
 const isLetter = (ch: string | undefined) =>
-  ch !== undefined && /[A-Za-z]/.test(ch)
+  ch !== undefined && /[\p{L}\p{M}]/u.test(ch)
 
 /**
  * text を、pattern に当てはまる部分とそれ以外に分ける。当てはまらなければ undefined。

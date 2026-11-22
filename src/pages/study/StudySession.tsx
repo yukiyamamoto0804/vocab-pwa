@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { Explanation } from '../../components/Explanation'
 import { PlayButton, type PlayButtonSize } from '../../components/PlayButton'
@@ -81,7 +81,31 @@ export function StudySession(props: Props) {
   const [reported, setReported] = useState(props.initialReported)
   const [busy, setBusy] = useState(false)
   /** 保存の失敗。容量不足なら 'quota' */
-  const [saveError, setSaveError] = useState<'quota' | 'other' | null>(null)
+  /**
+   * 保存の失敗。容量不足なら 'quota'。それ以外が続いたら 'persistent'（もう一度押しても直らない失敗。
+   * iOS で背景から戻ったときに DB との接続が切れた、新しい版が DB を更新した など）
+   */
+  const [saveError, setSaveError] = useState<
+    'quota' | 'other' | 'persistent' | null
+  >(null)
+  /** 容量不足以外の保存の失敗が続いた回数 */
+  const failureCount = useRef(0)
+  function saveFailed(e: unknown) {
+    console.error(e)
+    if (isQuotaError(e)) {
+      failureCount.current = 0
+      setSaveError('quota')
+      return
+    }
+    failureCount.current += 1
+    setSaveError(failureCount.current >= 2 ? 'persistent' : 'other')
+  }
+  function saveSucceeded() {
+    failureCount.current = 0
+    setSaveError(null)
+  }
+  /** 裏返した時刻。表面を素早く 2 回タップしたとき、2 回目が裏面のボタン（誤りの報告）に届かないようにする */
+  const flippedAt = useRef(0)
   /**
    * 表面に例文を使う種類（日本語 → 解説、例文の音声 → 解説）で、単語ごとに表面に使う用法。
    * 学習を始めるときに 1 回だけ選び、その回の学習の間（裏返す・出し直す）は同じ用法のままにする（study-cards.md 3 章）
@@ -130,10 +154,9 @@ export function StudySession(props: Props) {
       setPrevious(state)
       setState(next)
       setFlipped(false)
-      setSaveError(null)
+      saveSucceeded()
     } catch (e) {
-      console.error(e)
-      setSaveError(isQuotaError(e) ? 'quota' : 'other')
+      saveFailed(e)
     } finally {
       setBusy(false)
     }
@@ -153,10 +176,9 @@ export function StudySession(props: Props) {
       setState(previous)
       setPrevious(null)
       setFlipped(false)
-      setSaveError(null)
+      saveSucceeded()
     } catch (e) {
-      console.error(e)
-      setSaveError(isQuotaError(e) ? 'quota' : 'other')
+      saveFailed(e)
     } finally {
       setBusy(false)
     }
@@ -164,6 +186,8 @@ export function StudySession(props: Props) {
 
   async function report() {
     if (!item) return
+    // 裏返した直後のタップは、表面をタップした続きとみなして無視する
+    if (Date.now() - flippedAt.current < 400) return
     try {
       const itemId = item.id
       const nowReported = await toggleReport(packId, itemId, Date.now())
@@ -173,16 +197,21 @@ export function StudySession(props: Props) {
         else next.delete(itemId)
         return next
       })
-      setSaveError(null)
+      saveSucceeded()
     } catch (e) {
-      console.error(e)
-      setSaveError(isQuotaError(e) ? 'quota' : 'other')
+      saveFailed(e)
     }
   }
 
   const topBar = (
     <div className={styles.topBar}>
-      <Link to={exitPath} className={styles.exit} aria-label="学習をやめる">
+      {/* 戻る操作で、やめた学習にまた入らないよう、履歴に積まない */}
+      <Link
+        to={exitPath}
+        replace
+        className={styles.exit}
+        aria-label="学習をやめる"
+      >
         ✕
       </Link>
       <span className={styles.position}>
@@ -205,7 +234,9 @@ export function StudySession(props: Props) {
     <p className={styles.error} role="alert">
       {saveError === 'quota'
         ? '端末の空き容量が足りないため、保存できませんでした。空き容量を増やしてから、もう一度操作してください。'
-        : '保存できませんでした。もう一度操作してください。'}
+        : saveError === 'persistent'
+          ? '保存できない状態が続いています。アプリを開き直してください（最後の回答より前は保存されています）。'
+          : '保存できませんでした。もう一度操作してください。'}
     </p>
   )
 
@@ -263,7 +294,10 @@ export function StudySession(props: Props) {
         // カードが変わったら、スワイプの途中の状態を持ち越さない
         key={`${state.deck.position}`}
         flipped={flipped}
-        onFlip={() => setFlipped(true)}
+        onFlip={() => {
+          flippedAt.current = Date.now()
+          setFlipped(true)
+        }}
         onRate={answer}
         front={
           face === 'ja' ? (
@@ -360,7 +394,7 @@ function Summary({ counts, exitPath }: { counts: Counts; exitPath: string }) {
           </li>
         ))}
       </ul>
-      <Link to={exitPath} className={styles.done}>
+      <Link to={exitPath} replace className={styles.done}>
         ユニット一覧へ
       </Link>
     </div>

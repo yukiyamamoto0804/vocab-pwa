@@ -8,6 +8,8 @@
   --color-remembered: #16a34a;
   --color-unsure: #ca8a04;
   --color-forgot: #dc2626;
+  /* 自己申告の色（覚えた・曖昧・忘れた）の上に置く文字の色 */
+  --color-on-rating: #ffffff;
 
   color-scheme: light dark;
   font-family:
@@ -29,6 +31,8 @@
     --color-remembered: #4ade80;
     --color-unsure: #facc15;
     --color-forgot: #f87171;
+    /* ダークモードの申告の色は明るいので、文字は暗くする */
+    --color-on-rating: #111827;
   }
 }
 

@@ -56,6 +56,8 @@ export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
 
   function handlePointerDown(e: PointerEvent<HTMLDivElement>) {
     if (e.pointerType === 'mouse' && e.button !== 0) return
+    // 2 本目の指は無視する（1 本目の指の操作を上書きして、カードがずれたまま止まらないように）
+    if (!e.isPrimary) return
     gesture.current = {
       pointerId: e.pointerId,
       x: e.clientX,
@@ -84,8 +86,8 @@ export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
 
   function handlePointerUp(e: PointerEvent<HTMLDivElement>) {
     const g = gesture.current
-    gesture.current = null
     if (!g || g.pointerId !== e.pointerId) return
+    gesture.current = null
     lastGesture.current = g
     setOffset({ x: 0, y: 0 })
     if (!flipped || !g.moved) return
@@ -93,7 +95,9 @@ export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
     if (rating) onRate(rating)
   }
 
-  function handlePointerCancel() {
+  function handlePointerCancel(e: PointerEvent<HTMLDivElement>) {
+    // 無視している 2 本目の指の取り消しでは、1 本目の操作を止めない
+    if (!e.isPrimary) return
     gesture.current = null
     lastGesture.current = null
     setOffset({ x: 0, y: 0 })

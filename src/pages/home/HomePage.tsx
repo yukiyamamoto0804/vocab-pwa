@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import { LinkList } from '../../components/LinkList'
 import { LoadError } from '../../components/LoadError'
+import { Loading } from '../../components/Loading'
 import { StorageStatus } from '../../components/StorageStatus'
 import { listPacks } from '../../db/packs'
 import { useAsync } from '../../lib/useAsync'
@@ -12,6 +13,7 @@ export function HomePage() {
     <>
       <h1>教材パック</h1>
       <StorageStatus warningOnly />
+      {packs.status === 'loading' && <Loading />}
       {packs.status === 'error' && <LoadError />}
       {packs.status === 'done' && packs.value.length === 0 && (
         <p>

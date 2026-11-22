@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { LinkList } from '../../components/LinkList'
 import { LoadError } from '../../components/LoadError'
+import { Loading } from '../../components/Loading'
 import { getPack, listUnitSummaries } from '../../db/content'
 import {
   getLastFace,
@@ -38,7 +39,7 @@ export function UnitsPage() {
   /** 選び直した表面の種類。選び直すまでは前回選んだもの（data の lastFace）を使う */
   const [chosenFace, setChosenFace] = useState<Face>()
 
-  if (data.status === 'loading') return null
+  if (data.status === 'loading') return <Loading />
   if (data.status === 'error') return <LoadError />
   const [pack, units, lastTest, lastUnitStudy, lastFace] = data.value
   // 前回選んだ表面がなければ（初回）、初回の表面にする

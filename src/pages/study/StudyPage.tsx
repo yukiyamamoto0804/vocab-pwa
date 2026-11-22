@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { LoadError } from '../../components/LoadError'
+import { Loading } from '../../components/Loading'
 import { getProgressMap, getUnit, listUnitItems } from '../../db/content'
 import { saveLastTest, saveLastUnitStudy } from '../../db/settings'
 import { listReportedItemIds } from '../../db/study'
@@ -92,7 +93,7 @@ function UnitStudy({ query }: { query: UnitQuery }) {
   )
 
   const unitsPath = `/packs/${encodeURIComponent(packId)}`
-  if (data.status === 'loading') return null
+  if (data.status === 'loading') return <Loading />
   if (data.status === 'error') return <LoadError />
   const { unit, allUnitItemCount, unitItemCount, items, progress, reported } =
     data.value
@@ -155,7 +156,7 @@ function TestStudy({ query }: { query: TestQuery }) {
   )
 
   const unitsPath = `/packs/${encodeURIComponent(packId)}`
-  if (data.status === 'loading') return null
+  if (data.status === 'loading') return <Loading />
   if (data.status === 'error') return <LoadError />
   const { items, progress, reported, skippedCount } = data.value
   if (items.length === 0) {
@@ -203,7 +204,7 @@ function ReviewStudy({ query }: { query: ReviewQuery }) {
   }, [packId, face, sessionCount, count])
 
   const unitsPath = `/packs/${encodeURIComponent(packId)}`
-  if (data.status === 'loading') return null
+  if (data.status === 'loading') return <Loading />
   if (data.status === 'error') return <LoadError />
   const { items, progress, reported, skippedCount } = data.value
   if (items.length === 0) {
