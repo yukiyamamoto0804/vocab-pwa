@@ -2,9 +2,12 @@
 # コミットメッセージに禁止語リスト（.git/info/copyright-denylist、非公開）の語が含まれていないか確認する
 set -eu
 
-git_dir=$(git rev-parse --git-dir)
-denylist="$git_dir/info/copyright-denylist"
-[ -f "$denylist" ] || exit 0
+# worktree からでも見つかるよう、共通の Git フォルダで探す。ないときは、確かめずに通さずに止める
+denylist="$(git rev-parse --git-common-dir)/info/copyright-denylist"
+if [ ! -f "$denylist" ]; then
+  printf '\n[著作権チェック] コミットを中止しました: 禁止語リスト（%s）がありません。語がなければ空のファイルを作ってください\n\n' "$denylist" >&2
+  exit 1
+fi
 
 patterns=$(mktemp)
 trap 'rm -f "$patterns"' EXIT

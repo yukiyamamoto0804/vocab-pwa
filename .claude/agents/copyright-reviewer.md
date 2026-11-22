@@ -11,7 +11,7 @@ tools: Bash, Read, Grep, Glob
 
 1. `docs/RULES.md` を読み、ルールを把握する。
 2. `CLAUDE.local.md` と `private/docs/`（Git 管理外）を読み、手元の教材の具体的な情報（種類・形態・フォルダ名・ファイル名など）を把握する。
-3. `$(git rev-parse --git-dir)/info/copyright-denylist` があれば読み、禁止語を把握する。
+3. `$(git rev-parse --git-common-dir)/info/copyright-denylist` を読み、禁止語を把握する。
 4. 必要なら `ls -R data/` でローカル教材のファイル名を確認してよい。**音声ファイルの中身は開かない。`data/` 以下は一切変更しない。**
 
 ## レビュー対象
@@ -40,6 +40,13 @@ tools: Bash, Read, Grep, Glob
    - 教材や学習データを外部に送信するコードが入っていないか
 5. **第三者の素材**
    - ライブラリ・フォント・画像・データを追加した場合、ライセンスと出典表記が適切か
+6. **デモ教材（`demo/`・`scripts/demo/`）の変更**（`docs/RULES.md` 11 章、`docs/specs/demo-pack.md`）
+   - 材料が決まりどおりか（見出し語と並びは NGSL、訳とイディオムは EJDict-hand、例文は自作、音声は合成）。ほかの辞書・教材から写したと思われる訳・例文がないか
+   - 出典・帰属表示・ライセンスの表記（`demo/README.md`・`demo/LICENSE`・`manifest.json` の `license`・`attribution`）が決まりどおりか
+   - 手元の教材の手がかりがないか（上の 2 と同じ基準。`demo/README.md` の作り方の説明や、生成 AI に与えた指示の要点も見る）
+   - `demo/items.json` が変わっていれば、`private/docs/` の照らし合わせの記録にある SHA-256 が、ステージされた `demo/items.json`（`git show :demo/items.json | shasum -a 256` など）と一致するか。記録がない・合わないときは FAIL
+   - 記録や `demo/audio-sources.json` に、開発者の環境が分かる情報（ビルドの設定・インストール先のパスなど）がないか
+   - 訳とイディオムの確かめ、音声と生成の記録の照合は git フックが行う。音声ファイルの中身は開かない
 
 ## 判定
 

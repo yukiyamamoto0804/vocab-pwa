@@ -1,44 +1,66 @@
 #!/bin/sh
 # コミット前の著作権チェック
-#   1. ローカルデータ・メディアファイルの混入を拒否
-#   2. 禁止語リスト（.git/info/copyright-denylist、非公開）に一致する変更を拒否
-#   3. copyright-reviewer エージェントの承認がない場合は拒否
+#   1. ローカルデータ・メディアファイル・モデルのファイルの混入を拒否（デモ教材の音声だけは通す。docs/RULES.md 11 章）
+#   2. デモ教材（demo/）の変更は、ステージされた内容で中身を確かめる（docs/specs/demo-pack.md 7 章）
+#   3. 禁止語リスト（.git/info/copyright-denylist、非公開）に一致する変更を拒否
+#   4. copyright-reviewer エージェントの承認がない場合は拒否
 set -eu
 
 git_dir=$(git rev-parse --git-dir)
+# 禁止語リストは worktree からでも見つかるよう、共通の Git フォルダで探す
+common_dir=$(git rev-parse --git-common-dir)
 
 fail() {
   printf '\n[著作権チェック] コミットを中止しました: %s\n\n' "$1" >&2
   exit 1
 }
 
-# 1. ローカルデータ・メディアファイル
-bad_files=$(git diff --cached --name-only --diff-filter=ACMR \
-  | grep -iE '^(data|private)/|^CLAUDE\.local\.md$|\.(mp3|m4a|aac|wav|ogg|flac|zip)$' || true)
-if [ -n "$bad_files" ]; then
-  printf '%s\n' "$bad_files" >&2
-  fail "ローカルデータ・ローカルドキュメント・メディアファイルがステージされています"
+# ステージされたファイルの名前。ASCII 以外の文字をそのまま出し（既定では引用符で囲まれ、どの判定にも当たらなくなるため）、
+# 名前の変更は「消した名前」と「足した名前」に分けて出す（元の名前の側の変更を見落とさないため）
+names() { git -c core.quotePath=false diff --cached --name-only --no-renames "$@"; }
+
+# それでも引用符で囲まれる名前（制御文字・「"」・「\」を含むもの）は止める
+odd=$(names | grep '^"' || true)
+if [ -n "$odd" ]; then
+  printf '%s\n' "$odd" >&2
+  fail "ファイル名に使えない文字が含まれています"
 fi
 
-# 2. 禁止語リスト
-denylist="$git_dir/info/copyright-denylist"
-if [ -f "$denylist" ]; then
-  patterns=$(mktemp)
-  trap 'rm -f "$patterns"' EXIT
-  grep -vE '^[[:space:]]*(#|$)' "$denylist" > "$patterns" || true
-  if [ -s "$patterns" ]; then
-    hits=$( {
-      git diff --cached --name-only --diff-filter=ACMR
-      git diff --cached -U0 --no-color --diff-filter=ACMR | grep -E '^\+' | grep -vE '^\+\+\+ '
-    } | grep -inF -f "$patterns" || true)
-    if [ -n "$hits" ]; then
-      printf '%s\n' "$hits" >&2
-      fail "禁止語リストに一致する内容があります"
-    fi
+# 1. ローカルデータ・メディアファイル・モデルのファイル
+#    デモ教材の音声（demo/audio/ の直下の demo-*.m4a）だけは通し、中身は 2 で確かめる
+bad_files=$(names --diff-filter=ACMRT \
+  | grep -iE '^(data|private)/|^CLAUDE\.local\.md$|\.(mp3|m4a|aac|wav|ogg|flac|zip|onnx|bin|pt|pth|safetensors|npz|npy|ckpt|gguf)$' \
+  | grep -vE '^demo/audio/demo-[A-Za-z0-9_-]+\.m4a$' || true)
+if [ -n "$bad_files" ]; then
+  printf '%s\n' "$bad_files" >&2
+  fail "ローカルデータ・ローカルドキュメント・メディアファイル・モデルのファイルがステージされています"
+fi
+
+# 2. デモ教材
+#    道具や使わない訳語の一覧（scripts/demo/）を変えたときも、今の demo/ が通るかを確かめる
+if names | grep -qE '^(demo|scripts/demo)/'; then
+  command -v node >/dev/null 2>&1 || fail "Node.js が見つかりません（デモ教材の確かめに必要です）"
+  node scripts/git-hooks/check-staged-demo.mjs || fail "デモ教材の確かめに通りませんでした"
+fi
+
+# 3. 禁止語リスト（ないときは、確かめずに通さずに止める）
+denylist="$common_dir/info/copyright-denylist"
+[ -f "$denylist" ] || fail "禁止語リスト（${denylist}）がありません。語がなければ空のファイルを作ってください"
+patterns=$(mktemp)
+trap 'rm -f "$patterns"' EXIT
+grep -vE '^[[:space:]]*(#|$)' "$denylist" > "$patterns" || true
+if [ -s "$patterns" ]; then
+  hits=$( {
+    names --diff-filter=ACMR
+    git -c core.quotePath=false diff --cached -U0 --no-color --no-renames --diff-filter=ACMR | grep -E '^\+' | grep -vE '^\+\+\+ '
+  } | grep -inF -f "$patterns" || true)
+  if [ -n "$hits" ]; then
+    printf '%s\n' "$hits" >&2
+    fail "禁止語リストに一致する内容があります"
   fi
 fi
 
-# 3. レビュー承認（現在のステージ内容に対する承認か）
+# 4. レビュー承認（worktree ごとの Git フォルダに置く。元のリポジトリの承認は worktree のコミットには効かない）（現在のステージ内容に対する承認か）
 approved=$(cat "$git_dir/copyright-review-approved" 2>/dev/null || true)
 current=$(git write-tree)
 if [ "$approved" != "$current" ]; then

@@ -186,11 +186,13 @@ scripts/demo/              中身を確かめる道具（Node.js）・音声を�
 ## 7. チェック
 
 - git フック（`docs/RULES.md` 11 章）。判定は、作業中のファイルではなくステージされた内容（`git show :<パス>`）で行う。JSON の読み取りと SHA-256 の計算が要るので、フックから Node.js のスクリプト（`scripts/git-hooks/` の下）を呼ぶ。
-  - `demo/` の変更がステージされていたら:
+  - `demo/` か `scripts/demo/` の変更がステージされていたら（道具を直したことで今の `demo/` が通らなくなったことにも気づけるように。`demo/` がまだなければ何もしない）:
     - ステージされた `demo/` の JSON で、中身を確かめる道具（3 章）を実行する。
+    - `demo/` に置けるファイル（5 章）の通常のファイル（シンボリックリンクなどは置かない）だけがあるか。
     - `demo/audio/` の直下の `demo-*.m4a` で、1 ファイル 1 MB 以下、ステージされた `demo/items.json` から使われていて、SHA-256 がステージされた `demo/audio-sources.json` にあるものだけを通す。
   - モデル・声などのファイル（`.onnx`・`.bin`・`.pt`・`.pth`・`.safetensors`・`.npz`・`.npy` など）は、どこにあっても止める。
-  - worktree からはコミットしない（2 章）が、誤ってコミットしたときも止まるよう、禁止語リストは共通の Git フォルダ（`git rev-parse --git-common-dir`）で探す。リストが見つからないときは、黙って飛ばさずに止める。承認の記録も同じ考え方で場所を決める。
+  - worktree からはコミットしない（2 章）が、誤ってコミットしたときも止まるよう、禁止語リストは共通の Git フォルダ（`git rev-parse --git-common-dir`）で探す。リストが見つからないときは、黙って飛ばさずに止める。承認の記録は worktree ごとの Git フォルダに置く（元のリポジトリの承認は worktree のコミットに効かないので、worktree からのコミットを止める側に働く）。
+  - ファイル名は ASCII 以外の文字もそのまま読み（`core.quotePath=false`）、名前の変更は元の名前と新しい名前の両方で判定する（`--no-renames`）。
   - `.gitignore` に `!demo/audio/demo-*.m4a` の例外を足す。`.cache/` は除外する。
 - copyright-reviewer（`docs/RULES.md` 11 章）。元のリポジトリの作業の場から呼ぶ（worktree の会話からは呼ばない）。
   - 材料・出典・帰属表示・手元の教材の手がかりがないこと。

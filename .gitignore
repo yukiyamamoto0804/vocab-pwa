@@ -3,6 +3,8 @@ data/
 private/
 *.mp3
 *.m4a
+# デモ教材の音声だけは管理する（docs/RULES.md 11 章）
+!demo/audio/demo-*.m4a
 *.wav
 *.zip
 
@@ -11,6 +13,7 @@ node_modules/
 dist/
 build/
 .vite/
+.cache/
 coverage/
 
 # ===== 環境・OS・エディタ =====
