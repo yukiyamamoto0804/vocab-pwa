@@ -11,7 +11,7 @@ private/
 # ===== 依存関係・ビルド成果物 =====
 node_modules/
 dist/
-build/
+/build/
 .vite/
 .cache/
 # デモ教材の音声を作る道具の Python の仮想環境（scripts/demo/README.md）

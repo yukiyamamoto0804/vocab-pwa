@@ -1,7 +1,9 @@
 /// <reference types="vitest/config" />
+import { fileURLToPath } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { demoPack } from './scripts/build/demoPack.ts'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -9,6 +11,8 @@ export default defineConfig({
   base: './',
   plugins: [
     react(),
+    // デモ教材（demo/）を zip にして配信物に入れる（docs/specs/demo-pack.md 5 章）
+    demoPack(fileURLToPath(new URL('./demo', import.meta.url))),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
