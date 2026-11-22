@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router'
 import { LinkList } from '../../components/LinkList'
 import { LoadError } from '../../components/LoadError'
 import { getPack, listUnitSummaries } from '../../db/content'
-import { getLastTest } from '../../db/settings'
+import { getLastTest, getLastUnitStudy } from '../../db/settings'
 import { buildStudyQuery } from '../../features/session/studyQuery'
 import { defaultTestRange } from '../../features/session/testItems'
 import { studyConfig } from '../../features/studyConfig'
@@ -20,6 +20,7 @@ export function UnitsPage() {
         getPack(packId),
         listUnitSummaries(packId),
         getLastTest(packId),
+        getLastUnitStudy(packId),
       ]),
     [packId],
   )
@@ -27,7 +28,7 @@ export function UnitsPage() {
 
   if (data.status === 'loading') return null
   if (data.status === 'error') return <LoadError />
-  const [pack, units, lastTest] = data.value
+  const [pack, units, lastTest, lastUnitStudy] = data.value
   if (!pack) {
     return (
       <>
@@ -63,6 +64,7 @@ export function UnitsPage() {
           to: `/packs/${encodeURIComponent(packId)}/units/${unit.id}`,
           title: unitLabel(unit),
           meta: `${itemCount} 語・学習済み ${learnedCount} 語`,
+          badge: unit.id === lastUnitStudy?.unitId ? '前回' : undefined,
           action: {
             to: `/study?${buildStudyQuery({
               mode: 'unit',

@@ -7,7 +7,7 @@ import {
   listItemsInUnits,
   listUnitItems,
 } from '../../db/content'
-import { saveLastTest } from '../../db/settings'
+import { saveLastTest, saveLastUnitStudy } from '../../db/settings'
 import { listReportedItemIds } from '../../db/study'
 import {
   parseStudyQuery,
@@ -66,6 +66,10 @@ function UnitStudy({ query }: { query: UnitQuery }) {
     // 並び順で覚えてしまうのを防ぐため、ランダムに並べて出す
     return { unit, items: shuffle(items), progress, reported }
   }, [packId, unitId])
+  // 最初の回答を保存できたら、学習したものとして日時とユニットを残す
+  const handleAnswered = useOnFirstAnswer(() =>
+    saveLastUnitStudy(packId, { at: Date.now(), unitId }),
+  )
 
   const unitsPath = `/packs/${encodeURIComponent(packId)}`
   if (data.status === 'loading') return null
@@ -88,6 +92,7 @@ function UnitStudy({ query }: { query: UnitQuery }) {
       initialProgress={progress}
       initialReported={reported}
       exitPath={unitsPath}
+      onAnswered={handleAnswered}
     />
   )
 }
@@ -113,7 +118,10 @@ function TestStudy({ query }: { query: TestQuery }) {
     })
     return { items: selected, progress, reported }
   }, [packId, fromUnit, toUnit, count, includeUnlearned, order])
-  const savedLastTest = useRef(false)
+  // 最初の回答を保存できたら、テストしたものとして日時と範囲を残す
+  const handleAnswered = useOnFirstAnswer(() =>
+    saveLastTest(packId, { at: Date.now(), fromUnit, toUnit }),
+  )
 
   const unitsPath = `/packs/${encodeURIComponent(packId)}`
   if (data.status === 'loading') return null
@@ -129,19 +137,6 @@ function TestStudy({ query }: { query: TestQuery }) {
     )
   }
 
-  // 最初の回答を保存できたら、テストしたものとして日時と範囲を残す
-  function handleAnswered() {
-    if (savedLastTest.current) return
-    savedLastTest.current = true
-    saveLastTest(packId, { at: Date.now(), fromUnit, toUnit }).catch(
-      (e: unknown) => {
-        // 次のテストの初期値に使うだけなので、失敗しても学習は続ける
-        console.error(e)
-        savedLastTest.current = false
-      },
-    )
-  }
-
   return (
     <StudySession
       packId={packId}
@@ -154,4 +149,20 @@ function TestStudy({ query }: { query: TestQuery }) {
       onAnswered={handleAnswered}
     />
   )
+}
+
+/**
+ * 最初の回答を保存できたときに 1 回だけ save を呼ぶ、回答ごとの処理を返す。
+ * 保存するのは次の学習の初期値や表示に使う値なので、失敗しても学習は続け、次の回答でやり直す
+ */
+function useOnFirstAnswer(save: () => Promise<void>): () => void {
+  const saved = useRef(false)
+  return () => {
+    if (saved.current) return
+    saved.current = true
+    save().catch((e: unknown) => {
+      console.error(e)
+      saved.current = false
+    })
+  }
 }
