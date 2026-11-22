@@ -1,0 +1,29 @@
+# デモ教材の音声を作る道具（make_audio.py）の依存。開発のときだけ使い、アプリには含めない（docs/RULES.md 11 章）
+# 作り直せるよう、間接の依存も含めて版を固定する（Python 3.11 以降）
+#
+# 主なもののライセンス（固定した版の配布物で確かめたもの）:
+#   kokoro-onnx: MIT
+#   phonemizer: GPL-3.0-or-later
+#   espeakng-loader: MIT（パッケージのメタデータにライセンスの表記はなく、配布元リポジトリの表記による。
+#     wheel は GPL-3.0-or-later の espeak-ng とそのデータを含む）
+#   onnxruntime: MIT
+#   numpy: BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0
+#   soundfile: BSD-3-Clause（プラットフォーム別の wheel は、LGPL-2.1-or-later の libsndfile と、その中の LGPL・BSD の
+#     ライブラリ〈libmp3lame・libmpg123 など〉を含む。詳細は wheel の licensing/license_notes.md）
+# 道具はこれらを読み込むだけで同梱しない。生成した音声には、これらのライセンスは及ばない
+attrs==26.1.0
+cffi==2.1.1
+cloudpickle==3.1.3
+dlinfo==2.0.0
+espeakng-loader==0.2.4
+flatbuffers==25.12.19
+joblib==1.6.0
+kokoro-onnx==0.6.1
+numpy==2.5.5
+onnxruntime==1.32.0
+packaging==26.3
+phonemizer==3.6.0
+protobuf==7.36.2
+pycparser==3.12
+soundfile==0.14.0
+typing_extensions==4.16.0
