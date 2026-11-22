@@ -69,6 +69,20 @@ export async function listUnitItems(
   return items.sort((a, b) => a.order - b.order)
 }
 
+/** 範囲（開始〜終了のユニット、両端を含む）の単語を、パック内の並び順で返す */
+export async function listItemsInUnits(
+  packId: string,
+  fromUnit: number,
+  toUnit: number,
+  db: VocabDatabase = defaultDb,
+): Promise<ItemRecord[]> {
+  const items = await db.items
+    .where('[packId+unit]')
+    .between([packId, fromUnit], [packId, toUnit], true, true)
+    .toArray()
+  return items.sort((a, b) => a.order - b.order)
+}
+
 /** 単語ごとの学習状況。記録がない（未学習の）単語は含まない */
 export async function getProgressMap(
   packId: string,

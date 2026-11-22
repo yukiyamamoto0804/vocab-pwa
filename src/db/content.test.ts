@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   getAudioBlob,
   getProgressMap,
+  listItemsInUnits,
   listUnitItems,
   listUnitSummaries,
 } from './content'
@@ -96,6 +97,18 @@ describe('listUnitItems', () => {
   it('ユニットの単語を、id の順ではなくパック内の並び順で返す', async () => {
     const items = await listUnitItems('pack-a', 1, db)
     expect(items.map((i) => i.id)).toEqual(['0003', '0002'])
+  })
+})
+
+describe('listItemsInUnits', () => {
+  it('範囲のユニットの単語を、両端を含めてパック内の並び順で返す', async () => {
+    expect(
+      (await listItemsInUnits('pack-a', 1, 2, db)).map((i) => i.id),
+    ).toEqual(['0003', '0002', '0001'])
+    expect(
+      (await listItemsInUnits('pack-a', 2, 2, db)).map((i) => i.id),
+    ).toEqual(['0001'])
+    expect(await listItemsInUnits('pack-b', 1, 2, db)).toEqual([])
   })
 })
 
