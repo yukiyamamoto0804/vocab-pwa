@@ -83,6 +83,18 @@ export async function listItemsInUnits(
   return items.sort((a, b) => a.order - b.order)
 }
 
+/** 指定した単語を、指定した順で返す。ない単語（取り込み直して消えたもの）は除く */
+export async function getItems(
+  packId: string,
+  itemIds: string[],
+  db: VocabDatabase = defaultDb,
+): Promise<ItemRecord[]> {
+  const items = await db.items.bulkGet(
+    itemIds.map((id) => [packId, id] as [string, string]),
+  )
+  return items.filter((item) => item !== undefined)
+}
+
 /** 単語ごとの学習状況。記録がない（未学習の）単語は含まない */
 export async function getProgressMap(
   packId: string,

@@ -4,8 +4,10 @@ import { VocabDatabase } from './database'
 import {
   getLastTest,
   getLastUnitStudy,
+  getStoredUnitStudySettings,
   saveLastTest,
   saveLastUnitStudy,
+  saveUnitStudySettings,
 } from './settings'
 
 let db: VocabDatabase
@@ -58,5 +60,16 @@ describe('getLastUnitStudy / saveLastUnitStudy', () => {
       value: { at: 1, unitId: 3, extra: 'x' },
     })
     expect(await getLastUnitStudy('pack-a', db)).toEqual({ at: 1, unitId: 3 })
+  })
+})
+
+describe('getStoredUnitStudySettings / saveUnitStudySettings', () => {
+  it('保存した値をそのまま読み出す。保存していなければ undefined', async () => {
+    expect(await getStoredUnitStudySettings(db)).toBeUndefined()
+    await saveUnitStudySettings({ mixCount: 0, mixSessionRange: 10 }, db)
+    expect(await getStoredUnitStudySettings(db)).toEqual({
+      mixCount: 0,
+      mixSessionRange: 10,
+    })
   })
 })

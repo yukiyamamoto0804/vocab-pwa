@@ -2,6 +2,7 @@ import 'fake-indexeddb/auto'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { VocabDatabase } from './database'
 import {
+  listRecentSessions,
   listReportedItemIds,
   restoreBeforeAnswer,
   saveAnswer,
@@ -86,5 +87,21 @@ describe('toggleReport', () => {
 
     expect(await toggleReport('p', '0001', 1, db)).toBe(false)
     expect((await listReportedItemIds('p', db)).size).toBe(0)
+  })
+})
+
+describe('listRecentSessions', () => {
+  it('そのパックの記録を新しい順に count 回分返す', async () => {
+    await db.studySessions.bulkPut([
+      { ...emptySession, id: 'old', startedAt: 1 },
+      { ...emptySession, id: 'other-pack', packId: 'q', startedAt: 4 },
+      { ...emptySession, id: 'new', startedAt: 3 },
+      { ...emptySession, id: 'mid', startedAt: 2 },
+    ])
+    const ids = async (count: number) =>
+      (await listRecentSessions('p', count, db)).map((s) => s.id)
+    expect(await ids(2)).toEqual(['new', 'mid'])
+    expect(await ids(10)).toEqual(['new', 'mid', 'old'])
+    expect(await ids(0)).toEqual([])
   })
 })

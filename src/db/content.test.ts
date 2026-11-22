@@ -2,6 +2,7 @@ import 'fake-indexeddb/auto'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import {
   getAudioBlob,
+  getItems,
   getProgressMap,
   listItemsInUnits,
   listUnitItems,
@@ -109,6 +110,14 @@ describe('listItemsInUnits', () => {
       (await listItemsInUnits('pack-a', 2, 2, db)).map((i) => i.id),
     ).toEqual(['0001'])
     expect(await listItemsInUnits('pack-b', 1, 2, db)).toEqual([])
+  })
+})
+
+describe('getItems', () => {
+  it('指定した順で返し、ない単語は除く', async () => {
+    expect(
+      (await getItems('pack-a', ['0001', 'none', '0003'], db)).map((i) => i.id),
+    ).toEqual(['0001', '0003'])
   })
 })
 

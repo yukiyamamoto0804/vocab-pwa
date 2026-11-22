@@ -70,3 +70,30 @@ export async function saveLastUnitStudy(
 ): Promise<void> {
   await db.settings.put({ key: lastUnitStudyKey(packId), value: lastUnitStudy })
 }
+
+/** ユニット学習の共通の設定（docs/specs/study-cards.md 7 章）。アプリ全体で 1 つ */
+export interface UnitStudySettings {
+  /** 混ぜる単語の数の上限 */
+  mixCount: number
+  /** 混ぜる単語の対象範囲（直前の何回の学習か） */
+  mixSessionRange: number
+}
+
+const UNIT_STUDY_KEY = 'unitStudy'
+
+/**
+ * 保存したユニット学習の設定を、確かめずにそのまま返す（保存していなければ undefined）。
+ * 選べる範囲は設定値（features/studyConfig.ts）で決まるため、確かめるのは features/session/unitStudySettings.ts
+ */
+export async function getStoredUnitStudySettings(
+  db: VocabDatabase = defaultDb,
+): Promise<unknown> {
+  return (await db.settings.get(UNIT_STUDY_KEY))?.value
+}
+
+export async function saveUnitStudySettings(
+  settings: UnitStudySettings,
+  db: VocabDatabase = defaultDb,
+): Promise<void> {
+  await db.settings.put({ key: UNIT_STUDY_KEY, value: settings })
+}

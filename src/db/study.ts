@@ -38,6 +38,21 @@ export async function restoreBeforeAnswer(
   })
 }
 
+/** パックの学習の記録を、新しい順に count 回分返す */
+export async function listRecentSessions(
+  packId: string,
+  count: number,
+  db: VocabDatabase = defaultDb,
+): Promise<StudySessionRecord[]> {
+  if (count <= 0) return []
+  return db.studySessions
+    .orderBy('startedAt')
+    .reverse()
+    .filter((session) => session.packId === packId)
+    .limit(count)
+    .toArray()
+}
+
 /** 報告済みの単語の id */
 export async function listReportedItemIds(
   packId: string,
