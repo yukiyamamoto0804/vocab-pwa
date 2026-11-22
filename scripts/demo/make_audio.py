@@ -24,8 +24,9 @@ from pathlib import Path
 import numpy as np
 import soundfile as sf
 
-TOOL_VERSION = "2"
+TOOL_VERSION = "3"
 VOICE = "af_heart"
+SEED = 0  # 読み上げの乱数の種（Speaker.clip）
 RATE = 24000  # Kokoro の出力
 
 LEAD = 0.3  # ファイルの先頭と末尾の無音（秒）。最初の項目の前にも、AAC の頭のずれを吸収する無音を置く
@@ -207,12 +208,19 @@ class Speaker:
         for path in (model, voices):
             if not path.is_file():
                 fail(f"{path} がない（scripts/demo/README.md の手順で取得する）")
+        # 読み込みは、ファイルがあることを確かめてから行う（ないときに早く止めるため）
+        import onnxruntime
         from kokoro_onnx import Kokoro
 
-        self.kokoro = Kokoro(str(model), str(voices))
+        self.onnxruntime, self.Kokoro = onnxruntime, Kokoro
+        self.model, self.voices = str(model), str(voices)
 
     def clip(self, text: str) -> np.ndarray:
-        samples, rate = self.kokoro.create(text, voice=VOICE, speed=1.0, lang="en-us")
+        # 記録したモデルのファイル（demo/README.md）は中で乱数を使うので、種を固定しないと作るたびに長さ・区間が揺れ、
+        # verify が通らない。乱数は合成のたびに進むので、合成ごとに種を固定して読み直す（結果を合成の順番に左右されないようにする）
+        self.onnxruntime.set_seed(SEED)
+        kokoro = self.Kokoro(self.model, self.voices)
+        samples, rate = kokoro.create(text, voice=VOICE, speed=1.0, lang="en-us")
         if rate != RATE:
             fail(f"読み上げの標本化周波数が {RATE} ではない（{rate}）: {text}")
         clip = trim(np.asarray(samples, dtype=np.float32))
@@ -299,9 +307,15 @@ def verify(demo: Path, speaker: Speaker, model: Path, voices: Path) -> None:
     current = {"tool": TOOL_VERSION, "voice": VOICE, "model": sha256(model), "voices": sha256(voices)}
     for key, value in current.items():
         if recorded[key] != value:
-            errors.append(f"{key} が記録と違う（記録 {recorded[key]}、今 {value}）")
+            errors.append(f"{key} が記録と違う（記録 {recorded[key]}、今 {value}）。make で作り直す")
     if errors:
         fail("\n".join(errors))
+    # ライブラリ・ffmpeg の版が違うと、同じ文からでも音声が変わることがある。止めずに、先に知らせる
+    now = {**ffmpeg_versions(), "libraries": library_versions()}
+    for key in ("ffmpeg", "libavcodec", "libraries"):
+        if sources.get(key) != now[key]:
+            print(f"注意: {key} の版が記録と違う（記録 {sources.get(key)}、今 {now[key]}）。区間が合わないときは、記録と同じ版で確かめる",
+                  flush=True)
 
     with tempfile.TemporaryDirectory() as tmp:
         for f in files:
