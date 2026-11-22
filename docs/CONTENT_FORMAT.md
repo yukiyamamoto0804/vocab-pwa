@@ -64,6 +64,7 @@ my-pack.zip
         "example": "The room was full of light.",
         "exampleTarget": "light",
         "exampleTranslation": "部屋は光で満ちていた。",
+        "exampleTranslationTarget": "光",
         "exampleAudio": { "file": "example-0001-1.mp3" }
       },
       {
@@ -102,6 +103,7 @@ my-pack.zip
 | `example` | ○ | 例文（英語） |
 | `exampleTarget` | | 例文の中に出てくる該当語の形（例: `runs`、`ran`）。穴埋めの空欄にする部分。省略時は見出し語を例文から探す |
 | `exampleTranslation` | ○ | 例文の訳 |
+| `exampleTranslationTarget` | | 例文の訳の中で、該当語にあたる部分（例: `光`）。日本語 → 解説の表面で太字にする。`exampleTranslation` にそのまま含まれる文字列にする。省略時や見つからないときは太字にしない |
 | `exampleAudio` | | 例文の音声（後述の「音声の指定」） |
 
 ### イディオム（`idioms[]`）
@@ -156,7 +158,7 @@ my-pack.zip
 | 表面 | 必須項目に加えて必要なもの |
 |---|---|
 | 英語 → 解説 | なし |
-| 日本語 → 解説 | なし（`exampleTarget` がない場合は見出し語を例文から探し、見つからなければ出題しない） |
+| 日本語 → 解説 | なし（`exampleTarget` がない場合は見出し語を例文から探し、見つからなければその用法は使わない。`exampleTranslationTarget` があれば訳のその部分を太字にする） |
 | 単語の音声 → 解説 | `audio` |
 | 例文の音声 → 解説 | `exampleAudio`（1 つ以上の用法に） |
 
