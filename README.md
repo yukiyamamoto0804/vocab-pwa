@@ -16,26 +16,18 @@
 - コードは MIT（[LICENSE](LICENSE)）。
 - デモ教材（`demo/`）は CC BY-SA 4.0（[demo/LICENSE](demo/LICENSE)）。材料の NGSL（CC BY-SA 4.0）・EJDict-hand（CC0 1.0）の出典は [demo/README.md](demo/README.md) を参照してください。
 
-## 開発
-
-必要なもの: Node.js 22.12 以上
-
-```sh
-npm install
-npm run dev
-```
-
-clone した後は、コミット前のチェック（git フック）を有効にし、禁止語リストを作ってください（語がなければ空のファイルでかまいません。[docs/RULES.md](docs/RULES.md) 8 章）。
-
-```sh
-git config core.hooksPath scripts/git-hooks
-touch .git/info/copyright-denylist
-```
-
 ## ドキュメント
 
-- [docs/RULES.md](docs/RULES.md) — 開発の基本ルール
+使う人・自分のデータを作る人・デモ教材の道具を使う人へ:
+
 - [docs/CREATING_PACKS.md](docs/CREATING_PACKS.md) — 自分のデータで教材パックを作る手順
 - [docs/CONTENT_FORMAT.md](docs/CONTENT_FORMAT.md) — 教材パックの形式
+- [demo/README.md](demo/README.md) — デモ教材の出典・ライセンス・作り方
+- [scripts/demo/README.md](scripts/demo/README.md) — デモ教材の道具（中身の確かめ・音声の作成）の使い方
+
+開発する人へ:
+
+- [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) — 開発の作業手順（環境の用意・レビューとコミット・実装の進み具合・デモ教材の中身を作る手順）
+- [docs/RULES.md](docs/RULES.md) — 開発の基本ルール
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — 画面構成・フォルダ構成・データ構造・実装の順番
 - [docs/specs/](docs/specs/) — 機能ごとの仕様書（暗記カード・デモ教材）

@@ -2,7 +2,7 @@
 
 アプリの「デモを試す」で読み込む、見本の教材パックです。20 語 × 2 ユニット（40 語）。
 教材パックの形式（`docs/CONTENT_FORMAT.md`）の項目をどれも 1 回以上使っているので、自分のデータを作るときの見本にできます。
-決まりは `docs/RULES.md` 11 章、作り方は `docs/specs/demo-pack.md` にあります。
+決まりは `docs/RULES.md` 11 章、作るものと確かめ方は `docs/specs/demo-pack.md`、作業の手順は `docs/DEVELOPMENT.md` にあります。
 
 ## ライセンス
 
