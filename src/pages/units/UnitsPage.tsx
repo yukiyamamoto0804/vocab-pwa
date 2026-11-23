@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useParams } from 'react-router'
+import { useLayoutEffect, useRef, useState } from 'react'
+import { Link, useLocation, useParams } from 'react-router'
 import { LinkList } from '../../components/LinkList'
 import { LoadError } from '../../components/LoadError'
 import { Loading } from '../../components/Loading'
@@ -21,6 +21,7 @@ import { FaceField } from './SheetControls'
 import { TestSheet } from './TestSheet'
 import styles from './UnitsPage.module.css'
 import { unitLabel } from './unitLabel'
+import { rememberUnitRow, takeUnitRow } from './unitRowPosition'
 
 export function UnitsPage() {
   const { packId = '' } = useParams()
@@ -39,6 +40,30 @@ export function UnitsPage() {
   const [reviewOpen, setReviewOpen] = useState(false)
   /** 選び直した表面の種類。選び直すまでは前回選んだもの（data の lastFace）を使う */
   const [chosenFace, setChosenFace] = useState<Face>()
+  const listRef = useRef<HTMLDivElement>(null)
+  /** 学習画面から戻ってきたか（pages/study/returnFromStudy.ts の RETURN_FROM_STUDY。pages 同士は import しない） */
+  const state: unknown = useLocation().state
+  const fromStudy =
+    typeof state === 'object' &&
+    state !== null &&
+    'returnFromStudy' in state &&
+    state.returnFromStudy === true
+
+  // ユニット学習から戻ったら、学習を始めたときと同じ高さにそのユニットの行が来るようにスクロールする
+  // （続けて次のユニットを選びやすいように。study-cards.md 6 章）。描画の前に合わせ、一瞬上から見えないようにする
+  useLayoutEffect(() => {
+    if (data.status !== 'done') return
+    // ほかの経路で開いたときも覚えた位置は取り出して忘れ、使わない
+    const position = takeUnitRow(packId)
+    if (!fromStudy || !position) return
+    const row = listRef.current?.querySelector<HTMLElement>(
+      `[data-key="${position.unitId}"]`,
+    )
+    if (!row) return
+    window.scrollTo({
+      top: window.scrollY + row.getBoundingClientRect().top - position.top,
+    })
+  }, [data.status, packId, fromStudy])
 
   if (data.status === 'loading') return <Loading />
   if (data.status === 'error') return <LoadError />
@@ -93,24 +118,32 @@ export function UnitsPage() {
       <div className={styles.faces}>
         <FaceField value={face} onChange={chooseFace} />
       </div>
-      <LinkList
-        items={units.map(({ unit, itemCount, learnedCount }) => ({
-          key: String(unit.id),
-          to: `/packs/${encodeURIComponent(packId)}/units/${unit.id}`,
-          title: unitLabel(unit),
-          meta: `${itemCount} 語・学習済み ${learnedCount} 語`,
-          badge: unit.id === lastUnitStudy?.unitId ? '前回' : undefined,
-          action: {
-            to: `/study?${buildStudyQuery({
-              mode: 'unit',
-              packId,
-              face,
-              unitId: unit.id,
-            })}`,
-            label: '学習',
-          },
-        }))}
-      />
+      <div ref={listRef}>
+        <LinkList
+          items={units.map(({ unit, itemCount, learnedCount }) => ({
+            key: String(unit.id),
+            to: `/packs/${encodeURIComponent(packId)}/units/${unit.id}`,
+            title: unitLabel(unit),
+            meta: `${itemCount} 語・学習済み ${learnedCount} 語`,
+            badge: unit.id === lastUnitStudy?.unitId ? '前回' : undefined,
+            action: {
+              to: `/study?${buildStudyQuery({
+                mode: 'unit',
+                packId,
+                face,
+                unitId: unit.id,
+              })}`,
+              label: '学習',
+              onClick: (row) =>
+                rememberUnitRow({
+                  packId,
+                  unitId: unit.id,
+                  top: row.getBoundingClientRect().top,
+                }),
+            },
+          }))}
+        />
+      </div>
       {/* ライセンスと出典を、取り込んだ後も確かめられるようにする（docs/specs/demo-pack.md 6 章） */}
       <details className={styles.about}>
         <summary>このパックについて</summary>

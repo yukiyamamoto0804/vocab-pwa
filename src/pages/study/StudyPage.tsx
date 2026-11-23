@@ -34,6 +34,7 @@ import {
 } from '../../features/session/testItems'
 import { shuffle } from '../../lib/random'
 import { useAsync } from '../../lib/useAsync'
+import { RETURN_FROM_STUDY } from './returnFromStudy'
 import styles from './StudyPage.module.css'
 import { StudySession } from './StudySession'
 
@@ -76,7 +77,11 @@ function ResumeGate({ query }: { query: StudyQuery }) {
         >
           最初から
         </button>
-        <Link to={`/packs/${encodeURIComponent(query.packId)}`} replace>
+        <Link
+          to={`/packs/${encodeURIComponent(query.packId)}`}
+          replace
+          state={RETURN_FROM_STUDY}
+        >
           ← ユニット一覧
         </Link>
       </div>
@@ -106,7 +111,11 @@ function ResumeGate({ query }: { query: StudyQuery }) {
         >
           最初から
         </button>
-        <Link to={`/packs/${encodeURIComponent(query.packId)}`} replace>
+        <Link
+          to={`/packs/${encodeURIComponent(query.packId)}`}
+          replace
+          state={RETURN_FROM_STUDY}
+        >
           ← ユニット一覧
         </Link>
       </div>
@@ -194,7 +203,9 @@ function UnitStudy({ query }: { query: UnitQuery }) {
     return (
       <>
         <p>ユニットが見つからないか、単語がありません。</p>
-        <Link to={unitsPath}>← ユニット一覧</Link>
+        <Link to={unitsPath} state={RETURN_FROM_STUDY}>
+          ← ユニット一覧
+        </Link>
       </>
     )
   }
@@ -203,7 +214,9 @@ function UnitStudy({ query }: { query: UnitQuery }) {
       <>
         <h1>学習</h1>
         <p>{noFaceDataMessage(face)}</p>
-        <Link to={unitsPath}>← ユニット一覧</Link>
+        <Link to={unitsPath} state={RETURN_FROM_STUDY}>
+          ← ユニット一覧
+        </Link>
       </>
     )
   }
@@ -258,7 +271,9 @@ function TestStudy({ query }: { query: TestQuery }) {
             ? noFaceDataMessage(face)
             : '範囲に出題できる単語がありません。'}
         </p>
-        <Link to={unitsPath}>← ユニット一覧</Link>
+        <Link to={unitsPath} state={RETURN_FROM_STUDY}>
+          ← ユニット一覧
+        </Link>
       </>
     )
   }
@@ -307,7 +322,9 @@ function ReviewStudy({ query }: { query: ReviewQuery }) {
             ? noFaceDataMessage(face)
             : `直前 ${sessionCount} 回の学習に、忘れたままの単語はありません。`}
         </p>
-        <Link to={unitsPath}>← ユニット一覧</Link>
+        <Link to={unitsPath} state={RETURN_FROM_STUDY}>
+          ← ユニット一覧
+        </Link>
       </>
     )
   }

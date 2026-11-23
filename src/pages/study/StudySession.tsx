@@ -51,6 +51,7 @@ import { ExampleAudioFront } from './ExampleAudioFront'
 import { FitContent } from './FitContent'
 import { JaFront } from './JaFront'
 import { RATING_LABELS } from './ratingLabels'
+import { RETURN_FROM_STUDY } from './returnFromStudy'
 import { StudyCard } from './StudyCard'
 import styles from './StudySession.module.css'
 
@@ -310,7 +311,12 @@ function StudySessionBody(props: Props & DisplaySettings) {
   const topBar = (
     <div className={styles.topBar}>
       {/* 戻る操作で、やめた学習にまた入らないよう、履歴に積まない */}
-      <Link to={exitPath} replace className={styles.exit}>
+      <Link
+        to={exitPath}
+        replace
+        state={RETURN_FROM_STUDY}
+        className={styles.exit}
+      >
         {/* 終えた後は、中断ではなく閉じるだけ */}
         {isFinished(state.deck) ? '閉じる' : '中断'}
       </Link>
@@ -490,7 +496,12 @@ function Summary({ counts, exitPath }: { counts: Counts; exitPath: string }) {
           </li>
         ))}
       </ul>
-      <Link to={exitPath} replace className={styles.done}>
+      <Link
+        to={exitPath}
+        replace
+        state={RETURN_FROM_STUDY}
+        className={styles.done}
+      >
         ユニット一覧へ
       </Link>
     </div>
