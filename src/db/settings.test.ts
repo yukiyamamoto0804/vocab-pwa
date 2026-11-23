@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { VocabDatabase } from './database'
 import {
   getExampleTextShown,
+  getFrontSenseChoice,
   getLastExport,
   getLastFace,
   getLastTest,
@@ -12,6 +13,7 @@ import {
   lastTestSetting,
   lastUnitStudySetting,
   saveExampleTextShown,
+  saveFrontSenseChoice,
   saveLastExport,
   saveLastFace,
   saveUnitStudySettings,
@@ -117,6 +119,7 @@ describe('isBackedUpSettingKey', () => {
       'face',
       'unitStudy',
       'exampleTextShown',
+      'frontSense',
       'lastTest:pack-a',
       'lastUnitStudy:pack-a',
     ])
@@ -139,5 +142,15 @@ describe('getLastExport / saveLastExport', () => {
     expect(await getLastExport(db)).toBe(1234)
     await db.settings.put({ key: 'lastExport', value: '1234' })
     expect(await getLastExport(db)).toBeUndefined()
+  })
+})
+
+describe('getFrontSenseChoice / saveFrontSenseChoice', () => {
+  it('保存した選び方を読み出す。保存していない・形の違う値なら random', async () => {
+    expect(await getFrontSenseChoice(db)).toBe('random')
+    await saveFrontSenseChoice('first', db)
+    expect(await getFrontSenseChoice(db)).toBe('first')
+    await db.settings.put({ key: 'frontSense', value: 'last' })
+    expect(await getFrontSenseChoice(db)).toBe('random')
   })
 })

@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { Explanation } from '../../components/Explanation'
+import { Loading } from '../../components/Loading'
 import { PlayButton, type PlayButtonSize } from '../../components/PlayButton'
-import { getExampleTextShown } from '../../db/settings'
+import {
+  type FrontSenseChoice,
+  getExampleTextShown,
+  getFrontSenseChoice,
+} from '../../db/settings'
 import {
   type InProgressStudy,
   restoreBeforeAnswer,
@@ -81,7 +86,39 @@ interface Props {
   notice?: string
 }
 
+/** 学習画面で使う表面の表示の設定 */
+interface DisplaySettings {
+  /** 表面に例文を使う種類の例文の選び方（study-cards.md 4 章） */
+  frontSenseChoice: FrontSenseChoice
+  /** 例文の音声 → 解説で、空欄の英文を最初から表示するか（study-cards.md 3 章） */
+  exampleTextShown: boolean
+}
+
+const loadDisplaySettings = async (): Promise<DisplaySettings> => {
+  const [frontSenseChoice, exampleTextShown] = await Promise.all([
+    getFrontSenseChoice(),
+    getExampleTextShown(),
+  ])
+  return { frontSenseChoice, exampleTextShown }
+}
+
+// 表面に使う用法は学習を始めるときに 1 回だけ選ぶので、設定を読み終えてから学習を始める。
+// 1 枚目のカードで例文が後から出てこないよう、表示の設定もここでまとめて読む
 export function StudySession(props: Props) {
+  const settings = useAsync(loadDisplaySettings, [])
+  if (settings.status === 'loading') return <Loading />
+  // 読めなかったときは初期値（ランダム・例文はボタンで表示）で始める
+  return (
+    <StudySessionBody
+      {...props}
+      {...(settings.status === 'done'
+        ? settings.value
+        : { frontSenseChoice: 'random', exampleTextShown: false })}
+    />
+  )
+}
+
+function StudySessionBody(props: Props & DisplaySettings) {
   const { packId, mode, face, items, exitPath, studyKey, notice } = props
   const [order] = useState(() => items.map((i) => i.id))
   const [state, setState] = useState<State>(() =>
@@ -145,16 +182,14 @@ export function StudySession(props: Props) {
         face === 'ja' || face === 'example-audio'
           ? items.map((i): [string, number] => [
               i.id,
-              props.resume?.frontSenses.get(i.id) ?? pickFrontSense(i, face),
+              props.resume?.frontSenses.get(i.id) ??
+                pickFrontSense(i, face, props.frontSenseChoice),
             ])
           : [],
       ),
   )
 
-  /** 例文の音声 → 解説で、空欄の英文を最初から表示するか（設定）。読み込むまでは、初期値どおりボタンで表示する */
-  const exampleTextSetting = useAsync(getExampleTextShown, [])
-  const exampleTextShown =
-    exampleTextSetting.status === 'done' && exampleTextSetting.value
+  const { exampleTextShown } = props
 
   // 画面を離れたら、再生中の音声を止める
   useEffect(() => stopAudio, [])
@@ -304,10 +339,6 @@ export function StudySession(props: Props) {
           : '保存できませんでした。もう一度操作してください。'}
     </p>
   )
-
-  // 例文の音声 → 解説では、設定（例文を最初から表示するか）を読み込むまでカードを出さない（一瞬ボタンが見えないように）
-  if (face === 'example-audio' && exampleTextSetting.status === 'loading')
-    return null
 
   if (!item) {
     return (

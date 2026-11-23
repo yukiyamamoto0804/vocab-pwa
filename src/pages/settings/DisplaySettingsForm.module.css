@@ -29,3 +29,16 @@
   font-size: 14px;
   background: var(--color-warning-surface);
 }
+
+/* 選択肢の組（例文の選び方）。枠線は出さない */
+.group {
+  margin: 8px 0 0;
+  padding: 0;
+  border: none;
+}
+
+.legend {
+  margin-bottom: 4px;
+  padding: 0;
+  font-weight: bold;
+}

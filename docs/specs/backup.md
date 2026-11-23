@@ -68,7 +68,7 @@
 | `reports` | 含める | `study-cards.md` 10 章 |
 | `settings` | 一部を含める | 下記 |
 
-- `settings` のうち含めるもの: 前回選んだ表面の種類（`face`）、ユニット学習の設定（`unitStudy`）、例文を最初から表示するか（`exampleTextShown`）、最後にテストした日時と範囲（`lastTest:<packId>`）、最後にユニット学習した日時とユニット（`lastUnitStudy:<packId>`）。
+- `settings` のうち含めるもの: 前回選んだ表面の種類（`face`）、ユニット学習の設定（`unitStudy`）、例文を最初から表示するか（`exampleTextShown`）、例文の選び方（`frontSense`）、最後にテストした日時と範囲（`lastTest:<packId>`）、最後にユニット学習した日時とユニット（`lastUnitStudy:<packId>`）。
 - 含めないもの:
   - 途中でやめた学習の状態（`inProgress:<packId>`）。出題の並びは、戻した先の教材と食い違うことがあり、続きから再開できる保証がないため。
   - エクスポートの記録（`lastExport`、`exportChoice`）。端末ごとの値のため。

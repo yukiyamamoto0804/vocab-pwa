@@ -77,7 +77,7 @@ describe('pickFrontSense', () => {
       word: 'light',
       senses: [sense('No match.'), sense('A light bag.')],
     }
-    expect(pickFrontSense(item, 'ja', () => 0)).toBe(1)
+    expect(pickFrontSense(item, 'ja', 'random', () => 0)).toBe(1)
   })
 
   it('例文の音声 → 解説は、例文の音声がある用法から選ぶ', () => {
@@ -89,7 +89,23 @@ describe('pickFrontSense', () => {
         { ...sense('Light it.'), exampleAudio: { file: 'b.m4a' } },
       ],
     }
-    expect(pickFrontSense(item, 'example-audio', () => 0)).toBe(1)
-    expect(pickFrontSense(item, 'example-audio', () => 0.99)).toBe(2)
+    expect(pickFrontSense(item, 'example-audio', 'random', () => 0)).toBe(1)
+    expect(pickFrontSense(item, 'example-audio', 'random', () => 0.99)).toBe(2)
+  })
+
+  it('選び方が first なら、使える用法のうちいちばん前のものを選ぶ', () => {
+    const item = {
+      word: 'light',
+      senses: [
+        sense('No match.'),
+        { ...sense('A light bag.'), exampleAudio: { file: 'a.m4a' } },
+        { ...sense('Light it.'), exampleAudio: { file: 'b.m4a' } },
+      ],
+    }
+    // 1 個目は空欄にする語が見つからず、例文の音声もないので、次に使える用法。
+    // ランダムなら後ろを選ぶ乱数でも、いちばん前のものを選ぶ
+    expect(pickFrontSense(item, 'ja', 'first', () => 0.99)).toBe(1)
+    expect(pickFrontSense(item, 'example-audio', 'first', () => 0.99)).toBe(1)
+    expect(pickFrontSense(item, 'example-audio', 'random', () => 0.99)).toBe(2)
   })
 })

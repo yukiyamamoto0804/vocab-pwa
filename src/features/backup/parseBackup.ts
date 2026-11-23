@@ -1,5 +1,6 @@
 import {
   backedUpSettingKind,
+  parseFrontSenseChoice,
   parseLastTest,
   parseLastUnitStudy,
 } from '../../db/settings'
@@ -235,6 +236,8 @@ function checkSettingValue(
       return includes(FACES, value) ? { value } : undefined
     case 'exampleTextShown':
       return typeof value === 'boolean' ? { value } : undefined
+    case 'frontSense':
+      return parseFrontSenseChoice(value) !== undefined ? { value } : undefined
     case 'lastTest':
       return parseLastTest(value) !== undefined ? { value } : undefined
     case 'lastUnitStudy':

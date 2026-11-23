@@ -24,6 +24,7 @@ const settings = [
   { key: 'face', value: 'ja' },
   { key: 'unitStudy', value: { mixCount: 0, mixSessionRange: 10 } },
   { key: 'exampleTextShown', value: true },
+  { key: 'frontSense', value: 'first' },
   { key: 'lastTest:pack-a', value: { at: 1, fromUnit: 1, toUnit: 2 } },
   { key: 'lastUnitStudy:pack-a', value: { at: 1, unitId: 3 } },
 ]
@@ -148,6 +149,7 @@ describe('parseRecordsBackup', () => {
       file({ settings: [{ key, value }] })
     expectError(bad('face', 'xx'), 'face の値')
     expectError(bad('exampleTextShown', 'yes'), 'exampleTextShown の値')
+    expectError(bad('frontSense', 'last'), 'frontSense の値')
     expectError(bad('lastTest:pack-a', { at: 1 }), 'lastTest:pack-a の値')
     expectError(bad('lastUnitStudy:pack-a', null), 'lastUnitStudy:pack-a の値')
     expectError(bad('unitStudy', 3), 'unitStudy の値')

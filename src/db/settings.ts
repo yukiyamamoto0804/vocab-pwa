@@ -150,6 +150,7 @@ export type BackedUpSettingKind =
   | 'face'
   | 'unitStudy'
   | 'exampleTextShown'
+  | 'frontSense'
   | 'lastTest'
   | 'lastUnitStudy'
 
@@ -163,6 +164,7 @@ export function backedUpSettingKind(
   if (key === FACE_KEY) return 'face'
   if (key === UNIT_STUDY_KEY) return 'unitStudy'
   if (key === EXAMPLE_TEXT_SHOWN_KEY) return 'exampleTextShown'
+  if (key === FRONT_SENSE_KEY) return 'frontSense'
   if (key.startsWith(lastTestKey(''))) return 'lastTest'
   if (key.startsWith(lastUnitStudyKey(''))) return 'lastUnitStudy'
   return undefined
@@ -170,6 +172,39 @@ export function backedUpSettingKind(
 
 export function isBackedUpSettingKey(key: string): boolean {
   return backedUpSettingKind(key) !== undefined
+}
+
+/**
+ * 表面に例文を使う種類（日本語 → 解説、例文の音声 → 解説）で、用法が複数ある単語の例文の選び方
+ * （docs/specs/study-cards.md 4 章）。first: 使える用法のうちいちばん前のもの、random: 使える用法からランダム
+ */
+export const FRONT_SENSE_CHOICES = ['random', 'first'] as const
+export type FrontSenseChoice = (typeof FRONT_SENSE_CHOICES)[number]
+
+const FRONT_SENSE_KEY = 'frontSense'
+
+/** 例文の選び方を取り出す。形が違えば undefined */
+export function parseFrontSenseChoice(
+  value: unknown,
+): FrontSenseChoice | undefined {
+  return FRONT_SENSE_CHOICES.find((c) => c === value)
+}
+
+/** 例文の選び方。アプリ全体で 1 つ。保存していない・形の違う値なら random（初期値） */
+export async function getFrontSenseChoice(
+  db: VocabDatabase = defaultDb,
+): Promise<FrontSenseChoice> {
+  return (
+    parseFrontSenseChoice((await db.settings.get(FRONT_SENSE_KEY))?.value) ??
+    'random'
+  )
+}
+
+export async function saveFrontSenseChoice(
+  choice: FrontSenseChoice,
+  db: VocabDatabase = defaultDb,
+): Promise<void> {
+  await db.settings.put({ key: FRONT_SENSE_KEY, value: choice })
 }
 
 const LAST_EXPORT_KEY = 'lastExport'

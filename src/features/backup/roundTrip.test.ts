@@ -6,6 +6,7 @@ import {
   lastTestSetting,
   lastUnitStudySetting,
   saveExampleTextShown,
+  saveFrontSenseChoice,
   saveLastExport,
   saveLastFace,
   saveUnitStudySettings,
@@ -74,6 +75,7 @@ describe('学習記録の書き出しと読み込み', () => {
     await saveUnitStudySettings({ mixCount: 0, mixSessionRange: 10 }, from)
     await saveLastFace('word-audio', from)
     await saveExampleTextShown(true, from)
+    await saveFrontSenseChoice('first', from)
     await saveLastExport(800, from)
 
     // 書き出す側には途中の学習がある

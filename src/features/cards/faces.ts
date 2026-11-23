@@ -1,3 +1,4 @@
+import type { FrontSenseChoice } from '../../db/settings'
 import type { Face, ItemRecord } from '../../db/types'
 import type { Random } from '../../lib/random'
 import { clozeSenseIndexes } from './cloze'
@@ -48,14 +49,17 @@ export function hasFaceData(
 
 /**
  * 表面に例文を使う種類で、表面に使う用法を選ぶ（学習を始めるときに単語ごとに 1 回）。
- * 日本語 → 解説は例文に該当語が見つかる用法から、例文の音声 → 解説は例文の音声がある用法から、ランダムに選ぶ（study-cards.md 3 章）
+ * 日本語 → 解説は例文に該当語が見つかる用法から、例文の音声 → 解説は例文の音声がある用法から選ぶ。
+ * 選び方（設定）が first ならいちばん前のもの、random ならランダムに選ぶ（study-cards.md 4 章）
  */
 export function pickFrontSense(
   item: Pick<ItemRecord, 'word' | 'senses'>,
   face: 'ja' | 'example-audio',
+  choice: FrontSenseChoice,
   random: Random = Math.random,
 ): number {
   const candidates = frontSenseCandidates(item, face)
+  if (choice === 'first') return candidates[0] ?? 0
   return candidates[Math.floor(random() * candidates.length)] ?? 0
 }
 
