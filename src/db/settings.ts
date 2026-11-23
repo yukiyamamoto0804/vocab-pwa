@@ -188,3 +188,32 @@ export async function saveLastExport(
 ): Promise<void> {
   await db.settings.put({ key: LAST_EXPORT_KEY, value: at })
 }
+
+/** エクスポートの選び方（docs/specs/backup.md 2 章） */
+export const EXPORT_KINDS = ['records-and-packs', 'records', 'packs'] as const
+export type ExportKind = (typeof EXPORT_KINDS)[number]
+
+/** 前回のエクスポートの選び方と選んだパック。端末ごとの値で、学習記録のファイルには含めない */
+export interface ExportChoice {
+  kind: ExportKind
+  /** 選んだパック */
+  packIds: string[]
+  /** エクスポートした時点で取り込んであったパック（後で取り込んだパックを見分けるため） */
+  knownPackIds: string[]
+}
+
+const EXPORT_CHOICE_KEY = 'exportChoice'
+
+/** 保存した選び方を、確かめずにそのまま返す。確かめるのは features/backup/exportChoice.ts */
+export async function getStoredExportChoice(
+  db: VocabDatabase = defaultDb,
+): Promise<unknown> {
+  return (await db.settings.get(EXPORT_CHOICE_KEY))?.value
+}
+
+export async function saveExportChoice(
+  choice: ExportChoice,
+  db: VocabDatabase = defaultDb,
+): Promise<void> {
+  await db.settings.put({ key: EXPORT_CHOICE_KEY, value: choice })
+}

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import styles from './BackupSection.module.css'
-import { ExportRecords } from './ExportRecords'
+import { ExportBackup } from './ExportBackup'
 import { ImportRecords } from './ImportRecords'
 
 // 設定画面の「バックアップ」（docs/specs/backup.md）
@@ -9,7 +9,7 @@ export function BackupSection({ onReplaced }: { onReplaced: () => void }) {
   const [sheetClosedCount, setSheetClosedCount] = useState(0)
   return (
     <div className={styles.section}>
-      <ExportRecords reloadKey={sheetClosedCount} />
+      <ExportBackup reloadKey={sheetClosedCount} />
       <ImportRecords
         onReplaced={onReplaced}
         onSheetClosed={() => setSheetClosedCount((n) => n + 1)}

@@ -6,10 +6,13 @@ import {
 import { isBackedUpSettingKey } from './settings'
 import { inProgressKey } from './study'
 import type {
+  ItemRecord,
+  PackRecord,
   ProgressRecord,
   ReportRecord,
   SettingRecord,
   StudySessionRecord,
+  UnitRecord,
 } from './types'
 
 // 学習記録のバックアップの読み書き（docs/specs/backup.md）
@@ -100,4 +103,41 @@ export async function replaceBackupRecords(
     },
   )
   notifyRecordsReplaced()
+}
+
+/** 教材パックの zip を作り直すための、端末に保存した教材（docs/specs/backup.md 4 章） */
+export interface PackForExport {
+  pack: PackRecord
+  /** 番号順 */
+  units: UnitRecord[]
+  /** パック内の並び順 */
+  items: ItemRecord[]
+  /** 音声ファイルの名前。中身は大きいので、1 つずつ getAudioBlob で読む */
+  audioFiles: string[]
+}
+
+/** パックの教材を読み出す。パックがなければ undefined。食い違わないよう、1 つの読み取りのトランザクションで読む */
+export function readPackForExport(
+  packId: string,
+  db: VocabDatabase = defaultDb,
+): Promise<PackForExport | undefined> {
+  return db.transaction(
+    'r',
+    [db.packs, db.units, db.items, db.audioFiles],
+    async () => {
+      const pack = await db.packs.get(packId)
+      if (!pack) return undefined
+      const [units, items, audioKeys] = await Promise.all([
+        db.units.where('packId').equals(packId).toArray(),
+        db.items.where('packId').equals(packId).toArray(),
+        db.audioFiles.where('packId').equals(packId).primaryKeys(),
+      ])
+      return {
+        pack,
+        units: units.sort((a, b) => a.id - b.id),
+        items: items.sort((a, b) => a.order - b.order),
+        audioFiles: audioKeys.map(([, file]) => file),
+      }
+    },
+  )
 }

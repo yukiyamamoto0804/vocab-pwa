@@ -10,7 +10,7 @@ import {
 } from '../../features/backup/importRecords'
 import type { RecordsBackup } from '../../features/backup/recordsFile'
 import styles from './BackupSection.module.css'
-import { ExportRecords } from './ExportRecords'
+import { ExportBackup } from './ExportBackup'
 import { formatDateTime } from './formatDateTime'
 
 /** 置き換える前の確認に出す内容 */
@@ -204,7 +204,7 @@ function ConfirmSheet({
               <p className={styles.warning}>
                 今の記録は消えます。残しておくなら、先にエクスポートしてください。
               </p>
-              <ExportRecords compact />
+              <ExportBackup compact />
             </>
           )}
         </section>

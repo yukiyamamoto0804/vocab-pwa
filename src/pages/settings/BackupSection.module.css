@@ -113,3 +113,52 @@
   margin: 8px 0;
   font-weight: bold;
 }
+
+/* 書き出すものとパックの選択 */
+.choices {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+}
+
+.choice input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+
+/* 作ったファイルの一覧 */
+.files {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fileRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fileName {
+  flex: 1;
+  font-size: 14px;
+}
+
+.fileRow .button {
+  flex: none;
+  padding: 0 16px;
+}
