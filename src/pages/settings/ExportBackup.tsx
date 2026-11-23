@@ -51,7 +51,14 @@ type Busy =
   | { step: 'saving' }
 
 type Message =
-  | { kind: 'shared' | 'downloaded' | 'save-error' | 'share-all-error' }
+  | {
+      kind:
+        | 'shared'
+        | 'downloaded'
+        | 'save-error'
+        | 'share-all-error'
+        | 'selection-changed'
+    }
   | { kind: 'create-error'; detail: string }
 
 const KIND_LABELS: Record<ExportKind, string> = {
@@ -141,6 +148,16 @@ export function ExportBackup({
     busy === undefined &&
     (compact || packs !== undefined) &&
     (!includesPacks(kind) || selectedPacks.length > 0)
+
+  /**
+   * 書き出すものを選び直す。前に作ったファイルは選び方と合わなくなるので消す
+   * （残すと、一覧の「保存する」で前の選び方のファイルを保存してしまう）
+   */
+  function changeSelection(next: ExportSelection) {
+    setSelection(next)
+    if (created) setMessage({ kind: 'selection-changed' })
+    setCreated(undefined)
+  }
 
   async function create() {
     if (working.current) return
@@ -289,7 +306,7 @@ export function ExportBackup({
                   type="radio"
                   name="export-kind"
                   checked={selection.kind === k}
-                  onChange={() => setSelection({ ...selection, kind: k })}
+                  onChange={() => changeSelection({ ...selection, kind: k })}
                 />
                 {KIND_LABELS[k]}
               </label>
@@ -322,7 +339,7 @@ export function ExportBackup({
                       const next = new Set(selection.packIds)
                       if (e.target.checked) next.add(p.id)
                       else next.delete(p.id)
-                      setSelection({ ...selection, packIds: next })
+                      changeSelection({ ...selection, packIds: next })
                     }}
                   />
                   {p.title}
@@ -414,6 +431,8 @@ export function ExportBackup({
 
 const MESSAGES: Record<Exclude<Message['kind'], 'create-error'>, string> = {
   shared: '書き出しました。',
+  'selection-changed':
+    '書き出すものを変えたので、作ったファイルを消しました。もう一度「エクスポート」を押してください。',
   downloaded:
     'ダウンロードしました（ブラウザのダウンロードの保存先にあります）。',
   'save-error': '保存できませんでした。もう一度「保存する」を押してください。',
