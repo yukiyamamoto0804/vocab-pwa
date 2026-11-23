@@ -15,6 +15,7 @@ import type { Face } from '../../db/types'
 import { DEFAULT_FACE } from '../../features/cards/faces'
 import { buildStudyQuery } from '../../features/session/studyQuery'
 import { defaultTestRange } from '../../features/session/testItems'
+import { pageScrollerOf } from '../../lib/pageScroller'
 import { isReturnToUnits } from '../../lib/returnToUnits'
 import { useAsync } from '../../lib/useAsync'
 import { ReviewSheet } from './ReviewSheet'
@@ -59,16 +60,19 @@ export function UnitsPage() {
       listRef.current?.querySelector<HTMLElement>(
         `[data-key="${position.unitId}"]`,
       )
-    if (position && row) {
+    const scroller = row && pageScrollerOf(row)
+    if (position && row && scroller) {
+      // スクロールするのは文書ではなく、画面の中身の箱（app/Layout.tsx。この画面を開くたびに新しく作られ、上から始まる）
       const align = () => {
         // 合わせ直す前に画面を離れていたら（行が外れていたら）何もしない
         if (!row.isConnected) return
-        window.scrollTo({
-          top: window.scrollY + row.getBoundingClientRect().top - position.top,
+        scroller.scrollTo({
+          top:
+            scroller.scrollTop + row.getBoundingClientRect().top - position.top,
         })
       }
       align()
-      // 描いた後にもう一度合わせる。描く前に合わせた位置が、端末（iOS Safari などを想定。未確認）によっては
+      // 次のコマを描く前にもう一度合わせる。初めの位置合わせが、端末（iOS Safari などを想定。未確認）によっては
       // 効かないことがあるかもしれないため
       requestAnimationFrame(align)
     }

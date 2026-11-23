@@ -1,13 +1,14 @@
 .layout {
+  /* 画面の高さちょうどにし、文書（window）はスクロールさせない。中身は main（.scroller）の中でスクロールする */
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
   max-width: 480px;
   margin: 0 auto;
 }
 
 .header {
-  position: sticky;
-  top: 0;
-  /* 下に固定する部品（--header-height を使うもの）より手前に出す */
-  z-index: 2;
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -39,6 +40,15 @@
   background: var(--color-surface);
 }
 
+/* 画面の中身をスクロールする箱。画面ごとに作り直す（Layout.tsx） */
+.scroller {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  /* 端まで送ったときに、外側（文書）が引っ張られて動かないようにする */
+  overscroll-behavior: contain;
+}
+
 .main {
   display: flex;
   flex-direction: column;
@@ -47,6 +57,7 @@
 }
 
 .outdated {
+  flex: none;
   margin: 8px 16px 0;
   padding: 12px 16px;
   border-radius: 8px;

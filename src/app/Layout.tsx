@@ -1,17 +1,16 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { DB_OUTDATED_EVENT, listenRecordsReplaced } from '../db/database'
+import { PAGE_SCROLLER_PROPS } from '../lib/pageScroller'
 import styles from './Layout.module.css'
 
 export function Layout() {
-  // 画面を移ったら上から表示する。前の画面のスクロール位置が残ると、新しい画面の中身が揃うまでに
-  // ブラウザが位置を詰めるかどうかで、下のほうから始まることがあるため。
-  // ユニット一覧で元の位置に戻すときは、一覧を読み終えた後（この処理より後）に、一覧の画面が合わせる
+  // 画面を移ったら上から表示する。文書（window）はスクロールさせず、画面（URL）ごとに新しいスクロールの箱（main）を
+  // 作り直す（key）。新しい箱は必ず上から始まり、前の画面の位置を持ち越さない。
+  // 文書の位置を scrollTo で上に戻す作りでは、iPhone の PWA で、前の画面の深い位置が新しい画面の下端に詰められて
+  // 当て直され、単語一覧などがいちばん下から始まることがあったため（docs/ARCHITECTURE.md 1 章）。
+  // ユニット一覧で元の位置に戻すときは、一覧の画面がこの箱の位置を合わせる
   const { pathname, search } = useLocation()
-  // biome-ignore lint/correctness/useExhaustiveDependencies: 画面（URL）が変わったときだけ上に戻す
-  useLayoutEffect(() => {
-    window.scrollTo(0, 0)
-  }, [pathname, search])
 
   /** 新しい版のアプリが DB を更新したか、ほかの画面が学習記録を置き換え、この画面では保存できなくなったか */
   const [outdated, setOutdated] = useState(false)
@@ -25,29 +24,9 @@ export function Layout() {
     }
   }, [])
 
-  // 画面の上に固定する部品（ユニット一覧の表面の種類など）を、ヘッダーのすぐ下に置けるよう、ヘッダーの高さを CSS 変数で渡す。
-  // 高さは端末の上部の余白（ノッチなど）や文字の大きさで変わるため、測って決める
-  const layoutRef = useRef<HTMLDivElement>(null)
-  const headerRef = useRef<HTMLElement>(null)
-  useEffect(() => {
-    const header = headerRef.current
-    const layout = layoutRef.current
-    if (!header || !layout || typeof ResizeObserver === 'undefined') return
-    const update = () =>
-      layout.style.setProperty(
-        '--header-height',
-        // 小数を切り捨て、固定した部品とヘッダーの間に隙間ができないようにする（重なる分はヘッダーが手前に出る）
-        `${Math.floor(header.getBoundingClientRect().height)}px`,
-      )
-    update()
-    const observer = new ResizeObserver(update)
-    observer.observe(header)
-    return () => observer.disconnect()
-  }, [])
-
   return (
-    <div ref={layoutRef} className={styles.layout}>
-      <header ref={headerRef} className={styles.header}>
+    <div className={styles.layout}>
+      <header className={styles.header}>
         <Link to="/" className={styles.appName}>
           単語帳
         </Link>
@@ -61,8 +40,14 @@ export function Layout() {
           ほかの画面で、アプリの更新か学習記録のインポートがありました。保存を続けるため、アプリを開き直してください。
         </p>
       )}
-      <main className={styles.main}>
-        <Outlet />
+      <main
+        key={pathname + search}
+        className={styles.scroller}
+        {...PAGE_SCROLLER_PROPS}
+      >
+        <div className={styles.main}>
+          <Outlet />
+        </div>
       </main>
     </div>
   )

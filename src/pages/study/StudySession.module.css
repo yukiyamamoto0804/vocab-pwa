@@ -1,6 +1,6 @@
 /*
  * ヘッダーと余白を除いた画面の高さいっぱいに、カードを広げる。
- * 140px は app/Layout.module.css のヘッダー（約 60px）と main の上下の余白（16px + 32px）、
+ * 140px は app/Layout.module.css のヘッダー（約 60px）と .main の上下の余白（16px + 32px）、
  * ゆとり（約 30px）の合計。Layout を変えたら合わせて直す
  */
 .screen {

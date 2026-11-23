@@ -42,9 +42,15 @@
   box-sizing: border-box;
 }
 
+/* 文書はスクロールさせない（中身は app/Layout の箱の中でスクロールする。docs/ARCHITECTURE.md 1 章）。
+   端を引いたときに画面全体が弾まないようにする（overscroll-behavior は body からは画面全体に伝わらないので html に付ける） */
+html {
+  overscroll-behavior: none;
+}
+
 body {
   margin: 0;
-  min-height: 100dvh;
+  overflow: hidden;
 }
 
 h1,

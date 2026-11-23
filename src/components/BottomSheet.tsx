@@ -5,6 +5,7 @@ import {
   useId,
   useRef,
 } from 'react'
+import { pageScrollerOf } from '../lib/pageScroller'
 import styles from './BottomSheet.module.css'
 
 interface Props {
@@ -34,11 +35,12 @@ export function BottomSheet({
     const dialog = dialogRef.current
     if (!dialog) return
     dialog.showModal()
-    // iOS では、背景をスワイプすると裏の一覧がスクロールしてしまうため、開いている間は止める
-    const root = document.documentElement
-    root.style.overflow = 'hidden'
+    // iOS では、背景をスワイプすると裏の一覧がスクロールしてしまうため、開いている間は止める。
+    // スクロールするのは画面の中身の箱（app/Layout.tsx）なので、その箱を止める
+    const scroller = pageScrollerOf(dialog)
+    if (scroller) scroller.style.overflow = 'hidden'
     return () => {
-      root.style.overflow = ''
+      if (scroller) scroller.style.overflow = ''
       dialog.close()
     }
   }, [])
