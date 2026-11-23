@@ -46,12 +46,12 @@ import {
 } from '../../features/session/sessionRecord'
 import { isQuotaError } from '../../lib/errors'
 import { randomId } from '../../lib/random'
+import { RETURN_TO_UNITS } from '../../lib/returnToUnits'
 import { useAsync } from '../../lib/useAsync'
 import { ExampleAudioFront } from './ExampleAudioFront'
 import { FitContent } from './FitContent'
 import { JaFront } from './JaFront'
 import { RATING_LABELS } from './ratingLabels'
-import { RETURN_FROM_STUDY } from './returnFromStudy'
 import { StudyCard } from './StudyCard'
 import styles from './StudySession.module.css'
 
@@ -314,7 +314,7 @@ function StudySessionBody(props: Props & DisplaySettings) {
       <Link
         to={exitPath}
         replace
-        state={RETURN_FROM_STUDY}
+        state={RETURN_TO_UNITS}
         className={styles.exit}
       >
         {/* 終えた後は、中断ではなく閉じるだけ */}
@@ -499,7 +499,7 @@ function Summary({ counts, exitPath }: { counts: Counts; exitPath: string }) {
       <Link
         to={exitPath}
         replace
-        state={RETURN_FROM_STUDY}
+        state={RETURN_TO_UNITS}
         className={styles.done}
       >
         ユニット一覧へ

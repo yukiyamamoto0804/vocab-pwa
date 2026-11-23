@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import { Link, useLocation, useParams } from 'react-router'
+import { Link, useLocation, useNavigate, useParams } from 'react-router'
 import { LinkList } from '../../components/LinkList'
 import { LoadError } from '../../components/LoadError'
 import { Loading } from '../../components/Loading'
@@ -15,6 +15,7 @@ import type { Face } from '../../db/types'
 import { DEFAULT_FACE } from '../../features/cards/faces'
 import { buildStudyQuery } from '../../features/session/studyQuery'
 import { defaultTestRange } from '../../features/session/testItems'
+import { isReturnToUnits } from '../../lib/returnToUnits'
 import { useAsync } from '../../lib/useAsync'
 import { ReviewSheet } from './ReviewSheet'
 import { FaceField } from './SheetControls'
@@ -41,29 +42,31 @@ export function UnitsPage() {
   /** 選び直した表面の種類。選び直すまでは前回選んだもの（data の lastFace）を使う */
   const [chosenFace, setChosenFace] = useState<Face>()
   const listRef = useRef<HTMLDivElement>(null)
-  /** 学習画面から戻ってきたか（pages/study/returnFromStudy.ts の RETURN_FROM_STUDY。pages 同士は import しない） */
-  const state: unknown = useLocation().state
-  const fromStudy =
-    typeof state === 'object' &&
-    state !== null &&
-    'returnFromStudy' in state &&
-    state.returnFromStudy === true
+  const location = useLocation()
+  const navigate = useNavigate()
+  /** 学習画面・単語一覧から戻ってきたか */
+  const returned = isReturnToUnits(location.state)
 
-  // ユニット学習から戻ったら、学習を始めたときと同じ高さにそのユニットの行が来るようにスクロールする
+  // 学習画面・単語一覧から戻ったら、行を押したときと同じ高さにそのユニットの行が来るようにスクロールする
   // （続けて次のユニットを選びやすいように。study-cards.md 6 章）。描画の前に合わせ、一瞬上から見えないようにする
   useLayoutEffect(() => {
     if (data.status !== 'done') return
     // ほかの経路で開いたときも覚えた位置は取り出して忘れ、使わない
     const position = takeUnitRow(packId)
-    if (!fromStudy || !position) return
-    const row = listRef.current?.querySelector<HTMLElement>(
-      `[data-key="${position.unitId}"]`,
-    )
-    if (!row) return
-    window.scrollTo({
-      top: window.scrollY + row.getBoundingClientRect().top - position.top,
-    })
-  }, [data.status, packId, fromStudy])
+    if (!returned) return
+    const row =
+      position &&
+      listRef.current?.querySelector<HTMLElement>(
+        `[data-key="${position.unitId}"]`,
+      )
+    if (position && row)
+      window.scrollTo({
+        top: window.scrollY + row.getBoundingClientRect().top - position.top,
+      })
+    // 印は履歴の項目に残るので、使ったら消す。
+    // 残すと、この一覧へブラウザの戻る操作で戻ったときにも、後で覚えた位置へ飛んでしまう
+    navigate(location.pathname, { replace: true, state: null })
+  }, [data.status, packId, returned, navigate, location.pathname])
 
   if (data.status === 'loading') return <Loading />
   if (data.status === 'error') return <LoadError />
@@ -84,6 +87,10 @@ export function UnitsPage() {
       </>
     )
   }
+
+  /** 押した行の画面上の高さを覚える（戻ったときに同じ高さへスクロールするため） */
+  const rememberRow = (unitId: number) => (row: HTMLElement) =>
+    rememberUnitRow({ packId, unitId, top: row.getBoundingClientRect().top })
 
   const testRange = defaultTestRange(
     units.map(({ unit, learnedCount }) => ({ id: unit.id, learnedCount })),
@@ -126,6 +133,7 @@ export function UnitsPage() {
             title: unitLabel(unit),
             meta: `${itemCount} 語・学習済み ${learnedCount} 語`,
             badge: unit.id === lastUnitStudy?.unitId ? '前回' : undefined,
+            onClick: rememberRow(unit.id),
             action: {
               to: `/study?${buildStudyQuery({
                 mode: 'unit',
@@ -134,12 +142,7 @@ export function UnitsPage() {
                 unitId: unit.id,
               })}`,
               label: '学習',
-              onClick: (row) =>
-                rememberUnitRow({
-                  packId,
-                  unitId: unit.id,
-                  top: row.getBoundingClientRect().top,
-                }),
+              onClick: rememberRow(unit.id),
             },
           }))}
         />

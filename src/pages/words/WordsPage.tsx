@@ -7,6 +7,7 @@ import { getProgressMap, getUnit, listUnitItems } from '../../db/content'
 import type { ItemRecord, ProgressRecord } from '../../db/types'
 import { playWord } from '../../features/audio/playback'
 import { stopAudio } from '../../features/audio/player'
+import { RETURN_TO_UNITS } from '../../lib/returnToUnits'
 import { useAsync } from '../../lib/useAsync'
 import styles from './WordsPage.module.css'
 
@@ -36,7 +37,9 @@ export function WordsPage() {
   useEffect(() => stopAudio, [])
 
   const back = (
-    <Link to={`/packs/${encodeURIComponent(packId)}`}>← ユニット一覧</Link>
+    <Link to={`/packs/${encodeURIComponent(packId)}`} state={RETURN_TO_UNITS}>
+      ← ユニット一覧
+    </Link>
   )
   if (data.status === 'loading')
     return (

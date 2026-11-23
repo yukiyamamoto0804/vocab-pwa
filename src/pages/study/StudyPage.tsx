@@ -33,8 +33,8 @@ import {
   skippedTestCount,
 } from '../../features/session/testItems'
 import { shuffle } from '../../lib/random'
+import { RETURN_TO_UNITS } from '../../lib/returnToUnits'
 import { useAsync } from '../../lib/useAsync'
-import { RETURN_FROM_STUDY } from './returnFromStudy'
 import styles from './StudyPage.module.css'
 import { StudySession } from './StudySession'
 
@@ -80,7 +80,7 @@ function ResumeGate({ query }: { query: StudyQuery }) {
         <Link
           to={`/packs/${encodeURIComponent(query.packId)}`}
           replace
-          state={RETURN_FROM_STUDY}
+          state={RETURN_TO_UNITS}
         >
           ← ユニット一覧
         </Link>
@@ -114,7 +114,7 @@ function ResumeGate({ query }: { query: StudyQuery }) {
         <Link
           to={`/packs/${encodeURIComponent(query.packId)}`}
           replace
-          state={RETURN_FROM_STUDY}
+          state={RETURN_TO_UNITS}
         >
           ← ユニット一覧
         </Link>
@@ -203,7 +203,7 @@ function UnitStudy({ query }: { query: UnitQuery }) {
     return (
       <>
         <p>ユニットが見つからないか、単語がありません。</p>
-        <Link to={unitsPath} state={RETURN_FROM_STUDY}>
+        <Link to={unitsPath} state={RETURN_TO_UNITS}>
           ← ユニット一覧
         </Link>
       </>
@@ -214,7 +214,7 @@ function UnitStudy({ query }: { query: UnitQuery }) {
       <>
         <h1>学習</h1>
         <p>{noFaceDataMessage(face)}</p>
-        <Link to={unitsPath} state={RETURN_FROM_STUDY}>
+        <Link to={unitsPath} state={RETURN_TO_UNITS}>
           ← ユニット一覧
         </Link>
       </>
@@ -271,7 +271,7 @@ function TestStudy({ query }: { query: TestQuery }) {
             ? noFaceDataMessage(face)
             : '範囲に出題できる単語がありません。'}
         </p>
-        <Link to={unitsPath} state={RETURN_FROM_STUDY}>
+        <Link to={unitsPath} state={RETURN_TO_UNITS}>
           ← ユニット一覧
         </Link>
       </>
@@ -322,7 +322,7 @@ function ReviewStudy({ query }: { query: ReviewQuery }) {
             ? noFaceDataMessage(face)
             : `直前 ${sessionCount} 回の学習に、忘れたままの単語はありません。`}
         </p>
-        <Link to={unitsPath} state={RETURN_FROM_STUDY}>
+        <Link to={unitsPath} state={RETURN_TO_UNITS}>
           ← ユニット一覧
         </Link>
       </>
