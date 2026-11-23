@@ -59,10 +59,19 @@ export function UnitsPage() {
       listRef.current?.querySelector<HTMLElement>(
         `[data-key="${position.unitId}"]`,
       )
-    if (position && row)
-      window.scrollTo({
-        top: window.scrollY + row.getBoundingClientRect().top - position.top,
-      })
+    if (position && row) {
+      const align = () => {
+        // 合わせ直す前に画面を離れていたら（行が外れていたら）何もしない
+        if (!row.isConnected) return
+        window.scrollTo({
+          top: window.scrollY + row.getBoundingClientRect().top - position.top,
+        })
+      }
+      align()
+      // 描いた後にもう一度合わせる。描く前に合わせた位置が、端末（iOS Safari などを想定。未確認）によっては
+      // 効かないことがあるかもしれないため
+      requestAnimationFrame(align)
+    }
     // 印は履歴の項目に残るので、使ったら消す。
     // 残すと、この一覧へブラウザの戻る操作で戻ったときにも、後で覚えた位置へ飛んでしまう
     navigate(location.pathname, { replace: true, state: null })

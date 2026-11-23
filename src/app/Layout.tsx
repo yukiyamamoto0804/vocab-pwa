@@ -1,9 +1,18 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link, NavLink, Outlet } from 'react-router'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { DB_OUTDATED_EVENT, listenRecordsReplaced } from '../db/database'
 import styles from './Layout.module.css'
 
 export function Layout() {
+  // 画面を移ったら上から表示する。前の画面のスクロール位置が残ると、新しい画面の中身が揃うまでに
+  // ブラウザが位置を詰めるかどうかで、下のほうから始まることがあるため。
+  // ユニット一覧で元の位置に戻すときは、一覧を読み終えた後（この処理より後）に、一覧の画面が合わせる
+  const { pathname, search } = useLocation()
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 画面（URL）が変わったときだけ上に戻す
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname, search])
+
   /** 新しい版のアプリが DB を更新したか、ほかの画面が学習記録を置き換え、この画面では保存できなくなったか */
   const [outdated, setOutdated] = useState(false)
   useEffect(() => {
