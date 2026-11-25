@@ -15,7 +15,11 @@ import type {
   SettingRecord,
   StudySessionRecord,
 } from '../../db/types'
-import { frontSenseCandidates, hasFaceData } from '../cards/faces'
+import {
+  frontContentOf,
+  frontSenseCandidates,
+  hasFaceData,
+} from '../cards/faces'
 import { type Deck, isFinished, replayDeck } from './deck'
 import { answersOf } from './sessionRecord'
 import { buildStudyQuery, type StudyQuery } from './studyQuery'
@@ -181,10 +185,11 @@ function frontSensesOf(
   face: Face,
 ): Map<string, number> {
   const map = new Map<string, number>()
-  if (face !== 'ja' && face !== 'example-audio') return map
+  const content = frontContentOf(face)
+  if (content !== 'ja' && content !== 'example-audio') return map
   for (const item of items) {
     const i = stored[item.id]
-    if (i !== undefined && frontSenseCandidates(item, face).includes(i))
+    if (i !== undefined && frontSenseCandidates(item, content).includes(i))
       map.set(item.id, i)
   }
   return map

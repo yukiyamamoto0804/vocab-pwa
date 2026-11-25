@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   hasFaceData,
+  isAudioFace,
   noFaceDataMessage,
   pickFrontSense,
   skippedNotice,
@@ -38,6 +39,12 @@ describe('hasFaceData', () => {
         'example-audio',
       ),
     ).toBe(true)
+  })
+
+  it('自動で進める学習は、「単語の音声」と同じく単語の音声がある単語だけ', () => {
+    expect(hasFaceData(item({ audio }), 'word-audio-auto')).toBe(true)
+    expect(hasFaceData(item(), 'word-audio-auto')).toBe(false)
+    expect(isAudioFace('word-audio-auto')).toBe(true)
   })
 
   it('「例文の訳」は、例文の中に該当語が見つかる用法がある単語だけ', () => {

@@ -24,9 +24,15 @@ import type {
   StudyMode,
   StudySessionRecord,
 } from '../../db/types'
+import { RECORD_ONLY_FACES } from '../../db/types'
 import { playExample, playWord } from '../../features/audio/playback'
 import { playAudio, stopAudio } from '../../features/audio/player'
-import { isAudioFace, pickFrontSense } from '../../features/cards/faces'
+import {
+  frontContentOf,
+  isAudioFace,
+  isAutoAdvanceFace,
+  pickFrontSense,
+} from '../../features/cards/faces'
 import { applyAnswer } from '../../features/mastery/mastery'
 import {
   answerCard,
@@ -44,6 +50,7 @@ import {
   createSessionRecord,
   removeLastAnswer,
 } from '../../features/session/sessionRecord'
+import { studyConfig } from '../../features/studyConfig'
 import { isQuotaError } from '../../lib/errors'
 import { randomId } from '../../lib/random'
 import { RETURN_TO_UNITS } from '../../lib/returnToUnits'
@@ -54,6 +61,7 @@ import { JaFront } from './JaFront'
 import { RATING_LABELS } from './ratingLabels'
 import { StudyCard } from './StudyCard'
 import styles from './StudySession.module.css'
+import { useAutoAdvance } from './useAutoAdvance'
 
 type Counts = Record<Rating, number>
 
@@ -148,6 +156,8 @@ function StudySessionBody(props: Props & DisplaySettings) {
   const [flipped, setFlipped] = useState(false)
   const [reported, setReported] = useState(props.initialReported)
   const [busy, setBusy] = useState(false)
+  /** 保存中か。描き直す前に続けて申告が来ても（自動で進める学習の時間切れと指の申告が重なった など）、2 回保存しないように */
+  const busyRef = useRef(false)
   /**
    * 保存の失敗。容量不足なら 'quota'。それ以外が続いたら 'persistent'（もう一度押しても直らない失敗。
    * iOS で背景から戻ったときに DB との接続が切れた、新しい版が DB を更新した など）
@@ -173,6 +183,8 @@ function StudySessionBody(props: Props & DisplaySettings) {
   }
   /** 裏返した時刻。表面を素早く 2 回タップしたとき、2 回目が裏面のボタン（誤りの報告）に届かないようにする */
   const flippedAt = useRef(0)
+  /** 表面に出すもの（自動で進める学習は、「単語の音声」と同じ） */
+  const frontContent = frontContentOf(face)
   /**
    * 表面に例文を使う種類（「例文の訳」、「例文の音声」）で、単語ごとに表面に使う用法。
    * 学習を始めるときに 1 回だけ選び、その回の学習の間（裏返す・出し直す）は同じ用法のままにする（study-cards.md 3 章）
@@ -180,23 +192,39 @@ function StudySessionBody(props: Props & DisplaySettings) {
   const [frontSenses] = useState(
     () =>
       new Map(
-        face === 'ja' || face === 'example-audio'
+        frontContent === 'ja' || frontContent === 'example-audio'
           ? items.map((i): [string, number] => [
               i.id,
               props.resume?.frontSenses.get(i.id) ??
-                pickFrontSense(i, face, props.frontSenseChoice),
+                pickFrontSense(i, frontContent, props.frontSenseChoice),
             ])
           : [],
       ),
   )
 
   const { exampleTextShown } = props
+  const autoAdvance = isAutoAdvanceFace(face)
 
   // 画面を離れたら、再生中の音声を止める
   useEffect(() => stopAudio, [])
 
   const itemId = currentCard(state.deck)
   const item = items.find((i) => i.id === itemId)
+
+  function flip() {
+    flippedAt.current = Date.now()
+    setFlipped(true)
+  }
+
+  const auto = useAutoAdvance({
+    enabled: autoAdvance,
+    packId,
+    audio: item?.audio,
+    cardKey: state.session.itemIds.length,
+    flipped,
+    flip,
+    rate: answer,
+  })
 
   /** 保存する途中の学習 */
   function inProgressOf(st: State): InProgressStudy {
@@ -211,22 +239,28 @@ function StudySessionBody(props: Props & DisplaySettings) {
   }
 
   async function answer(rating: Rating) {
-    if (!flipped || busy || !item) return
+    if (!flipped || busyRef.current || !item) return
     const at = Date.now()
-    const progress = applyAnswer(state.progress.get(item.id), {
-      packId,
-      itemId: item.id,
-      face,
-      rating,
-      at,
-    })
+    // 記録だけを残す表面（自動で進める学習）では、定着度・最終出題日を更新しない（study-cards.md 11 章）
+    const progress = RECORD_ONLY_FACES.includes(face)
+      ? undefined
+      : applyAnswer(state.progress.get(item.id), {
+          packId,
+          itemId: item.id,
+          face,
+          rating,
+          at,
+        })
     const next: State = {
       deck: answerCard(state.deck, rating),
       session: appendAnswer(state.session, item.id, rating, at),
-      progress: new Map(state.progress).set(item.id, progress),
+      progress: progress
+        ? new Map(state.progress).set(item.id, progress)
+        : state.progress,
       priors: [...state.priors, state.progress.get(item.id)],
       before: state.before,
     }
+    busyRef.current = true
     setBusy(true)
     try {
       const before = await saveAnswer({
@@ -241,8 +275,11 @@ function StudySessionBody(props: Props & DisplaySettings) {
       setFlipped(false)
       saveSucceeded()
     } catch (e) {
+      // 自動で進めていたら止める（保存できないまま次々と「忘れた」にしないように）
+      auto.pause()
       saveFailed(e)
     } finally {
+      busyRef.current = false
       setBusy(false)
     }
   }
@@ -250,7 +287,7 @@ function StudySessionBody(props: Props & DisplaySettings) {
   /** 直前の申告を取り消す。その回の最初の回答まで、続けて取り消せる */
   async function undo() {
     const last = state.session.itemIds.length - 1
-    if (last < 0 || busy) return
+    if (last < 0 || busyRef.current) return
     const session = removeLastAnswer(state.session)
     const deck = replayDeck(order, answersOf(session))
     // 自分で作った記録を当てはめ直すだけなので、食い違うことはないはず
@@ -270,6 +307,7 @@ function StudySessionBody(props: Props & DisplaySettings) {
       priors: state.priors.slice(0, -1),
       before: state.before,
     }
+    busyRef.current = true
     setBusy(true)
     try {
       await restoreBeforeAnswer({
@@ -285,6 +323,7 @@ function StudySessionBody(props: Props & DisplaySettings) {
     } catch (e) {
       saveFailed(e)
     } finally {
+      busyRef.current = false
       setBusy(false)
     }
   }
@@ -293,6 +332,8 @@ function StudySessionBody(props: Props & DisplaySettings) {
     if (!item) return
     // 裏返した直後のタップは、表面をタップした続きとみなして無視する
     if (Date.now() - flippedAt.current < 400) return
+    // 解説をじっくり見たいときの操作なので、自動で進めていたら止める
+    auto.pause()
     try {
       const itemId = item.id
       const nowReported = await toggleReport(packId, itemId, Date.now())
@@ -325,14 +366,26 @@ function StudySessionBody(props: Props & DisplaySettings) {
           ? '完了'
           : `${state.deck.position + 1} / ${state.deck.queue.length}`}
       </span>
-      <button
-        type="button"
-        className={styles.undo}
-        onClick={undo}
-        disabled={state.session.itemIds.length === 0 || busy}
-      >
-        1 つ戻す
-      </button>
+      <div className={styles.topActions}>
+        {autoAdvance && !isFinished(state.deck) && (
+          <button
+            type="button"
+            className={styles.barButton}
+            data-primary={!auto.running}
+            onClick={auto.running ? auto.pause : auto.start}
+          >
+            {auto.running ? '一時停止' : auto.started ? '再開' : '開始'}
+          </button>
+        )}
+        <button
+          type="button"
+          className={styles.barButton}
+          onClick={undo}
+          disabled={state.session.itemIds.length === 0 || busy}
+        >
+          1 つ戻す
+        </button>
+      </div>
     </div>
   )
 
@@ -357,36 +410,55 @@ function StudySessionBody(props: Props & DisplaySettings) {
   }
 
   // 音声があれば音声、なければ機械の音声で読む（study-cards.md 9 章）
-  const wordButton = (label: string, size?: PlayButtonSize) => (
+  // before は再生する前に呼ぶ（裏面では、自動で進めていたら止める）
+  const wordButton = (
+    label: string,
+    size?: PlayButtonSize,
+    before?: () => void,
+  ) => (
     <PlayButton
       label={label}
       size={size}
-      onPlay={() => playWord(packId, item)}
+      onPlay={() => {
+        before?.()
+        return playWord(packId, item)
+      }}
     />
   )
   // 音声の表面では、再生ボタンを主役として大きくし、読み上げソフトにも単語や例文を伝えない。
   // 聞き取りの練習なので機械の音声は使わず、教材の音声だけを鳴らす（出題するのは音声がある単語・用法だけ。study-cards.md 3 章）
   const frontAudio =
-    face === 'word-audio'
+    frontContent === 'word-audio'
       ? item.audio
-      : face === 'example-audio'
+      : frontContent === 'example-audio'
         ? item.senses[frontSenses.get(item.id) ?? 0].exampleAudio
         : undefined
   const audioOnly = isAudioFace(face)
-  const frontAudioButton = audioOnly
-    ? frontAudio && (
-        <PlayButton
-          label={face === 'word-audio' ? '単語の音声' : '例文の音声'}
-          size="huge"
-          onPlay={() => playAudio(packId, frontAudio)}
-        />
-      )
-    : wordButton(`${item.word} の音声`, 'large')
+  const frontAudioButton = auto.running ? (
+    // 自動で進めている間は、押して流れが乱れないよう、再生ボタンの代わりに状態だけを出す
+    <p className={styles.autoStatus}>自動で進めています</p>
+  ) : audioOnly ? (
+    frontAudio && (
+      <PlayButton
+        label={frontContent === 'word-audio' ? '単語の音声' : '例文の音声'}
+        size="huge"
+        onPlay={() => playAudio(packId, frontAudio)}
+      />
+    )
+  ) : (
+    wordButton(`${item.word} の音声`, 'large')
+  )
 
   return (
     <div className={styles.screen}>
       {topBar}
       {errorMessage}
+      {auto.error && (
+        <p className={styles.error} role="alert">
+          {auto.error}
+          。止めました。このカードは自分で裏返して申告し、次のカードで「再開」を押してください
+        </p>
+      )}
       {notice && state.deck.position === 0 && (
         <p className={styles.notice} role="status">
           {notice}
@@ -396,15 +468,13 @@ function StudySessionBody(props: Props & DisplaySettings) {
         // カードが変わったら、スワイプの途中の状態を持ち越さない
         key={`${state.deck.position}`}
         flipped={flipped}
-        onFlip={() => {
-          flippedAt.current = Date.now()
-          setFlipped(true)
-        }}
+        onFlip={flip}
+        onTouchChange={auto.touch}
         onRate={answer}
         front={
-          face === 'ja' ? (
+          frontContent === 'ja' ? (
             <JaFront item={item} senseIndex={frontSenses.get(item.id) ?? 0} />
-          ) : face === 'example-audio' ? (
+          ) : frontContent === 'example-audio' ? (
             <ExampleAudioFront
               item={item}
               senseIndex={frontSenses.get(item.id) ?? 0}
@@ -427,9 +497,11 @@ function StudySessionBody(props: Props & DisplaySettings) {
                 {frontAudioButton}
               </div>
               <p className={styles.hint}>
-                {audioOnly
-                  ? '音声を聞いて意味を思い出したら、タップして裏返す'
-                  : 'タップして裏返す'}
+                {autoAdvance && !auto.started
+                  ? '「開始」を押すと、音声を 2 回流して自動で進みます'
+                  : audioOnly
+                    ? '音声を聞いて意味を思い出したら、タップして裏返す'
+                    : 'タップして裏返す'}
               </p>
             </div>
           )
@@ -440,7 +512,7 @@ function StudySessionBody(props: Props & DisplaySettings) {
               item={item}
               wordAside={
                 <>
-                  {wordButton(`${item.word} の音声`)}
+                  {wordButton(`${item.word} の音声`, undefined, auto.hold)}
                   <button
                     type="button"
                     className={styles.report}
@@ -460,13 +532,31 @@ function StudySessionBody(props: Props & DisplaySettings) {
                       ? `例文 ${i + 1} の音声`
                       : '例文の音声'
                   }
-                  onPlay={() => playExample(packId, item.senses[i])}
+                  onPlay={() => {
+                    auto.hold()
+                    return playExample(packId, item.senses[i])
+                  }}
                 />
               )}
             />
           </FitContent>
         }
       />
+      {autoAdvance && (
+        // 申告を待っている間、「忘れた」になるまでの残りの時間を帯で示す
+        <div className={styles.countdown} aria-hidden="true">
+          {auto.waiting !== undefined && (
+            <div
+              // 指を離して待ち直したら、帯を最初から描き直す
+              key={auto.waiting}
+              className={styles.countdownBar}
+              style={{
+                animationDuration: `${studyConfig.autoAdvance.waitMs}ms`,
+              }}
+            />
+          )}
+        </div>
+      )}
       <div className={styles.ratings}>
         {(['forgot', 'unsure', 'remembered'] as const).map((rating) => (
           <button

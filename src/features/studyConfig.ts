@@ -21,4 +21,10 @@ export const studyConfig = {
   reviewCount: { default: 'all' },
   /** 定着度の指数移動平均で、直近の結果をどれだけ重視するか */
   masteryLambda: 0.4,
+  /**
+   * 自動で進める学習（docs/specs/study-cards.md 11 章）の待つ時間（ミリ秒）。
+   * start は新しいカードを出してから 1 回目を流すまで、gap は 1 回目を流し終えてから裏返して 2 回目を流すまで、
+   * wait は 2 回目を流し終えてから「忘れた」にするまで
+   */
+  autoAdvance: { startMs: 500, gapMs: 500, waitMs: 1000 },
 } as const

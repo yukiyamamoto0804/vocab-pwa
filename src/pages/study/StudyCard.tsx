@@ -31,6 +31,8 @@ interface Props {
   back: ReactNode
   onFlip: () => void
   onRate: (rating: Rating) => void
+  /** 指を置いた（true）・離した（false）ときに呼ぶ。自動で進める学習が、スワイプの途中で申告しないように使う */
+  onTouchChange?: (touching: boolean) => void
 }
 
 interface Gesture {
@@ -44,13 +46,24 @@ interface Gesture {
   inNoFlip: boolean
   /** タップとみなせる範囲を超えて動いたか */
   moved: boolean
+  /** 指をカードで捕まえたか（カードの外で離しても、離したことが届くように） */
+  captured: boolean
+  /** 指を置いたときに裏面だったか。置いている間に自動で裏返ったら、その操作の click を捨てる */
+  startedFlipped: boolean
 }
 
 function isInNoFlip(target: EventTarget): boolean {
   return target instanceof Element && target.closest('[data-no-flip]') !== null
 }
 
-export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
+export function StudyCard({
+  flipped,
+  front,
+  back,
+  onFlip,
+  onRate,
+  onTouchChange,
+}: Props) {
   const gesture = useRef<Gesture | null>(null)
   /** 直前に指を離した操作。click で裏返すかどうかの判定に使う */
   const lastGesture = useRef<Gesture | null>(null)
@@ -68,7 +81,10 @@ export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
       dy: 0,
       inNoFlip: isInNoFlip(e.target),
       moved: false,
+      captured: false,
+      startedFlipped: flipped,
     }
+    onTouchChange?.(true)
   }
 
   function handlePointerMove(e: PointerEvent<HTMLDivElement>) {
@@ -83,9 +99,12 @@ export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
     const y = e.clientY - g.y
     g.dx = x
     g.dy = y
-    if (!g.moved && Math.hypot(x, y) > TAP_SLOP) {
-      g.moved = true
-      if (flipped) e.currentTarget.setPointerCapture(e.pointerId)
+    if (!g.moved && Math.hypot(x, y) > TAP_SLOP) g.moved = true
+    // 裏面を動かし始めたら捕まえる。自動で進める学習では、表面で動かし始めた後に裏返ることがあるので、
+    // 動かし始めたときではなく、裏面で動いたときに捕まえる
+    if (flipped && g.moved && !g.captured) {
+      e.currentTarget.setPointerCapture(e.pointerId)
+      g.captured = true
     }
     // 裏面だけ、カードを指に合わせて動かす
     if (flipped && g.moved) setOffset({ x, y })
@@ -98,6 +117,7 @@ export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
     gesture.current = null
     lastGesture.current = g
     setOffset({ x: 0, y: 0 })
+    onTouchChange?.(false)
     if (!flipped || !g.moved) return
     const rating = ratingForDrag(g.dx, g.dy)
     if (rating) onRate(rating)
@@ -109,6 +129,7 @@ export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
     gesture.current = null
     lastGesture.current = null
     setOffset({ x: 0, y: 0 })
+    onTouchChange?.(false)
   }
 
   function handlePointerCancel(e: PointerEvent<HTMLDivElement>) {
@@ -127,6 +148,23 @@ export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
   })
   // ほかのウィンドウに移ったら、離したことが届かないことがあるので取り消す
   const onWindowBlur = useEffectEvent(() => cancel())
+  // 指を置いたままカードが替わったら（別の指で申告ボタンを押した など）、離したことにする。
+  // 知らせないと、自動で進める学習が指を離すのを待ったまま止まる
+  const onUnmount = useEffectEvent(() => {
+    if (gesture.current) onTouchChange?.(false)
+  })
+  useEffect(() => () => onUnmount(), [])
+
+  // 指を置いている間に自動で裏返ったときの click は、裏面の同じ位置のボタン（再生など）に届けない。
+  // 裏返すのを click で行うのと同じ理由（handleClick）
+  function handleClickCapture(e: MouseEvent<HTMLDivElement>) {
+    const g = lastGesture.current
+    if (g && g.startedFlipped !== flipped) {
+      lastGesture.current = null
+      e.stopPropagation()
+    }
+  }
+
   useEffect(() => {
     const up = (e: globalThis.PointerEvent) => onWindowPointerUp(e)
     const cancelled = (e: globalThis.PointerEvent) => onWindowPointerCancel(e)
@@ -186,6 +224,7 @@ export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
           onPointerMove={handlePointerMove}
           onPointerUp={(e) => release(e.pointerId)}
           onPointerCancel={handlePointerCancel}
+          onClickCapture={handleClickCapture}
           onClick={handleClick}
           onKeyDown={handleKeyDown}
         >

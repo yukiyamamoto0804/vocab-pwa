@@ -168,6 +168,48 @@ describe('saveAnswer / restoreBeforeAnswer', () => {
   })
 })
 
+describe('記録だけを残す表面（自動で進める学習）', () => {
+  const auto = (ratings: string): StudySessionRecord => ({
+    ...answered(ratings),
+    face: 'word-audio-auto',
+  })
+
+  it('学習状況を書かず、取り消しても学習状況に触れない', async () => {
+    await db.progress.put(progress(0.5))
+    await saveAnswer(
+      { session: auto('f'), progress: undefined, inProgress: inProgress() },
+      db,
+    )
+    expect(await db.studySessions.get('s1')).toMatchObject({ ratings: 'f' })
+    expect(await db.progress.get(['p', '0001'])).toEqual(progress(0.5))
+    await restoreBeforeAnswer(
+      {
+        session: auto(''),
+        itemId: '0001',
+        progress: undefined,
+        inProgress: inProgress(),
+      },
+      db,
+    )
+    expect(await db.studySessions.get('s1')).toBeUndefined()
+    expect(await db.progress.get(['p', '0001'])).toEqual(progress(0.5))
+  })
+
+  it('最初の回答で、前回学習したユニットなどの設定は通常どおり書く', async () => {
+    const setting = { key: 'lastUnitStudy:p', value: { at: 1, unitId: 2 } }
+    await saveAnswer(
+      {
+        session: auto('f'),
+        progress: undefined,
+        inProgress: inProgress(),
+        firstAnswerSettings: [setting],
+      },
+      db,
+    )
+    expect(await db.settings.get('lastUnitStudy:p')).toEqual(setting)
+  })
+})
+
 describe('saveAnswer の最初の回答の判定', () => {
   it('保存できたのに同じ最初の回答をもう一度送っても、書き換える前の値は最初のまま', async () => {
     await db.settings.put({ key: 'last:p', value: 'old' })
@@ -210,6 +252,19 @@ describe('listRecentSessions', () => {
     expect(await ids(1)).toEqual(['t3'])
     expect(await ids(2)).toEqual(['t3', 'r2', 'r1', 'u2'])
     expect(await ids(10)).toEqual(['t3', 'r2', 'r1', 'u2', 'r-old', 'u1'])
+  })
+
+  it('記録だけを残す表面の回は、返さず、回数にも数えない', async () => {
+    await db.studySessions.bulkPut([
+      { ...emptySession, id: 'u1', startedAt: 1 },
+      { ...emptySession, id: 'a1', startedAt: 2, face: 'word-audio-auto' },
+      { ...emptySession, id: 'u2', startedAt: 3 },
+      { ...emptySession, id: 'a2', startedAt: 4, face: 'word-audio-auto' },
+    ])
+    const ids = async (count: number) =>
+      (await listRecentSessions('p', count, db)).map((s) => s.id)
+    expect(await ids(1)).toEqual(['u2'])
+    expect(await ids(2)).toEqual(['u2', 'u1'])
   })
 
   it('そのパックの記録を新しい順に count 回分返す', async () => {

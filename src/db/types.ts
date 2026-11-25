@@ -3,9 +3,21 @@
 
 // ---- 用語 ----
 
-/** 表面の種類 */
-export const FACES = ['en', 'ja', 'word-audio', 'example-audio'] as const
+/** 表面の種類。word-audio-auto は「単語の音声」を自動で進める学習（docs/specs/study-cards.md 11 章） */
+export const FACES = [
+  'en',
+  'ja',
+  'word-audio',
+  'example-audio',
+  'word-audio-auto',
+] as const
 export type Face = (typeof FACES)[number]
+
+/**
+ * 回答の記録だけを残し、定着度・最終出題日・復習・ユニット学習に混ぜる単語には使わない表面の種類
+ * （docs/specs/study-cards.md 11 章）。通常の学習と答える基準が違うため
+ */
+export const RECORD_ONLY_FACES: readonly Face[] = ['word-audio-auto']
 
 /** 自己申告 */
 export type Rating = 'remembered' | 'unsure' | 'forgot'

@@ -106,6 +106,14 @@ function prepareElement(): HTMLAudioElement {
   return element
 }
 
+/**
+ * 後でボタンの操作の外から playAudio を呼べるように、iOS の自動再生の制限を解いておく。
+ * ボタンを押したときの処理から直接呼ぶこと（自動で進める学習の「開始」など。study-cards.md 11 章）
+ */
+export function unlockAudio(): void {
+  prepareElement()
+}
+
 function setSource(audio: HTMLAudioElement, wav: Blob): void {
   if (sourceUrl) URL.revokeObjectURL(sourceUrl)
   sourceUrl = URL.createObjectURL(wav)

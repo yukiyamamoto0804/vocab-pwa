@@ -1,5 +1,5 @@
 import type { Face } from '../../db/types'
-import { FACE_LABELS, FACE_OPTIONS } from '../../features/cards/faces'
+import { FACE_LABELS } from '../../features/cards/faces'
 import type { StudyCount } from '../../features/session/studyCount'
 import { studyConfig } from '../../features/studyConfig'
 import styles from './StudySheet.module.css'
@@ -58,6 +58,15 @@ export function CountField(props: {
   )
 }
 
+/**
+ * 表面の種類の選択肢の並び（1 行目: 単語を出す表面、2 行目: 例文を使う表面。study-cards.md 7 章）。
+ * 自動で進める学習（study-cards.md 11 章）は、使う場面が違うため、「単語の音声」とは別の選択肢にする
+ */
+const FACE_ROWS: readonly (readonly Face[])[] = [
+  ['en', 'word-audio', 'word-audio-auto'],
+  ['ja', 'example-audio'],
+]
+
 /** 表面の種類の選択肢（作り終えた表面だけ） */
 export function FaceField(props: {
   value: Face
@@ -66,15 +75,19 @@ export function FaceField(props: {
   return (
     <fieldset className={styles.field}>
       <legend>表面</legend>
-      <div className={styles.choices}>
-        {FACE_OPTIONS.map((option) => (
-          <Choice
-            key={option}
-            name="face"
-            label={FACE_LABELS[option]}
-            checked={props.value === option}
-            onChange={() => props.onChange(option)}
-          />
+      <div className={styles.rows}>
+        {FACE_ROWS.map((row) => (
+          <div key={row[0]} className={styles.choices}>
+            {row.map((option) => (
+              <Choice
+                key={option}
+                name="face"
+                label={FACE_LABELS[option]}
+                checked={props.value === option}
+                onChange={() => props.onChange(option)}
+              />
+            ))}
+          </div>
         ))}
       </div>
     </fieldset>

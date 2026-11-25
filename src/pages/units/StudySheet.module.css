@@ -41,6 +41,13 @@
   padding-bottom: 10px;
 }
 
+/* 表面の種類の選択肢の行 */
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .choices {
   display: flex;
   flex-wrap: wrap;

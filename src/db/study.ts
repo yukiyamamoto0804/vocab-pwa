@@ -1,7 +1,12 @@
 import Dexie from 'dexie'
 import { randomId } from '../lib/random'
 import { db as defaultDb, type VocabDatabase } from './database'
-import type { ProgressRecord, SettingRecord, StudySessionRecord } from './types'
+import {
+  type ProgressRecord,
+  RECORD_ONLY_FACES,
+  type SettingRecord,
+  type StudySessionRecord,
+} from './types'
 
 // 学習中の書き込み。回答の記録と学習状況は、片方だけが書かれて食い違わないよう
 // 1 つのトランザクションで書く（docs/ARCHITECTURE.md 5 章）。
@@ -69,7 +74,8 @@ export function getSession(
 export async function saveAnswer(
   answer: {
     session: StudySessionRecord
-    progress: ProgressRecord
+    /** 更新した学習状況。記録だけを残す表面（RECORD_ONLY_FACES）では渡さない */
+    progress: ProgressRecord | undefined
     inProgress: InProgressStudy | undefined
     firstAnswerSettings?: SettingRecord[]
   },
@@ -81,7 +87,7 @@ export async function saveAnswer(
     [db.studySessions, db.progress, db.settings],
     async () => {
       await db.studySessions.put(session)
-      await db.progress.put(progress)
+      if (progress) await db.progress.put(progress)
       // この回の途中の学習がすでに保存されていれば、その「書き換える前の値」を引き継ぐ。
       // なければ最初の回答として、設定を書き換える前の値を読んでから書く。
       // 画面から渡された記録の長さで判定しないのは、保存できたのに失敗が返って同じ回答をもう一度送ったとき、
@@ -158,6 +164,8 @@ export async function restoreBeforeAnswer(
         })
       }
 
+      // 記録だけを残す表面では学習状況を書いていないので、戻さない
+      if (RECORD_ONLY_FACES.includes(session.face)) return
       if (progress) await db.progress.put(progress)
       else await db.progress.delete([session.packId, itemId])
     },
@@ -167,7 +175,8 @@ export async function restoreBeforeAnswer(
 /**
  * パックの学習の記録を、新しい順に、復習以外の回が count 回分になるまで返す。
  * パックと日時の索引で、そのパックの記録だけを読む。
- * 復習の回は回数に数えないが、その間にある復習の回も返す（docs/specs/study-cards.md 6 章「直前の数回の学習で忘れた単語」）
+ * 復習の回は回数に数えないが、その間にある復習の回も返す（docs/specs/study-cards.md 6 章「直前の数回の学習で忘れた単語」）。
+ * 記録だけを残す表面の回（自動で進める学習。RECORD_ONLY_FACES）は、返さず、回数にも数えない（11 章）
  */
 export async function listRecentSessions(
   packId: string,
@@ -184,6 +193,7 @@ export async function listRecentSessions(
     // until は次の記録を each に渡す前に判定され、止めた記録は返らない（count 回目の直後で止まる）
     .until(() => counted >= count)
     .each((session) => {
+      if (RECORD_ONLY_FACES.includes(session.face)) return
       sessions.push(session)
       if (session.mode !== 'review') counted += 1
     })
