@@ -26,5 +26,5 @@ export const studyConfig = {
    * start は新しいカードを出してから 1 回目を流すまで、gap は 1 回目を流し終えてから裏返して 2 回目を流すまで、
    * wait は 2 回目を流し終えてから「忘れた」にするまで
    */
-  autoAdvance: { startMs: 500, gapMs: 500, waitMs: 1000 },
+  autoAdvance: { startMs: 500, gapMs: 500, waitMs: 2000 },
 } as const
