@@ -1,5 +1,6 @@
 import { getAudioBlob } from '../../db/content'
 import { type AudioRef, MAX_AUDIO_FILE_BYTES } from '../../db/types'
+import { currentPlaybackRate } from './playbackRate'
 import { resolveSegment } from './segment'
 import { stopSpeech } from './speech'
 import { encodeWav } from './wav'
@@ -267,6 +268,12 @@ export async function playAudio(packId: string, ref: AudioRef): Promise<void> {
 
 /** 読み込んだ音声を再生し、終わる（または別の再生で止められる）と完了する */
 function playLoaded(audio: HTMLAudioElement, duration: number): Promise<void> {
+  // src を替えると playbackRate は defaultPlaybackRate に戻るので、両方を毎回設定する
+  const rate = currentPlaybackRate()
+  audio.defaultPlaybackRate = rate
+  audio.playbackRate = rate
+  // 音の高さは変えない（docs/specs/study-cards.md 9 章）。初期値も true だが明示する
+  audio.preservesPitch = true
   return new Promise<void>((resolve, reject) => {
     const finish = (error?: unknown) => {
       if (finishCurrent !== finish) return // すでに終わっている
@@ -283,7 +290,7 @@ function playLoaded(audio: HTMLAudioElement, duration: number): Promise<void> {
         audio.pause()
         finish()
       },
-      (duration + 3) * 1000,
+      (duration / rate + 3) * 1000,
     )
     finishCurrent = finish
     audio.onended = () => finish()

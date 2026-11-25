@@ -150,6 +150,7 @@ describe('parseRecordsBackup', () => {
     expectError(bad('face', 'xx'), 'face の値')
     expectError(bad('exampleTextShown', 'yes'), 'exampleTextShown の値')
     expectError(bad('frontSense', 'last'), 'frontSense の値')
+    expectError(bad('playbackRate', 1.5), 'playbackRate の値')
     expectError(bad('lastTest:pack-a', { at: 1 }), 'lastTest:pack-a の値')
     expectError(bad('lastUnitStudy:pack-a', null), 'lastUnitStudy:pack-a の値')
     expectError(bad('unitStudy', 3), 'unitStudy の値')

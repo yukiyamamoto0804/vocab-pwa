@@ -151,6 +151,7 @@ export type BackedUpSettingKind =
   | 'unitStudy'
   | 'exampleTextShown'
   | 'frontSense'
+  | 'playbackRate'
   | 'lastTest'
   | 'lastUnitStudy'
 
@@ -165,6 +166,7 @@ export function backedUpSettingKind(
   if (key === UNIT_STUDY_KEY) return 'unitStudy'
   if (key === EXAMPLE_TEXT_SHOWN_KEY) return 'exampleTextShown'
   if (key === FRONT_SENSE_KEY) return 'frontSense'
+  if (key === PLAYBACK_RATE_KEY) return 'playbackRate'
   if (key.startsWith(lastTestKey(''))) return 'lastTest'
   if (key.startsWith(lastUnitStudyKey(''))) return 'lastUnitStudy'
   return undefined
@@ -205,6 +207,33 @@ export async function saveFrontSenseChoice(
   db: VocabDatabase = defaultDb,
 ): Promise<void> {
   await db.settings.put({ key: FRONT_SENSE_KEY, value: choice })
+}
+
+/** 音声を流す速さの選択肢（docs/specs/study-cards.md 9 章） */
+export const PLAYBACK_RATES = [0.8, 0.9, 1, 1.1, 1.2] as const
+export type PlaybackRate = (typeof PLAYBACK_RATES)[number]
+
+const PLAYBACK_RATE_KEY = 'playbackRate'
+
+/** 音声の速さを取り出す。形が違えば undefined */
+export function parsePlaybackRate(value: unknown): PlaybackRate | undefined {
+  return PLAYBACK_RATES.find((r) => r === value)
+}
+
+/** 音声の速さ。アプリ全体で 1 つ。保存していない・形の違う値なら 1（等速） */
+export async function getPlaybackRate(
+  db: VocabDatabase = defaultDb,
+): Promise<PlaybackRate> {
+  return (
+    parsePlaybackRate((await db.settings.get(PLAYBACK_RATE_KEY))?.value) ?? 1
+  )
+}
+
+export async function savePlaybackRate(
+  rate: PlaybackRate,
+  db: VocabDatabase = defaultDb,
+): Promise<void> {
+  await db.settings.put({ key: PLAYBACK_RATE_KEY, value: rate })
 }
 
 const LAST_EXPORT_KEY = 'lastExport'

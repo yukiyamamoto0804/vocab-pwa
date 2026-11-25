@@ -3,6 +3,7 @@ import {
   parseFrontSenseChoice,
   parseLastTest,
   parseLastUnitStudy,
+  parsePlaybackRate,
 } from '../../db/settings'
 import {
   FACES,
@@ -238,6 +239,8 @@ function checkSettingValue(
       return typeof value === 'boolean' ? { value } : undefined
     case 'frontSense':
       return parseFrontSenseChoice(value) !== undefined ? { value } : undefined
+    case 'playbackRate':
+      return parsePlaybackRate(value) !== undefined ? { value } : undefined
     case 'lastTest':
       return parseLastTest(value) !== undefined ? { value } : undefined
     case 'lastUnitStudy':

@@ -8,6 +8,7 @@ import {
   getLastFace,
   getLastTest,
   getLastUnitStudy,
+  getPlaybackRate,
   getStoredUnitStudySettings,
   isBackedUpSettingKey,
   lastTestSetting,
@@ -16,6 +17,7 @@ import {
   saveFrontSenseChoice,
   saveLastExport,
   saveLastFace,
+  savePlaybackRate,
   saveUnitStudySettings,
 } from './settings'
 
@@ -113,6 +115,16 @@ describe('getExampleTextShown / saveExampleTextShown', () => {
   })
 })
 
+describe('getPlaybackRate / savePlaybackRate', () => {
+  it('保存した値を読み出す。保存していない・選択肢にない値なら 1', async () => {
+    expect(await getPlaybackRate(db)).toBe(1)
+    await savePlaybackRate(0.8, db)
+    expect(await getPlaybackRate(db)).toBe(0.8)
+    await db.settings.put({ key: 'playbackRate', value: 1.5 })
+    expect(await getPlaybackRate(db)).toBe(1)
+  })
+})
+
 describe('isBackedUpSettingKey', () => {
   it('学習記録のファイルに含めるキーだけを選ぶ', () => {
     for (const key of [
@@ -120,6 +132,7 @@ describe('isBackedUpSettingKey', () => {
       'unitStudy',
       'exampleTextShown',
       'frontSense',
+      'playbackRate',
       'lastTest:pack-a',
       'lastUnitStudy:pack-a',
     ])

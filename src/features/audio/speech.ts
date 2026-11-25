@@ -1,6 +1,8 @@
 // 音声がない単語・例文を、ブラウザ内蔵の音声合成（Web Speech API）で読み上げる（docs/specs/study-cards.md 9 章）。
 // 教材の文を外部に送らないよう、端末の中で合成する声（localService）だけを使う（docs/RULES.md 3 章）
 
+import { currentPlaybackRate } from './playbackRate'
+
 /** 声の一覧が届くのを待つ長さ（ms）。一覧は非同期で届くことがある */
 const VOICE_WAIT_MS = 1500
 
@@ -186,6 +188,8 @@ function speakWith(
   const utterance = new SpeechSynthesisUtterance(text)
   utterance.voice = voice
   utterance.lang = voice.lang
+  const rate = currentPlaybackRate()
+  utterance.rate = rate
   current = utterance
   // バックグラウンドから戻ったときに一時停止のまま残っていることがある（Android の Chrome など）
   if (s.paused) s.resume()
@@ -199,7 +203,7 @@ function speakWith(
     const timer = setTimeout(() => {
       if (current === utterance) s.cancel()
       finish()
-    }, speechTimeout(text))
+    }, speechTimeout(text) / rate)
     // 始まらないまま待たせず、もう一度押せば読めることを知らせる（押した操作の中なら読めるため）
     const startTimer = setTimeout(() => {
       if (current === utterance) s.cancel()

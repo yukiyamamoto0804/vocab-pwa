@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router'
+import { loadPlaybackRate } from '../features/audio/playbackRate'
 import { ensurePersistentStorage } from '../lib/storage'
 import { HomePage } from '../pages/home/HomePage'
 import { ImportPage } from '../pages/import/ImportPage'
@@ -13,6 +14,8 @@ import { Layout } from './Layout'
 export function App() {
   useEffect(() => {
     ensurePersistentStorage()
+    // 読めなければ等速のまま流す
+    loadPlaybackRate().catch((e: unknown) => console.error(e))
   }, [])
 
   return (

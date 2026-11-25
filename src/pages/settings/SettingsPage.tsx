@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { StorageStatus } from '../../components/StorageStatus'
 import { BackupSection } from './BackupSection'
 import { DisplaySettingsForm } from './DisplaySettingsForm'
+import { PlaybackRateForm } from './PlaybackRateForm'
 import { UnitStudySettingsForm } from './UnitStudySettingsForm'
 
 export function SettingsPage() {
@@ -17,6 +18,10 @@ export function SettingsPage() {
       <section>
         <h2>表面の表示</h2>
         <DisplaySettingsForm key={replacedCount} />
+      </section>
+      <section>
+        <h2>音声の速さ</h2>
+        <PlaybackRateForm key={replacedCount} />
       </section>
       <section>
         <h2>保存状態</h2>
