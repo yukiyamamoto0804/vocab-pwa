@@ -3,6 +3,8 @@ import {
   type MouseEvent,
   type PointerEvent,
   type ReactNode,
+  useEffect,
+  useEffectEvent,
   useRef,
   useState,
 } from 'react'
@@ -72,6 +74,11 @@ export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
   function handlePointerMove(e: PointerEvent<HTMLDivElement>) {
     const g = gesture.current
     if (!g || g.pointerId !== e.pointerId) return
+    // マウスのボタンがもう離されている（離したことが届かなかった）なら、ここで離したことにする
+    if (e.pointerType === 'mouse' && (e.buttons & 1) === 0) {
+      release(e.pointerId)
+      return
+    }
     const x = e.clientX - g.x
     const y = e.clientY - g.y
     g.dx = x
@@ -84,9 +91,10 @@ export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
     if (flipped && g.moved) setOffset({ x, y })
   }
 
-  function handlePointerUp(e: PointerEvent<HTMLDivElement>) {
+  /** 指を離したときの処理。離したときに申告が出ていれば、その申告にする */
+  function release(pointerId: number) {
     const g = gesture.current
-    if (!g || g.pointerId !== e.pointerId) return
+    if (!g || g.pointerId !== pointerId) return
     gesture.current = null
     lastGesture.current = g
     setOffset({ x: 0, y: 0 })
@@ -95,13 +103,43 @@ export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
     if (rating) onRate(rating)
   }
 
-  function handlePointerCancel(e: PointerEvent<HTMLDivElement>) {
-    // 無視している 2 本目の指の取り消しでは、1 本目の操作を止めない
-    if (!e.isPrimary) return
+  /** 操作を取り消す。カードは元の位置に戻し、申告しない */
+  function cancel() {
+    if (!gesture.current) return
     gesture.current = null
     lastGesture.current = null
     setOffset({ x: 0, y: 0 })
   }
+
+  function handlePointerCancel(e: PointerEvent<HTMLDivElement>) {
+    // 無視している 2 本目の指の取り消しでは、1 本目の操作を止めない
+    if (!e.isPrimary) return
+    cancel()
+  }
+
+  // カードの外やブラウザの外で離したときも、離したことを受け取る（カードが指に付いたまま残らないように）。
+  // カードの上で離したときは、カードの onPointerUp で済ませた後なので何もしない
+  const onWindowPointerUp = useEffectEvent((e: globalThis.PointerEvent) =>
+    release(e.pointerId),
+  )
+  const onWindowPointerCancel = useEffectEvent((e: globalThis.PointerEvent) => {
+    if (e.isPrimary) cancel()
+  })
+  // ほかのウィンドウに移ったら、離したことが届かないことがあるので取り消す
+  const onWindowBlur = useEffectEvent(() => cancel())
+  useEffect(() => {
+    const up = (e: globalThis.PointerEvent) => onWindowPointerUp(e)
+    const cancelled = (e: globalThis.PointerEvent) => onWindowPointerCancel(e)
+    const blur = () => onWindowBlur()
+    window.addEventListener('pointerup', up)
+    window.addEventListener('pointercancel', cancelled)
+    window.addEventListener('blur', blur)
+    return () => {
+      window.removeEventListener('pointerup', up)
+      window.removeEventListener('pointercancel', cancelled)
+      window.removeEventListener('blur', blur)
+    }
+  }, [])
 
   // 裏返すのは click で行う。指を離した時点（pointerup）で裏面に描き替えると、
   // 同じタップの click が裏面の同じ位置にあるボタン（報告など）に届いてしまうため
@@ -146,7 +184,7 @@ export function StudyCard({ flipped, front, back, onFlip, onRate }: Props) {
           tabIndex={flipped ? undefined : 0}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
+          onPointerUp={(e) => release(e.pointerId)}
           onPointerCancel={handlePointerCancel}
           onClick={handleClick}
           onKeyDown={handleKeyDown}
