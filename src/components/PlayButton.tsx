@@ -3,7 +3,7 @@ import styles from './PlayButton.module.css'
 
 type State = 'idle' | 'playing' | 'error'
 
-/** 大きさ。large は学習カードの表面、huge は音声の表面（単語の音声 → 解説、例文の音声 → 解説）に使う */
+/** 大きさ。large は学習カードの表面、huge は音声の表面（「単語の音声」、「例文の音声」）に使う */
 export type PlayButtonSize = 'normal' | 'large' | 'huge'
 
 const labels: Record<State, string> = {

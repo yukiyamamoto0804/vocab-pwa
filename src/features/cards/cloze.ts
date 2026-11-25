@@ -1,6 +1,6 @@
 import type { ItemRecord, Sense } from '../../db/types'
 
-// 日本語 → 解説の表面に出す、空欄の英文と太字の訳（docs/specs/study-cards.md 3 章「日本語 → 解説」）
+// 「例文の訳」の表面に出す、空欄の英文と太字の訳（docs/specs/study-cards.md 3 章「例文の訳」）
 
 /** 表示する文の一部。mark が true の部分を空欄（英文）や太字（訳）にする */
 export interface Segment {
@@ -71,7 +71,7 @@ export function highlightSegments(
   return segments ?? [{ text, mark: false }]
 }
 
-/** 日本語 → 解説の表面に使える用法の位置（例文の中に該当語が見つかるもの） */
+/** 「例文の訳」の表面に使える用法の位置（例文の中に該当語が見つかるもの） */
 export function clozeSenseIndexes(
   item: Pick<ItemRecord, 'word' | 'senses'>,
 ): number[] {

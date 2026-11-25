@@ -12,7 +12,7 @@ interface Props {
 }
 
 // 該当語を空欄にした英語の例文（docs/specs/study-cards.md 3 章）。
-// 例文の中に該当語が見つからなければ、空欄なしで出す（例文の音声 → 解説で起きうる。日本語 → 解説では、見つからない用法は使わない）
+// 例文の中に該当語が見つからなければ、空欄なしで出す（「例文の音声」で起きうる。「例文の訳」では、見つからない用法は使わない）
 export function ClozeText({ sense, word, className }: Props) {
   const segments = clozeSegments(sense, word) ?? [
     { text: sense.example, mark: false },

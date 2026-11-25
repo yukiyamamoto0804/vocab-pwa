@@ -15,7 +15,7 @@ interface Props {
   senseIndex: number
 }
 
-// 日本語 → 解説の表面（docs/specs/study-cards.md 3 章「日本語 → 解説」）。
+// 「例文の訳」の表面（docs/specs/study-cards.md 3 章「例文の訳」）。
 // 太字にした訳と、該当語を空欄にした英文を出す。ヒントは押したときだけ出す。
 // カードごとに置き直すので、ヒントは閉じた状態から始まる
 export function JaFront({ item, senseIndex }: Props) {

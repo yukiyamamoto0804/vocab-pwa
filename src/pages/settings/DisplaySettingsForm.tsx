@@ -10,7 +10,7 @@ import {
 import styles from './DisplaySettingsForm.module.css'
 
 interface DisplaySettings {
-  /** 例文の音声 → 解説で、空欄の英文を最初から表示するか（docs/specs/study-cards.md 3 章） */
+  /** 「例文の音声」で、空欄の英文を最初から表示するか（docs/specs/study-cards.md 3 章） */
   exampleTextShown: boolean
   /** 表面に例文を使う種類で、用法が複数ある単語の例文の選び方（docs/specs/study-cards.md 4 章） */
   frontSense: FrontSenseChoice
@@ -83,7 +83,7 @@ export function DisplaySettingsForm() {
             )
           }}
         />
-        例文の音声 → 解説で、例文を最初から表示する
+        「例文の音声」で、例文を最初から表示する
       </label>
       <p className={styles.note}>
         オフのときは、表面の「例文を表示」ボタンを押すと、該当語を空欄にした英文が出ます。
@@ -91,7 +91,7 @@ export function DisplaySettingsForm() {
 
       <fieldset className={styles.group}>
         <legend className={styles.legend}>
-          日本語 → 解説・例文の音声 → 解説で使う例文（用法が複数ある単語）
+          「例文の訳」・「例文の音声」で使う例文（用法が複数ある単語）
         </legend>
         <div className={styles.form}>
           {FRONT_SENSE_CHOICES.map((c) => (

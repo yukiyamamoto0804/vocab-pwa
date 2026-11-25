@@ -14,7 +14,7 @@ interface Props {
   initiallyShown: boolean
 }
 
-// 例文の音声 → 解説の表面（docs/specs/study-cards.md 3 章「例文の音声 → 解説」）。
+// 「例文の音声」の表面（docs/specs/study-cards.md 3 章「例文の音声」）。
 // 大きな再生ボタンと、聞き取る手がかりとして空欄の英文を出す「例文を表示」ボタンを置く。
 // カードごとに置き直すので、英文は設定どおりの状態（隠す・最初から出す）から始まる
 export function ExampleAudioFront({

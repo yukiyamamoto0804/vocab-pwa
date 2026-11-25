@@ -186,7 +186,7 @@ describe('loadMixItems / loadReviewItems', () => {
   })
 
   it('表面に必要なデータがない単語は、復習からも混ぜる単語からも除く', async () => {
-    // a だけ、例文に見出し語が出てくる（日本語 → 解説を作れる）
+    // a だけ、例文に見出し語が出てくる（「例文の訳」を作れる）
     await db.items.update(['p', 'a'], {
       senses: [{ meanings: [], example: 'An a.', exampleTranslation: '' }],
     })

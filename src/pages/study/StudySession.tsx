@@ -91,7 +91,7 @@ interface Props {
 interface DisplaySettings {
   /** 表面に例文を使う種類の例文の選び方（study-cards.md 4 章） */
   frontSenseChoice: FrontSenseChoice
-  /** 例文の音声 → 解説で、空欄の英文を最初から表示するか（study-cards.md 3 章） */
+  /** 「例文の音声」で、空欄の英文を最初から表示するか（study-cards.md 3 章） */
   exampleTextShown: boolean
 }
 
@@ -174,7 +174,7 @@ function StudySessionBody(props: Props & DisplaySettings) {
   /** 裏返した時刻。表面を素早く 2 回タップしたとき、2 回目が裏面のボタン（誤りの報告）に届かないようにする */
   const flippedAt = useRef(0)
   /**
-   * 表面に例文を使う種類（日本語 → 解説、例文の音声 → 解説）で、単語ごとに表面に使う用法。
+   * 表面に例文を使う種類（「例文の訳」、「例文の音声」）で、単語ごとに表面に使う用法。
    * 学習を始めるときに 1 回だけ選び、その回の学習の間（裏返す・出し直す）は同じ用法のままにする（study-cards.md 3 章）
    */
   const [frontSenses] = useState(
@@ -412,7 +412,7 @@ function StudySessionBody(props: Props & DisplaySettings) {
               initiallyShown={exampleTextShown}
             />
           ) : (
-            // 英語 → 解説と単語の音声 → 解説の表面。単語の音声 → 解説では、文字を出さず再生ボタンだけを大きく置く（study-cards.md 3 章）
+            // 「英単語」と「単語の音声」の表面。「単語の音声」では、文字を出さず再生ボタンだけを大きく置く（study-cards.md 3 章）
             <div className={styles.front}>
               {!audioOnly && (
                 <p className={styles.frontWord} lang="en">

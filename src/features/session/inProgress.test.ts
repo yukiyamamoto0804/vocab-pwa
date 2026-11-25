@@ -177,7 +177,7 @@ describe('loadResumable', () => {
         ...overrides,
       },
     })
-  // 用法 0 は例文に該当語がなく、日本語 → 解説の表面に使えない
+  // 用法 0 は例文に該当語がなく、「例文の訳」の表面に使えない
   const item = (id: string, order: number) => ({
     packId: 'p',
     id,

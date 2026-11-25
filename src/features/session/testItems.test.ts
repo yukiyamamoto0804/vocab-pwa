@@ -187,7 +187,7 @@ describe('loadTestCandidates', () => {
   it('範囲の単語のうち表面に必要なデータがあるものと、その学習状況を返す', async () => {
     const db = new VocabDatabase('test-candidates')
     try {
-      // 単語 1〜3 はユニット 1、4 はユニット 2。例文に見出し語が出てくる（日本語 → 解説を作れる）のは 1 と 2。学習済みは 2 と 3
+      // 単語 1〜3 はユニット 1、4 はユニット 2。例文に見出し語が出てくる（「例文の訳」を作れる）のは 1 と 2。学習済みは 2 と 3
       await db.items.bulkPut(
         [1, 2, 3, 4].map((n) => ({
           packId: 'p',

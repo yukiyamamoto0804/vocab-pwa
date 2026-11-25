@@ -19,7 +19,7 @@ describe('hasFaceData', () => {
     ...extra,
   })
 
-  it('英語 → 解説は、どの単語でも作れる', () => {
+  it('「英単語」は、どの単語でも作れる', () => {
     expect(hasFaceData(item(), 'en')).toBe(true)
   })
 
@@ -40,7 +40,7 @@ describe('hasFaceData', () => {
     ).toBe(true)
   })
 
-  it('日本語 → 解説は、例文の中に該当語が見つかる用法がある単語だけ', () => {
+  it('「例文の訳」は、例文の中に該当語が見つかる用法がある単語だけ', () => {
     expect(hasFaceData(item(), 'ja')).toBe(true)
     expect(hasFaceData(item({ senses: [sense('A flight.')] }), 'ja')).toBe(
       false,
@@ -51,10 +51,10 @@ describe('hasFaceData', () => {
 describe('skippedNotice / noFaceDataMessage', () => {
   it('出さない単語があるときだけ、数と理由を知らせる', () => {
     expect(skippedNotice(3, 'ja')).toBe(
-      '3 語は、日本語 → 解説に必要なデータがないため出しません。',
+      '3 語は、「例文の訳」に必要なデータがないため出しません。',
     )
     expect(skippedNotice(2, 'word-audio')).toBe(
-      '2 語は、単語の音声 → 解説に使う音声がないため出しません。',
+      '2 語は、「単語の音声」に使う音声がないため出しません。',
     )
     expect(skippedNotice(0, 'ja')).toBeUndefined()
   })
@@ -72,7 +72,7 @@ describe('pickFrontSense', () => {
     exampleTranslation: '',
   })
 
-  it('日本語 → 解説は、例文に該当語が見つかる用法から選ぶ', () => {
+  it('「例文の訳」は、例文に該当語が見つかる用法から選ぶ', () => {
     const item = {
       word: 'light',
       senses: [sense('No match.'), sense('A light bag.')],
@@ -80,7 +80,7 @@ describe('pickFrontSense', () => {
     expect(pickFrontSense(item, 'ja', 'random', () => 0)).toBe(1)
   })
 
-  it('例文の音声 → 解説は、例文の音声がある用法から選ぶ', () => {
+  it('「例文の音声」は、例文の音声がある用法から選ぶ', () => {
     const item = {
       word: 'light',
       senses: [

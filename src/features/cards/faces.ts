@@ -17,10 +17,10 @@ export const FACE_OPTIONS: readonly Face[] = [
 export const DEFAULT_FACE: Face = 'en'
 
 export const FACE_LABELS: Record<Face, string> = {
-  en: '英語 → 解説',
-  ja: '日本語 → 解説',
-  'word-audio': '単語の音声 → 解説',
-  'example-audio': '例文の音声 → 解説',
+  en: '英単語',
+  ja: '例文の訳',
+  'word-audio': '単語の音声',
+  'example-audio': '例文の音声',
 }
 
 /** 音声の表面か */
@@ -49,7 +49,7 @@ export function hasFaceData(
 
 /**
  * 表面に例文を使う種類で、表面に使う用法を選ぶ（学習を始めるときに単語ごとに 1 回）。
- * 日本語 → 解説は例文に該当語が見つかる用法から、例文の音声 → 解説は例文の音声がある用法から選ぶ。
+ * 「例文の訳」は例文に該当語が見つかる用法から、「例文の音声」は例文の音声がある用法から選ぶ。
  * 選び方（設定）が first ならいちばん前のもの、random ならランダムに選ぶ（study-cards.md 4 章）
  */
 export function pickFrontSense(
@@ -63,7 +63,7 @@ export function pickFrontSense(
   return candidates[Math.floor(random() * candidates.length)] ?? 0
 }
 
-/** 表面に使える用法の位置（日本語 → 解説は例文に該当語が見つかるもの、例文の音声 → 解説は例文の音声があるもの） */
+/** 表面に使える用法の位置（「例文の訳」は例文に該当語が見つかるもの、「例文の音声」は例文の音声があるもの） */
 export function frontSenseCandidates(
   item: Pick<ItemRecord, 'word' | 'senses'>,
   face: 'ja' | 'example-audio',
@@ -74,11 +74,11 @@ export function frontSenseCandidates(
   )
 }
 
-/** 出さない理由 */
+/** 出さない理由。表面の名前は「」で囲み、文と切り分ける（例: 「単語の音声」に使う音声がない） */
 function skipReason(face: Face): string {
   return isAudioFace(face)
-    ? `${FACE_LABELS[face]}に使う音声がない`
-    : `${FACE_LABELS[face]}に必要なデータがない`
+    ? `「${FACE_LABELS[face]}」に使う音声がない`
+    : `「${FACE_LABELS[face]}」に必要なデータがない`
 }
 
 /** 表面に必要なデータがなくて出さない単語があるときのお知らせ。なければ undefined */
@@ -94,6 +94,6 @@ export function skippedNotice(
 /** 対象の単語がすべて、表面に必要なデータがなくて出せないときのお知らせ */
 export function noFaceDataMessage(face: Face): string {
   return isAudioFace(face)
-    ? `選んだ表面（${FACE_LABELS[face]}）で出題できる単語がありません。音声のある単語がないためです。表面を変えてください。`
-    : `選んだ表面（${FACE_LABELS[face]}）で出題できる単語がありません。表面を変えてください。`
+    ? `選んだ表面「${FACE_LABELS[face]}」で出題できる単語がありません。音声のある単語がないためです。表面を変えてください。`
+    : `選んだ表面「${FACE_LABELS[face]}」で出題できる単語がありません。表面を変えてください。`
 }

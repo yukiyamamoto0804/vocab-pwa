@@ -129,7 +129,7 @@ export async function saveLastFace(
 const EXAMPLE_TEXT_SHOWN_KEY = 'exampleTextShown'
 
 /**
- * 例文の音声 → 解説で、空欄の英文を最初から表示するか（docs/specs/study-cards.md 3 章）。アプリ全体で 1 つ。
+ * 「例文の音声」で、空欄の英文を最初から表示するか（docs/specs/study-cards.md 3 章）。アプリ全体で 1 つ。
  * 保存していない・形の違う値なら false（ボタンを押して表示する）
  */
 export async function getExampleTextShown(
@@ -175,7 +175,7 @@ export function isBackedUpSettingKey(key: string): boolean {
 }
 
 /**
- * 表面に例文を使う種類（日本語 → 解説、例文の音声 → 解説）で、用法が複数ある単語の例文の選び方
+ * 表面に例文を使う種類（「例文の訳」、「例文の音声」）で、用法が複数ある単語の例文の選び方
  * （docs/specs/study-cards.md 4 章）。first: 使える用法のうちいちばん前のもの、random: 使える用法からランダム
  */
 export const FRONT_SENSE_CHOICES = ['random', 'first'] as const

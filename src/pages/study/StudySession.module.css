@@ -80,7 +80,7 @@
   margin: 0 -20px;
 }
 
-/* 単語の音声 → 解説では、再生ボタンが主役になるので帯も広くする（例文の音声 → 解説は ExampleAudioFront） */
+/* 「単語の音声」では、再生ボタンが主役になるので帯も広くする（「例文の音声」は ExampleAudioFront） */
 .audioBand[data-audio-only="true"] {
   min-height: 160px;
 }
